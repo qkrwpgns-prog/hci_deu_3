@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>조별과제 협업 서비스 (가칭)</title>
+<meta name="description" content="회의 시간 잡기부터 진행 상황 공유까지, 조별과제를 한눈에.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  /* ───────── 색상 (여기만 바꾸면 전체 색이 바뀌어요) ───────── */
+  :root {
+    --bg: #f5f5f7;          /* 페이지 배경: 아주 옅은 회색 */
+    --card: #ffffff;        /* 카드 */
+    --ink: #1d1d1f;         /* 본문 글자 */
+    --muted: #6e6e73;       /* 보조 글자 */
+    --line: #d2d2d7;
+    --link: #0066cc;        /* 링크 파랑 */
+    --main: #1d1d1f;
+    --on-main: #ffffff;
+    --nav: rgba(250, 250, 252, .8);
+    --shadow: 0 4px 18px rgba(0, 0, 0, .06);
+    --shadow-hover: 0 12px 34px rgba(0, 0, 0, .12);
+
+    /* 포인트 색 */
+    --yellow: #ffd43b; --blue: #4dabf7; --pink: #ff8fab; --green: #38d9a9; --purple: #9775fa;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #000000; --card: #161617; --ink: #f5f5f7; --muted: #a1a1a6; --line: #424245;
+      --link: #2997ff; --main: #f5f5f7; --on-main: #1d1d1f; --nav: rgba(22, 22, 23, .8);
+      --shadow: none; --shadow-hover: 0 12px 34px rgba(0, 0, 0, .6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #000000; --card: #161617; --ink: #f5f5f7; --muted: #a1a1a6; --line: #424245;
+    --link: #2997ff; --main: #f5f5f7; --on-main: #1d1d1f; --nav: rgba(22, 22, 23, .8);
+    --shadow: none; --shadow-hover: 0 12px 34px rgba(0, 0, 0, .6);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--ink);
+    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", system-ui, sans-serif;
+    line-height: 1.5; letter-spacing: -.01em; word-break: keep-all;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 1200px; margin: 0 auto; padding: 0 22px; }
+  .link { color: var(--link); font-size: 15px; }
+  .link:hover { text-decoration: underline; }
+
+  /* ───────── 상단 내비게이션 ───────── */
+  nav {
+    position: sticky; top: 0; z-index: 20; height: 48px;
+    background: var(--nav); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
+  }
+  nav .wrap { height: 100%; display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-weight: 700; font-size: 15px; display: flex; align-items: center; gap: 7px; }
+  .logo-dots { display: flex; gap: 2px; }
+  .logo-dots i { width: 7px; height: 7px; border-radius: 50%; }
+  .nav-links { display: flex; gap: 28px; font-size: 13px; color: var(--muted); }
+  .nav-links a:hover { color: var(--ink); }
+
+  /* ───────── 첫 화면 ───────── */
+  .hero { padding: 72px 0 40px; display: flex; justify-content: space-between; align-items: flex-end; gap: 24px; flex-wrap: wrap; }
+  .hero h1 { font-size: clamp(40px, 7vw, 80px); font-weight: 700; line-height: 1.05; letter-spacing: -.04em; }
+  .hero h1 span { color: var(--muted); }
+  .hero-side { font-size: 15px; color: var(--muted); max-width: 260px; }
+  .hero-side b { color: var(--ink); font-weight: 600; display: block; margin-bottom: 4px; }
+
+  /* 아이콘 줄 */
+  .icons { display: flex; gap: 28px; overflow-x: auto; padding: 28px 22px 40px; margin: 0 -22px; scrollbar-width: none; }
+  .icons::-webkit-scrollbar { display: none; }
+  .icon-item { flex: none; width: 104px; text-align: center; font-size: 14px; font-weight: 500; }
+  .icon-item .ic { width: 72px; height: 72px; border-radius: 20px; margin: 0 auto 10px; display: grid; place-items: center; font-size: 32px; transition: transform .2s; }
+  .icon-item:hover .ic { transform: scale(1.06); }
+  .icon-item small { display: block; font-size: 11px; color: var(--muted); font-weight: 400; margin-top: 2px; }
+
+  /* ───────── 섹션 제목 ───────── */
+  .shelf { padding: 32px 0 24px; }
+  .shelf h2 { font-size: clamp(24px, 3.4vw, 32px); font-weight: 700; letter-spacing: -.02em; margin-bottom: 4px; }
+  .shelf h2 span { color: var(--muted); }
+
+  /* ───────── 가로 스크롤 카드 ───────── */
+  .rail-wrap { position: relative; }
+  .rail {
+    display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory;
+    padding: 24px 22px 40px; margin: 0 -22px; scroll-padding: 0 22px; scrollbar-width: none;
+  }
+  .rail::-webkit-scrollbar { display: none; }
+  .tile {
+    flex: none; scroll-snap-align: start;
+    background: var(--card); border-radius: 18px; box-shadow: var(--shadow);
+    transition: transform .3s cubic-bezier(0, 0, .5, 1), box-shadow .3s;
+    overflow: hidden; display: flex; flex-direction: column;
+  }
+  .tile:hover { transform: scale(1.015); box-shadow: var(--shadow-hover); }
+  .tile.big { width: 400px; height: 500px; }
+  .tile.small { width: 313px; height: 260px; padding: 30px; }
+  .tile .text { padding: 30px 30px 0; }
+  .tile .eyebrow { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .02em; margin-bottom: 6px; }
+  .tile h3 { font-size: 26px; font-weight: 700; line-height: 1.2; letter-spacing: -.02em; margin-bottom: 8px; }
+  .tile p { font-size: 15px; color: var(--muted); }
+  .tile .visual { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px 30px 34px; }
+  .tile.dark { background: #1d1d1f; color: #f5f5f7; }
+  .tile.dark p { color: #a1a1a6; }
+
+  .arrows { display: flex; justify-content: flex-end; gap: 12px; margin-top: -24px; padding-bottom: 8px; }
+  .arrows button {
+    width: 36px; height: 36px; border-radius: 50%; border: 0; cursor: pointer;
+    background: color-mix(in srgb, var(--ink) 8%, transparent); color: var(--ink); font-size: 16px;
+  }
+  .arrows button:hover { background: color-mix(in srgb, var(--ink) 14%, transparent); }
+
+  /* 카드 안 그림들 */
+  .slots { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; width: 100%; }
+  .slots i { height: 30px; border-radius: 8px; background: color-mix(in srgb, var(--blue) 18%, transparent); }
+  .slots i.on { background: var(--blue); }
+  .slots i.best { background: var(--ink); }
+  .pill { margin-top: 14px; display: inline-block; font-size: 13px; font-weight: 600; background: color-mix(in srgb, var(--yellow) 30%, transparent); padding: 6px 12px; border-radius: 99px; }
+
+  .bars { width: 100%; display: flex; flex-direction: column; gap: 14px; }
+  .bar-row { display: grid; grid-template-columns: 64px 1fr 44px; gap: 10px; align-items: center; font-size: 13px; color: var(--muted); }
+  .bar { height: 10px; border-radius: 99px; background: color-mix(in srgb, var(--green) 18%, transparent); overflow: hidden; }
+  .bar i { display: block; height: 100%; border-radius: 99px; background: var(--green); }
+  .bar-row b { font-size: 12px; font-weight: 600; color: var(--ink); text-align: right; }
+
+  .bubbles { display: flex; flex-direction: column; gap: 8px; width: 100%; font-size: 14px; }
+  .bubble { align-self: flex-start; background: #2c2c2e; color: #f5f5f7; padding: 9px 14px; border-radius: 18px 18px 18px 4px; }
+  .bubble.me { align-self: flex-end; background: var(--purple); color: #fff; border-radius: 18px 18px 4px 18px; }
+  .bubble.fade { opacity: .45; }
+
+  .stack { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+  .course { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border-radius: 12px; background: color-mix(in srgb, var(--ink) 5%, transparent); font-size: 14px; }
+  .course span { font-size: 12px; color: var(--muted); }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 8px; }
+
+  /* 작은 카드 (고충) */
+  .tile.small .emoji { font-size: 34px; margin-bottom: auto; }
+  .tile.small h3 { font-size: 21px; margin-top: 18px; }
+
+  /* 시작하기 단계 */
+  .step-n { font-size: 56px; font-weight: 800; line-height: 1; margin-bottom: auto; letter-spacing: -.04em; }
+
+  /* ───────── 사전 신청 ───────── */
+  .cta { text-align: center; padding: 96px 0 80px; }
+  .cta h2 { font-size: clamp(32px, 5vw, 56px); font-weight: 700; letter-spacing: -.03em; line-height: 1.1; margin-bottom: 14px; }
+  .cta p { color: var(--muted); font-size: 19px; margin-bottom: 30px; }
+  .btn { display: inline-block; background: var(--main); color: var(--on-main); font-size: 17px; font-weight: 500; border: 0; border-radius: 99px; padding: 12px 26px; cursor: pointer; }
+  .btn:hover { opacity: .85; }
+  .cta .link { display: inline-block; margin-left: 22px; font-size: 17px; }
+  #toast { margin-top: 18px; font-size: 14px; color: var(--muted); min-height: 21px; }
+
+  footer { border-top: 1px solid var(--line); padding: 20px 0 40px; font-size: 12px; color: var(--muted); }
+
+  /* ───────── 모바일 ───────── */
+  @media (max-width: 734px) {
+    .nav-links { display: none; }
+    .hero { padding: 40px 0 16px; }
+    .hero-side { max-width: none; }
+    .tile.big { width: 300px; height: 440px; }
+    .tile.small { width: 270px; height: 240px; padding: 26px; }
+    .tile .text { padding: 26px 26px 0; }
+    .tile h3 { font-size: 23px; }
+    .arrows { display: none; }
+    .cta .link { display: block; margin: 18px 0 0; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a href="#" class="logo">
+      <span class="logo-dots"><i style="background:var(--yellow)"></i><i style="background:var(--blue)"></i><i style="background:var(--pink)"></i></span>
+      <span class="service-name"></span>
+    </a>
+    <div class="nav-links">
+      <a href="#features">기능</a>
+      <a href="#pains">고민</a>
+      <a href="#how">시작하기</a>
+      <a href="#start">사전 신청</a>
+    </div>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <!-- 1. 첫 화면 -->
+  <section class="hero">
+    <h1>조별과제.<br><span>덜 지치게 끝내는<br>가장 쉬운 방법.</span></h1>
+    <div class="hero-side">
+      <b>설치 없이 링크로 시작해요.</b>
+      카카오 로그인 한 번이면 우리 조에 바로 들어올 수 있어요.<br>
+      <a href="#start" class="link">사전 신청하기 ›</a>
+    </div>
+  </section>
+
+  <div class="icons">
+    <a href="#features" class="icon-item"><div class="ic" style="background:color-mix(in srgb, var(--blue) 22%, transparent)">📅</div>일정 조율</a>
+    <a href="#features" class="icon-item"><div class="ic" style="background:color-mix(in srgb, var(--green) 22%, transparent)">📊</div>진행 상황</a>
+    <a href="#features" class="icon-item"><div class="ic" style="background:color-mix(in srgb, var(--yellow) 30%, transparent)">📚</div>여러 과목</a>
+    <a href="#features" class="icon-item"><div class="ic" style="background:color-mix(in srgb, var(--pink) 22%, transparent)">🙋</div>역할 정하기<small>곧 출시</small></a>
+    <a href="#features" class="icon-item"><div class="ic" style="background:color-mix(in srgb, var(--purple) 22%, transparent)">📁</div>파일 공유<small>곧 출시</small></a>
+  </div>
+
+  <!-- 2. 기능 -->
+  <section id="features">
+    <div class="shelf"><h2>새로운 방식. <span>조별과제를 바꿀 기능들.</span></h2></div>
+    <div class="rail-wrap">
+      <div class="rail" id="rail-features">
+        <article class="tile big">
+          <div class="text">
+            <div class="eyebrow" style="color:var(--blue)">일정 조율</div>
+            <h3>체크만 하면, 겹치는 시간을 찾아줘요.</h3>
+            <p>"저는 화요일이요"가 쌓이는 단톡방은 이제 그만.</p>
+          </div>
+          <div class="visual" style="flex-direction:column">
+            <div class="slots" aria-hidden="true">
+              <i></i><i class="on"></i><i></i><i class="on"></i><i></i>
+              <i class="on"></i><i></i><i class="on"></i><i class="best"></i><i class="on"></i>
+              <i></i><i class="on"></i><i></i><i></i><i class="on"></i>
+              <i class="on"></i><i></i><i></i><i class="on"></i><i></i>
+            </div>
+            <span class="pill">추천 · 목요일 19시 모두 가능</span>
+          </div>
+        </article>
+
+        <article class="tile big">
+          <div class="text">
+            <div class="eyebrow" style="color:var(--green)">진행 상황</div>
+            <h3>묻지 않아도, 모두의 진도가 보여요.</h3>
+            <p>버튼 한 번으로 공유하고, 기록은 자동으로 남아요.</p>
+          </div>
+          <div class="visual">
+            <div class="bars" aria-hidden="true">
+              <div class="bar-row"><span>시장 분석</span><div class="bar"><i style="width:100%"></i></div><b>제출</b></div>
+              <div class="bar-row"><span>타깃</span><div class="bar"><i style="width:70%"></i></div><b>초안</b></div>
+              <div class="bar-row"><span>4P 전략</span><div class="bar"><i style="width:40%"></i></div><b>진행 중</b></div>
+              <div class="bar-row"><span>결론</span><div class="bar"><i style="width:10%"></i></div><b>시작</b></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="tile big dark">
+          <div class="text">
+            <div class="eyebrow" style="color:var(--purple)">말하지 않아도 돼요</div>
+            <h3>"안 돼요"는 체크 한 번으로.</h3>
+            <p>누가 안 되는지, 누가 제안했는지 드러나지 않아요.</p>
+          </div>
+          <div class="visual">
+            <div class="bubbles" aria-hidden="true">
+              <div class="bubble fade">목요일 3시 어때요?</div>
+              <div class="bubble me fade">죄송한데 저 그 시간에 수업이…</div>
+              <div class="bubble">✓ 가능한 시간만 체크했어요</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="tile big">
+          <div class="text">
+            <div class="eyebrow" style="color:#d9a400">여러 과목 한눈에</div>
+            <h3>다섯 과목도, 홈 화면 하나로.</h3>
+            <p>다음 회의와 내 마감만 모아서 보여줘요.</p>
+          </div>
+          <div class="visual">
+            <div class="stack" aria-hidden="true">
+              <div class="course"><div><i class="dot" style="background:var(--blue)"></i>마케팅원론</div><span>목 19:00 회의</span></div>
+              <div class="course"><div><i class="dot" style="background:var(--pink)"></i>경영통계</div><span>D-3 내 마감</span></div>
+              <div class="course"><div><i class="dot" style="background:var(--green)"></i>미디어와 사회</div><span>일정 조율 중</span></div>
+            </div>
+          </div>
+        </article>
+      </div>
+      <div class="arrows"><button data-rail="rail-features" data-dir="-1" aria-label="이전">‹</button><button data-rail="rail-features" data-dir="1" aria-label="다음">›</button></div>
+    </div>
+  </section>
+
+  <!-- 3. 고민 -->
+  <section id="pains">
+    <div class="shelf"><h2>고민. <span>이런 적, 있지 않나요?</span></h2></div>
+    <div class="rail-wrap">
+      <div class="rail" id="rail-pains">
+        <article class="tile small"><div class="emoji">📅</div><h3>회의 시간 잡는 데 닷새.</h3><p>단톡방은 쌓이는데 아무도 정리하지 않아요.</p></article>
+        <article class="tile small"><div class="emoji">👀</div><h3>누가 어디까지 했지?</h3><p>팀장은 일일이 묻고, 팀원은 눈치를 봐요.</p></article>
+        <article class="tile small"><div class="emoji">🙊</div><h3>"안 돼요"가 어려워요.</h3><p>모두가 보는 곳에서 말하기 부담스러워요.</p></article>
+        <article class="tile small"><div class="emoji">🔔</div><h3>알림 백 개, 놓친 일정.</h3><p>바뀐 회의 시간을 못 보고 지나쳐요.</p></article>
+      </div>
+      <div class="arrows"><button data-rail="rail-pains" data-dir="-1" aria-label="이전">‹</button><button data-rail="rail-pains" data-dir="1" aria-label="다음">›</button></div>
+    </div>
+  </section>
+
+  <!-- 4. 시작하기 -->
+  <section id="how">
+    <div class="shelf"><h2>시작하기. <span>링크 하나면 충분해요.</span></h2></div>
+    <div class="rail">
+      <article class="tile small"><div class="step-n" style="color:var(--yellow)">1</div><h3>팀 만들기</h3><p>과목 이름만 입력하면 초대 링크가 생겨요.</p></article>
+      <article class="tile small"><div class="step-n" style="color:var(--pink)">2</div><h3>단톡방에 공유</h3><p>평소 쓰던 단톡방에 링크만 올려요.</p></article>
+      <article class="tile small"><div class="step-n" style="color:var(--blue)">3</div><h3>카카오로 입장</h3><p>설치도, 새 가입도 필요 없어요.</p></article>
+    </div>
+  </section>
+
+  <!-- 5. 사전 신청 -->
+  <section class="cta" id="start">
+    <h2>다음 조별과제는<br>여기서 시작해요.</h2>
+    <p>지금 준비 중이에요. 가장 먼저 써 보세요.</p>
+    <button class="btn" id="signup">사전 신청하기</button>
+    <a href="#features" class="link">기능 더 알아보기 ›</a>
+    <div id="toast" aria-live="polite"></div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">© 2026 <span class="service-name"></span> (가칭) · 대학생 조별과제 협업 서비스</div>
+</footer>
+
+<script>
+  // ───────── 서비스 이름: 여기 한 곳만 바꾸면 페이지 전체에 반영돼요 ─────────
+  const SERVICE_NAME = "조별과제 협업 서비스";
+  document.querySelectorAll(".service-name").forEach(el => el.textContent = SERVICE_NAME);
+
+  // 카드 좌우 넘기기 버튼
+  document.querySelectorAll(".arrows button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const rail = document.getElementById(btn.dataset.rail);
+      rail.scrollBy({ left: Number(btn.dataset.dir) * rail.clientWidth * 0.8, behavior: "smooth" });
+    });
+  });
+
+  // 사전 신청 버튼 (데모용 안내 문구)
+  document.getElementById("signup").addEventListener("click", () => {
+    document.getElementById("toast").textContent = "준비 중이에요! 곧 신청을 받을게요 🙌";
+  });
+</script>
+</body>
+</html>
