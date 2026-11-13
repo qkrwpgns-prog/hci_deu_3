@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>팀플 서비스</title>
+<meta name="description" content="조별과제를 하는 대학생을 위한 일정 조율·진행 공유·피드백 모바일 웹 서비스입니다.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700&family=IBM+Plex+Sans+KR:wght@300;400;500;700&display=swap">
+<style>
+/* Layout: 비즈니스 리포트 무드. 짙은 잉크색 히어로·마무리 밴드 + 밝은 본문, 세리프 제목, 얇은 구분선, 민트는 강조에만 씁니다. */
+:root {
+  --bg: #f4f6f6;
+  --surface: #ffffff;
+  --ink: #0e1a1d;
+  --muted: #5a6a6e;
+  --line: #dfe5e5;
+  --accent: #0a8a75;    /* 메인 컬러: 민트 */
+  --on-accent: #ffffff;
+  --quote-bg: #eef6f4;
+  --band: #0c1719;      /* 히어로·마무리 밴드 */
+  --band-ink: #eef4f3;
+  --band-muted: #93a7a5;
+  --band-line: #22343a;
+  --band-accent: #4fd8bd;
+  --lead: #2e7d5b;      /* 팀장형 */
+  --early: #3b63c4;     /* 미리 하는 팀원형 */
+  --late: #b9532c;      /* 마감형 팀원 */
+  --cell0: #e7ecec;
+  --font-display: "Noto Serif KR", "AppleMyungjo", "Batang", serif;
+  --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0b1214; --surface: #121c1f; --ink: #e7eeed; --muted: #94a5a4; --line: #23323a;
+    --accent: #4fd8bd; --on-accent: #08201b; --quote-bg: #12221f;
+    --band: #060c0d; --band-ink: #eef4f3; --band-muted: #8fa3a1; --band-line: #1c2b2f; --band-accent: #4fd8bd;
+    --lead: #5fc497; --early: #86a6ff; --late: #ff9468; --cell0: #1f2a2e;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0b1214; --surface: #121c1f; --ink: #e7eeed; --muted: #94a5a4; --line: #23323a;
+  --accent: #4fd8bd; --on-accent: #08201b; --quote-bg: #12221f;
+  --band: #060c0d; --band-ink: #eef4f3; --band-muted: #8fa3a1; --band-line: #1c2b2f; --band-accent: #4fd8bd;
+  --lead: #5fc497; --early: #86a6ff; --late: #ff9468; --cell0: #1f2a2e;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-text-size-adjust: 100%;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.wrap {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+}
+h1, h2, h3 { font-family: var(--font-display); font-weight: 700; line-height: 1.3; letter-spacing: -.02em; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2rem, 6.4vw, 3.4rem); }
+h2 { font-size: clamp(1.55rem, 4.4vw, 2.2rem); }
+h3 { font-size: 1.18rem; }
+p { margin: 0; }
+.eyebrow { display: flex; gap: 10px; align-items: center; font-size: .74rem; font-weight: 500; letter-spacing: .16em; color: var(--accent); }
+.eyebrow::before { content: ""; width: 24px; height: 1px; background: currentColor; }
+.eyebrow b { font-weight: 700; }
+.eyebrow span { letter-spacing: .04em; color: var(--muted); }
+.lead { color: var(--muted); max-width: 36em; font-weight: 300; font-size: 1.02rem; }
+section { padding-block: 88px; }
+.section-head { display: grid; gap: 14px; margin-bottom: 44px; max-width: 42em; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+
+/* 상단 바 */
+.topbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--band); border-bottom: 1px solid var(--band-line); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 21; background: var(--band); }
+.topbar .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; gap: 12px; }
+.logo { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; color: var(--band-ink); text-decoration: none; letter-spacing: -.01em; display: flex; align-items: center; gap: 10px; }
+.logo i { width: 10px; height: 10px; background: var(--band-accent); border-radius: 2px; transform: rotate(45deg); }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  min-height: 50px; padding: 0 24px; border-radius: 6px; border: 1px solid transparent;
+  background: var(--accent); color: var(--on-accent); font: 500 .98rem var(--font-body);
+  letter-spacing: .01em; cursor: pointer; text-decoration: none;
+}
+.btn::after { content: "→"; font-weight: 300; }
+.btn.small { min-height: 38px; padding: 0 16px; font-size: .85rem; }
+.btn.small::after { content: none; }
+.btn.ghost { background: transparent; color: var(--band-ink); border-color: var(--band-line); }
+.btn.ghost::after { content: none; }
+.band .btn { background: var(--band-accent); color: #08201b; }
+.band .btn.ghost { background: transparent; color: var(--band-ink); }
+@media (prefers-reduced-motion: no-preference) {
+  .btn { transition: transform .15s, filter .15s; }
+  .btn:hover { filter: brightness(1.06); transform: translateY(-1px); }
+}
+
+/* 어두운 밴드 (히어로, 마무리) */
+.band { background: var(--band); color: var(--band-ink); }
+.band .lead { color: var(--band-muted); }
+.band .eyebrow { color: var(--band-accent); }
+
+/* 히어로 */
+.hero { padding-block: 64px 0; }
+.hero-grid { display: grid; gap: 56px; align-items: center; padding-bottom: 64px; }
+@media (min-width: 880px) { .hero-grid { grid-template-columns: 1.15fr .85fr; } }
+.hero-copy { display: grid; gap: 24px; min-width: 0; }
+.hero h1 em { font-style: normal; color: var(--band-accent); }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.hero-note { font-size: .84rem; color: var(--band-muted); }
+
+/* 지표 띠 */
+.metrics { display: grid; grid-template-columns: repeat(2, 1fr); border-top: 1px solid var(--band-line); }
+@media (min-width: 760px) { .metrics { grid-template-columns: repeat(4, 1fr); } }
+.metric { padding: 24px 16px 28px 0; display: grid; gap: 4px; border-bottom: 1px solid var(--band-line); }
+@media (min-width: 760px) { .metric { border-bottom: 0; } .metric + .metric { border-left: 1px solid var(--band-line); padding-left: 24px; } }
+.metric b { font-family: var(--font-display); font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 500; color: var(--band-ink); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }
+.metric b small { font-size: .55em; color: var(--band-accent); margin-left: 2px; }
+.metric span { font-size: .8rem; color: var(--band-muted); }
+
+/* 휴대폰 목업 */
+.phone {
+  justify-self: center; width: min(310px, 100%);
+  background: var(--surface); color: var(--ink); border-radius: 34px;
+  padding: 18px 16px 20px; border: 6px solid #1c2a2d;
+  box-shadow: 0 40px 80px -40px rgba(0,0,0,.7), 0 0 0 1px var(--band-line);
+}
+.phone-bar { display: flex; justify-content: space-between; font-size: .72rem; color: var(--muted); padding: 0 6px 12px; }
+.phone h3 { font-size: 1.15rem; padding: 0 6px 2px; }
+.phone .sub { font-size: .76rem; color: var(--muted); padding: 0 6px 14px; }
+.task { border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: grid; gap: 8px; margin-bottom: 8px; }
+.task-top { display: flex; justify-content: space-between; gap: 8px; font-size: .88rem; font-weight: 500; }
+.due { font-size: .72rem; font-weight: 700; color: var(--late); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.due.ok { color: var(--muted); font-weight: 500; }
+.steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; }
+.steps i { height: 4px; border-radius: 2px; background: var(--cell0); }
+.steps i.on { background: var(--accent); }
+.task-meta { font-size: .74rem; color: var(--muted); }
+.chip { display: inline-block; font-size: .68rem; font-weight: 500; padding: 1px 8px; border-radius: 3px; border: 1px solid currentColor; letter-spacing: .02em; }
+.phone-cta { margin-top: 8px; width: 100%; min-height: 44px; }
+
+/* 문제 */
+.problems { display: grid; grid-template-columns: 1fr; border-top: 1px solid var(--line); }
+@media (min-width: 680px) { .problems { grid-template-columns: 1fr 1fr; } }
+.problem { padding: 32px 0; display: grid; gap: 14px; align-content: start; border-bottom: 1px solid var(--line); }
+@media (min-width: 680px) {
+  .problem:nth-child(odd) { padding-right: 36px; }
+  .problem:nth-child(even) { padding-left: 36px; border-left: 1px solid var(--line); }
+}
+.problem .num { font-size: .78rem; font-weight: 500; color: var(--accent); letter-spacing: .1em; font-variant-numeric: tabular-nums; }
+.problem p { color: var(--muted); font-size: .95rem; font-weight: 300; }
+.quote {
+  margin: 6px 0 0; padding: 14px 18px; background: var(--quote-bg);
+  border-left: 2px solid var(--accent);
+  font-family: var(--font-display); font-weight: 500; font-size: .98rem; line-height: 1.6; color: var(--ink);
+}
+.quote cite { display: block; font-family: var(--font-body); font-style: normal; font-size: .74rem; font-weight: 400; color: var(--muted); margin-top: 8px; letter-spacing: .04em; }
+
+/* 기능 */
+.features { display: grid; gap: 72px; }
+.feature { display: grid; gap: 28px; align-items: center; }
+@media (min-width: 880px) { .feature { grid-template-columns: 1fr 1fr; gap: 64px; } .feature:nth-child(even) .feature-copy { order: 2; } }
+.feature-copy { display: grid; gap: 14px; min-width: 0; }
+.feature-copy .tag-line { font-size: .78rem; color: var(--accent); font-weight: 500; letter-spacing: .1em; }
+.feature-copy ul { margin: 6px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; border-top: 1px solid var(--line); padding-top: 14px; }
+.feature-copy li { display: grid; grid-template-columns: 16px 1fr; gap: 8px; color: var(--muted); font-size: .93rem; }
+.feature-copy li::before { content: ""; width: 6px; height: 6px; margin-top: .65em; background: var(--accent); border-radius: 1px; }
+.demo { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 22px; min-width: 0; box-shadow: 0 20px 40px -32px rgba(14,26,29,.35); }
+.demo-label { font-size: .74rem; color: var(--muted); letter-spacing: .04em; margin-bottom: 14px; display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.demo-label b { color: var(--ink); font-weight: 500; }
+
+/* 시간 체크 데모 */
+.grid-wrap { overflow-x: auto; }
+.when { display: grid; grid-template-columns: 44px repeat(5, minmax(44px, 1fr)); gap: 3px; min-width: 300px; }
+.when .h { font-size: .72rem; color: var(--muted); text-align: center; align-self: end; padding-bottom: 4px; }
+.when .t { font-size: .72rem; color: var(--muted); text-align: right; padding-right: 8px; align-self: center; font-variant-numeric: tabular-nums; }
+.cell {
+  height: 38px; border-radius: 4px; border: 2px solid transparent; cursor: pointer;
+  background: var(--cell0); font: 500 .68rem var(--font-body); color: var(--ink);
+}
+.cell[data-n="1"] { background: color-mix(in srgb, var(--accent) 20%, var(--cell0)); }
+.cell[data-n="2"] { background: color-mix(in srgb, var(--accent) 42%, var(--cell0)); }
+.cell[data-n="3"] { background: color-mix(in srgb, var(--accent) 68%, var(--cell0)); color: var(--on-accent); }
+.cell[data-n="4"] { background: var(--accent); color: var(--on-accent); }
+.cell.mine { border-color: var(--ink); }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); font-size: .82rem; color: var(--muted); }
+.result { font-weight: 500; color: var(--ink); }
+
+/* 진행 단계 데모 */
+.pipeline { display: grid; gap: 12px; }
+.row { display: grid; grid-template-columns: 56px 1fr 40px; gap: 12px; align-items: center; font-size: .85rem; }
+.who { font-weight: 500; }
+.pct { font-size: .78rem; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+.bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; }
+.bar i { height: 8px; border-radius: 2px; background: var(--cell0); }
+.bar i.on { background: var(--accent); }
+.bar-labels { display: grid; grid-template-columns: 56px repeat(5, 1fr) 40px; gap: 3px; column-gap: 3px; font-size: .64rem; color: var(--muted); margin-top: 8px; text-align: center; }
+.bar-labels span:first-child { grid-column: 1; }
+
+/* 피드백 데모 */
+.fb { display: grid; gap: 12px; }
+.file { display: flex; gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; font-size: .9rem; }
+.file b { display: block; font-weight: 500; }
+.file small { color: var(--muted); }
+.comment { border-left: 2px solid var(--line); padding: 2px 0 2px 14px; font-size: .88rem; }
+.comment .tag { font-weight: 700; margin-right: 8px; font-size: .78rem; letter-spacing: .02em; }
+.tag.like { color: var(--lead); } .tag.fix { color: var(--late); } .tag.ask { color: var(--early); }
+
+/* 페르소나 */
+.personas { display: grid; gap: 20px; }
+@media (min-width: 880px) { .personas { grid-template-columns: repeat(3, 1fr); } }
+.persona { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 26px; display: grid; gap: 14px; align-content: start; }
+.persona .chip { color: var(--c); justify-self: start; }
+.persona dl { margin: 0; display: grid; gap: 0; font-size: .92rem; }
+.persona dl div { padding: 12px 0; border-top: 1px solid var(--line); }
+.persona dt { font-size: .72rem; font-weight: 500; color: var(--muted); letter-spacing: .08em; }
+.persona dd { margin: 4px 0 0; }
+.persona dl div:last-child dd { color: var(--ink); font-weight: 500; }
+
+/* 사용 순서 */
+.flow { display: grid; gap: 0; counter-reset: s; padding: 0; margin: 0; list-style: none; border-top: 1px solid var(--line); }
+@media (min-width: 680px) { .flow { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 980px) { .flow { grid-template-columns: repeat(4, 1fr); } }
+.flow li { counter-increment: s; display: grid; gap: 10px; align-content: start; padding: 28px 24px 28px 0; border-bottom: 1px solid var(--line); }
+.flow li::before { content: "STEP " counter(s, decimal-leading-zero); font-size: .74rem; font-weight: 500; color: var(--accent); letter-spacing: .14em; }
+.flow p { color: var(--muted); font-size: .93rem; font-weight: 300; }
+
+/* 마무리 */
+.closing .wrap { display: grid; gap: 28px; }
+@media (min-width: 880px) { .closing .wrap { grid-template-columns: 1.2fr 1fr; align-items: end; } }
+.principles { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.principles li { display: grid; grid-template-columns: 28px 1fr; gap: 8px; padding: 14px 0; border-top: 1px solid var(--band-line); color: var(--band-ink); font-weight: 300; }
+.principles li::before { content: "—"; color: var(--band-accent); }
+.closing-cta { display: grid; gap: 18px; justify-items: start; }
+footer { padding-block: 28px 44px; background: var(--band); color: var(--band-muted); font-size: .8rem; border-top: 1px solid var(--band-line); }
+footer .wrap { display: grid; gap: 6px; }
+
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  background: var(--ink); color: var(--bg); padding: 12px 18px; border-radius: 6px;
+  font-size: .88rem; z-index: 30; max-width: calc(100% - 32px);
+}
+@media (prefers-reduced-motion: no-preference) { .cell { transition: background-color .15s; } }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="logo" href="#top"><i aria-hidden="true"></i>팀플 서비스</a>
+    <button class="btn small" type="button" data-start>팀 만들기</button>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero band">
+    <div class="wrap">
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow"><b>TEAM PROJECT, MANAGED</b></p>
+          <h1>조별과제를 <em>프로젝트처럼</em> 운영합니다.</h1>
+          <p class="lead">팀플 서비스는 회의 일정, 역할과 마감, 결과물 피드백을 하나의 흐름으로 관리합니다. 대화는 지금처럼 단톡방에서 하고, 진척은 이곳에서 한눈에 확인합니다.</p>
+          <div class="hero-actions">
+            <button class="btn" type="button" data-start>링크로 팀 만들기</button>
+            <a class="btn ghost" href="#features">기능 살펴보기</a>
+          </div>
+          <p class="hero-note">앱 설치와 회원가입이 필요 없습니다. 카카오톡으로 받은 링크를 누르면 바로 열립니다.</p>
+        </div>
+
+        <div class="phone" aria-label="팀플 서비스 휴대폰 화면 예시">
+          <div class="phone-bar"><span>9:41</span><span>마케팅원론 기획서</span></div>
+          <h3>내 마감</h3>
+          <p class="sub">예시 화면입니다 · 팀원 5명</p>
+          <div class="task">
+            <div class="task-top"><span>시장 분석 초안</span><span class="due">D-2 · 팀 마감</span></div>
+            <div class="steps" aria-label="5단계 중 2단계"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div>
+            <div class="task-meta">진행 중 · 팀원 3명이 초안을 올렸습니다</div>
+          </div>
+          <div class="task">
+            <div class="task-top"><span>타깃 정의 피드백</span><span class="due ok">D-5</span></div>
+            <div class="steps" aria-label="5단계 중 3단계"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
+            <div class="task-meta">요청자 서연 · 수정 제안 1개 남기기</div>
+          </div>
+          <div class="task">
+            <div class="task-top"><span>2차 회의</span><span class="due ok">목 19:00</span></div>
+            <div class="task-meta"><span class="chip" style="color:var(--accent)">일정 변경</span> 화요일에서 목요일로 바뀌었습니다</div>
+          </div>
+          <button class="btn phone-cta" type="button" data-start>결과물 올리기</button>
+        </div>
+      </div>
+
+      <div class="metrics" aria-label="리서치와 목표 지표">
+        <div class="metric"><b>11<small>명</small></b><span>대학생 심층 인터뷰</span></div>
+        <div class="metric"><b>183<small>장</small></b><span>분석한 의미 단위 카드</span></div>
+        <div class="metric"><b>5일 → 1일</b><span>회의 확정 시간 목표</span></div>
+        <div class="metric"><b>0<small>단계</small></b><span>팀원 가입 절차</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="problems">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow"><b>PROBLEM</b><span>왜 만들었나요</span></p>
+        <h2>대학생 11명의 조별과제에서 같은 병목이 반복되었습니다.</h2>
+        <p class="lead">팀장도 팀원도 같은 네 지점에서 시간을 잃었습니다. 인용은 인터뷰 원문입니다.</p>
+      </div>
+      <div class="problems">
+        <article class="problem">
+          <span class="num">01 · 가시성</span>
+          <h3>진행 상황이 보이지 않습니다.</h3>
+          <p>팀장은 한 명씩 물어봐야 하고, 팀원은 언제 내야 할지 고민합니다.</p>
+          <blockquote class="quote">“팀장이 사실상 ‘진행 상황 물어보는 사람’이 되는 것 같아요.”<cite>P1 · 팀장</cite></blockquote>
+        </article>
+        <article class="problem">
+          <span class="num">02 · 일정</span>
+          <h3>회의 시간을 정하는 데 며칠이 걸립니다.</h3>
+          <p>나흘, 닷새가 걸린 팀이 있었고, 인원이 많을수록 더 어렵습니다.</p>
+          <blockquote class="quote">“퍼즐을 맞추는데 조각이 계속 바뀌는 느낌이었어요.”<cite>P4 · 팀장</cite></blockquote>
+        </article>
+        <article class="problem">
+          <span class="num">03 · 도입</span>
+          <h3>도구를 들여와도 쓰이지 않습니다.</h3>
+          <p>링크를 누르지 않고, 초대를 수락하지 않고, 가입을 귀찮아합니다.</p>
+          <blockquote class="quote">“도구가 문제가 아니라 사람이 안 들어와요.”<cite>P1 · 팀장</cite></blockquote>
+        </article>
+        <article class="problem">
+          <span class="num">04 · 소통</span>
+          <h3>제안하기가 부담스럽습니다.</h3>
+          <p>1학년은 나서는 것 같아서, 맏형은 지시처럼 들릴까 봐 말을 아낍니다.</p>
+          <blockquote class="quote">“안 된다는 말을 하기 편했으면 좋겠어요.”<cite>P3 · 팀원</cite></blockquote>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow"><b>SOLUTION</b><span>무엇을 하나요</span></p>
+        <h2>단톡방은 그대로 두고, 흩어지던 업무만 한곳에 모읍니다.</h2>
+      </div>
+
+      <div class="features">
+        <div class="feature">
+          <div class="feature-copy">
+            <span class="tag-line">SCHEDULING</span>
+            <h3>회의 시간을 하루 안에 확정합니다.</h3>
+            <p class="lead">가능한 시간을 체크만 하면 겹치는 시간이 바로 보입니다. 안 되는 시간은 익명으로 모이기 때문에 “저 안 돼요”라고 말하지 않아도 됩니다.</p>
+            <ul>
+              <li>응답하지 않은 팀원에게는 서비스가 대신 알림을 보냅니다.</li>
+              <li>수업 시간표를 한 번 등록하면 다음 회의에도 반영됩니다.</li>
+            </ul>
+          </div>
+          <div class="demo">
+            <p class="demo-label"><b>가능한 시간 체크</b><span>칸을 눌러 보세요 · 팀원 3명 응답 완료</span></p>
+            <div class="grid-wrap"><div class="when" id="when" role="group" aria-label="가능한 시간 체크 예시"></div></div>
+            <div class="legend">
+              <span>진할수록 많은 팀원이 가능합니다.</span>
+              <span class="result" id="when-result" aria-live="polite"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="feature">
+          <div class="feature-copy">
+            <span class="tag-line">PROGRESS</span>
+            <h3>누가 어디까지 했는지 한눈에 보입니다.</h3>
+            <p class="lead">할 일마다 다섯 단계로 진척도가 표시됩니다. 체크박스를 누르지 않아도 파일을 올리면 상태가 알아서 바뀝니다.</p>
+            <ul>
+              <li>공식 마감보다 앞선 팀 내부 마감을 정할 수 있습니다.</li>
+              <li>마감이 가까운데 진척이 없으면 본인에게 먼저 알립니다.</li>
+            </ul>
+          </div>
+          <div class="demo">
+            <p class="demo-label"><b>팀 진척 현황</b><span>팀 마감 D-2</span></p>
+            <div class="pipeline" aria-label="팀원별 진행 상태 예시">
+              <div class="row"><span class="who">민준</span><div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div><span class="pct">80%</span></div>
+              <div class="row"><span class="who">서연</span><div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div><span class="pct">60%</span></div>
+              <div class="row"><span class="who">지호</span><div class="bar"><i class="on"></i><i class="on"></i><i></i><i></i><i></i></div><span class="pct">40%</span></div>
+              <div class="row"><span class="who">수아</span><div class="bar"><i class="on"></i><i></i><i></i><i></i><i></i></div><span class="pct">20%</span></div>
+            </div>
+            <div class="bar-labels"><span></span><span>시작 전</span><span>진행 중</span><span>초안</span><span>피드백</span><span>완료</span><span></span></div>
+          </div>
+        </div>
+
+        <div class="feature">
+          <div class="feature-copy">
+            <span class="tag-line">REVIEW</span>
+            <h3>먼저 올려도 재촉처럼 보이지 않습니다.</h3>
+            <p class="lead">결과물은 할 일마다 정해진 자리에 올라가서 단톡방에 묻히지 않습니다. 피드백은 좋아요, 수정 제안, 질문 세 가지로 남기기 때문에 읽고 답이 없는 상황이 줄어듭니다.</p>
+            <ul>
+              <li>“미리 보기 공유”로 팀원에게 부담 없이 먼저 보여 줄 수 있습니다.</li>
+              <li>누가 언제 무엇을 했는지 자동으로 기록되어 동료평가 근거가 됩니다.</li>
+            </ul>
+          </div>
+          <div class="demo">
+            <p class="demo-label"><b>결과물 리뷰</b><span>피드백 3건</span></p>
+            <div class="fb">
+              <div class="file"><span class="chip" style="color:var(--accent)">미리 보기</span><div><b>작가 소개_초안.pdf</b><small>지호 · 마감 10일 전에 올렸습니다</small></div></div>
+              <p class="comment"><span class="tag like">좋아요</span>흐름이 깔끔합니다. 이대로 가도 됩니다.</p>
+              <p class="comment"><span class="tag fix">수정 제안</span>슬라이드 3장은 글자를 절반으로 줄이면 좋겠습니다.</p>
+              <p class="comment"><span class="tag ask">질문</span>인물 분석 부분은 누가 이어서 쓰나요?</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="for-whom" style="border-top:1px solid var(--line)">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow"><b>PERSONA</b><span>누구를 위한 서비스인가요</span></p>
+        <h2>팀 안에서 어떤 역할이든 덜 소모됩니다.</h2>
+        <p class="lead">인터뷰에서 도출한 세 가지 유형을 기준으로 설계했습니다.</p>
+      </div>
+      <div class="personas">
+        <article class="persona" style="--c:var(--lead)">
+          <span class="chip">팀장형</span>
+          <h3>미리 짜고 끝까지 책임지는 팀장</h3>
+          <dl>
+            <div><dt>현재</dt><dd>팀원에게 진도를 한 명씩 묻고, 빈 분량을 혼자 채웁니다.</dd></div>
+            <div><dt>도입 후</dt><dd>팀원 진척이 자동으로 보이고, 늦어지는 일을 일찍 알아챕니다.</dd></div>
+          </dl>
+        </article>
+        <article class="persona" style="--c:var(--early)">
+          <span class="chip">미리 하는 팀원형</span>
+          <h3>미리 해 두고 확인을 기다리는 팀원</h3>
+          <dl>
+            <div><dt>현재</dt><dd>초안을 다 써 놓고도 재촉처럼 보일까 봐 올리지 못합니다.</dd></div>
+            <div><dt>도입 후</dt><dd>진척을 부담 없이 공유하고, 정해진 형식으로 피드백을 받습니다.</dd></div>
+          </dl>
+        </article>
+        <article class="persona" style="--c:var(--late)">
+          <span class="chip">마감형 팀원</span>
+          <h3>정해지면 맞추고 마감에 끝내는 팀원</h3>
+          <dl>
+            <div><dt>현재</dt><dd>단톡 알림 100개 속에서 바뀐 회의 시간을 놓칩니다.</dd></div>
+            <div><dt>도입 후</dt><dd>가입 없이 링크 하나로 내 마감과 바뀐 일정만 확인합니다.</dd></div>
+          </dl>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="how">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow"><b>HOW IT WORKS</b><span>어떻게 쓰나요</span></p>
+        <h2>네 단계로 팀 운영을 시작합니다.</h2>
+      </div>
+      <ol class="flow">
+        <li><h3>팀 링크를 만듭니다.</h3><p>과목 이름과 마감일을 입력하면 팀 링크가 생깁니다. 단톡방에 붙여 넣습니다.</p></li>
+        <li><h3>가능한 시간을 체크합니다.</h3><p>팀원은 이름만 입력하고 되는 시간을 누릅니다. 겹치는 시간으로 회의가 정해집니다.</p></li>
+        <li><h3>역할과 마감을 나눕니다.</h3><p>할 일을 고르거나 랜덤으로 배정합니다. 각자 “내 마감” 화면이 생깁니다.</p></li>
+        <li><h3>결과물을 올리고 리뷰합니다.</h3><p>올린 순간 진척 상태가 바뀌고, 팀원이 세 가지 형식으로 피드백을 남깁니다.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="closing band">
+    <div class="wrap">
+      <div class="closing-cta">
+        <p class="eyebrow"><b>GET STARTED</b></p>
+        <h2>가입 없이, 링크 하나로 시작합니다.</h2>
+        <button class="btn" type="button" data-start>링크로 팀 만들기</button>
+      </div>
+      <ul class="principles">
+        <li>단톡방을 대체하지 않고 보완합니다.</li>
+        <li>진도와 안 되는 시간을 말하지 않아도 드러나게 합니다.</li>
+        <li>재촉과 정리는 서비스가 맡아서 팀장에게 일이 몰리지 않게 합니다.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>팀플 서비스 · 3조 서비스 디자인 프로젝트입니다.</p>
+    <p>소개된 문제와 인용은 대학생 11명 인터뷰(의미 단위 카드 183장)에 근거합니다. 화면 속 이름과 과제, 목표 수치는 예시입니다.</p>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(function () {
+  // 가능한 시간 체크 데모: 다른 팀원 3명의 응답(예시)에 내 선택을 더해 겹치는 시간을 찾습니다.
+  var days = ["월", "화", "수", "목", "금"];
+  var times = ["10:00", "12:00", "14:00", "16:00", "18:00", "20:00"];
+  // others[t][d] = 이미 가능하다고 체크한 팀원 수 (최대 3)
+  var others = [
+    [1, 0, 2, 1, 0],
+    [2, 1, 3, 2, 1],
+    [0, 2, 1, 3, 2],
+    [1, 3, 0, 2, 1],
+    [2, 1, 2, 3, 0],
+    [1, 0, 1, 2, 1]
+  ];
+  var mine = {};
+  var grid = document.getElementById("when");
+  var result = document.getElementById("when-result");
+
+  grid.appendChild(el("span", "h", ""));
+  days.forEach(function (d) { grid.appendChild(el("span", "h", d)); });
+  times.forEach(function (t, ti) {
+    grid.appendChild(el("span", "t", t));
+    days.forEach(function (d, di) {
+      var b = el("button", "cell", "");
+      b.type = "button";
+      b.id = "cell-" + ti + "-" + di;
+      b.dataset.t = ti; b.dataset.d = di;
+      b.setAttribute("aria-label", d + "요일 " + t);
+      b.addEventListener("click", function () {
+        var k = ti + "-" + di;
+        mine[k] = !mine[k];
+        render();
+      });
+      grid.appendChild(b);
+    });
+  });
+
+  function el(tag, cls, text) { var e = document.createElement(tag); e.className = cls; e.textContent = text; return e; }
+
+  function render() {
+    var best = [];
+    grid.querySelectorAll(".cell").forEach(function (b) {
+      var ti = +b.dataset.t, di = +b.dataset.d, k = ti + "-" + di;
+      var n = others[ti][di] + (mine[k] ? 1 : 0);
+      b.dataset.n = n;
+      b.classList.toggle("mine", !!mine[k]);
+      b.setAttribute("aria-pressed", mine[k] ? "true" : "false");
+      b.textContent = n === 4 ? "확정" : "";
+      if (n === 4) best.push(days[di] + " " + times[ti]);
+    });
+    var picked = Object.keys(mine).filter(function (k) { return mine[k]; }).length;
+    if (best.length) result.textContent = "모두 가능: " + best.join(", ");
+    else if (picked) result.textContent = "아직 4명이 모두 겹치는 시간이 없습니다.";
+    else result.textContent = "가장 진한 칸을 눌러 보세요.";
+  }
+  render();
+
+  // 아직 실제 서비스가 없으므로 버튼은 안내 메시지만 띄웁니다.
+  var toast = document.getElementById("toast"), timer;
+  document.querySelectorAll("[data-start]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      toast.textContent = "지금은 준비 중입니다. 곧 링크로 팀을 만들 수 있습니다.";
+      toast.hidden = false;
+      clearTimeout(timer);
+      timer = setTimeout(function () { toast.hidden = true; }, 2600);
+    });
+  });
+})();
+</script>
+</body>
+</html>
