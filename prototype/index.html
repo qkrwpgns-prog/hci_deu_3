@@ -6,207 +6,208 @@
 <title>어디까지 했어? 프로토타입</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&family=Noto+Sans+KR:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&family=Noto+Sans+KR:wght@300;400;500;600&display=swap">
 <style>
-/* DESIGN.md 기준: 차분한 회청색 바탕, 흰 카드 2단 구조, 유일한 채도색 #4255ff, 주 버튼은 알약형. 도장판 구조는 유지. */
+/* 하얀 작업실 + 파스텔 메모: 바이올렛 하나가 행동을 이끌고, 진행은 파스텔 상태 칩 보드로. 알약 버튼, 24px 카드. */
 :root{
-  --desk:#EDEFFF;      /* Lilac Wash: 바깥 영역 */
-  --paper:#F6F7FB;     /* Chalk Canvas: 앱 바탕 */
-  --sheet:#FFFFFF;     /* Paper White: 카드 */
-  --ink:#282E3E;       /* Ink Charcoal */
-  --ink2:#2E3856;      /* Deep Indigo */
-  --sub:#586380;       /* Slate Veil */
-  --fog:#939BB4;       /* Fog Mist */
-  --line:#D9DDE8;      /* Mist Border */
-  --tint:#EDEFFF;      /* Lilac Wash */
-  --accent:#4255FF;    /* Iris Bolt: 유일한 채도색 */
-  --late:#C4314B;      /* 기한 지남 (상태 표시 전용) */
-  --dash:#939BB4;
-  --sticker:#EDEFFF;
-  --focus:#4255FF;
-  --c1:#4255FF; --c2:#4255FF; --c3:#4255FF; --c4:#4255FF; --c5:#4255FF;
-  --shadow-md:0 4px 16px 0 rgba(40,46,62,.1);
-  --shadow-sm:0 2px 4px 0 rgba(40,46,62,.1);
-  --f-title:'Nunito Sans','Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
-  --f-body:'Nunito Sans','Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
-  --f-stamp:'Nunito Sans','Noto Sans KR',sans-serif;
+  --canvas:#F5F6F8; --card:#FFFFFF; --ink:#333333; --slate:#535768; --iron:#808080;
+  --mist:#D0D4E4; --pebble:#DDDFEB; --dust:#E6E7EA;
+  --violet:#6161FF; --violet-ink:#4B4BD9; --violet-wash:#DBDBFF; --periwinkle:#E7ECFF; --lavender:#EDDFF7;
+  --mint:#BCFE90; --sky:#ABF0FF; --aqua:#D1FAFF; --peach:#FFE1CC; --peach-ink:#8A4210;
+  --late-bg:#FFDCE1; --late:#B3243B;
+  --shadow:0 2px 48px 0 rgba(205,208,223,.4);
+  --shadow-up:0 5px 45px 0 rgba(0,0,0,.15);
+  --f:'Poppins','Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  /* 호환 */
+  --paper:var(--canvas); --sheet:var(--card); --sub:var(--slate); --line:var(--mist); --tint:var(--periwinkle); --accent:var(--violet); --fog:var(--iron); --dash:var(--mist); --sticker:var(--violet-wash); --ink2:var(--ink); --focus:var(--violet);
   color-scheme:light;
 }
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--desk);color:var(--ink);font-family:var(--f-body);font-variant-numeric:tabular-nums;word-break:keep-all;overflow-wrap:anywhere}
-body{min-height:100vh;display:flex;flex-wrap:wrap;gap:24px;justify-content:center;align-items:flex-start;padding:24px 16px}
-button,input,textarea{font:inherit;color:inherit}
+html,body{margin:0;background:#EBEDF3;color:var(--ink);font-family:var(--f);letter-spacing:-0.01em;font-variant-numeric:tabular-nums;word-break:keep-all;overflow-wrap:anywhere}
+body{min-height:100vh;display:flex;flex-wrap:wrap;gap:32px;justify-content:center;align-items:flex-start;padding:32px 16px}
+button,input,textarea{font:inherit;color:inherit;letter-spacing:inherit}
 button{cursor:pointer}
-a{color:var(--accent)}
-:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+a{color:var(--violet-ink)}
+:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
 
-.phone{width:390px;height:844px;background:var(--paper);border-radius:24px;position:relative;overflow:hidden;display:flex;flex-direction:column;flex:none;box-shadow:var(--shadow-md)}
-@media (max-width:430px){body{padding:0;gap:0}.phone{width:100vw;height:100dvh;border-radius:0;box-shadow:none}.guide{width:100%;border-radius:0}}
-.screen{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
-.scroll{flex:1 1 auto;overflow-y:auto;min-height:0;padding-bottom:16px}
+.phone{width:390px;height:844px;background:var(--canvas);border-radius:44px;position:relative;overflow:hidden;display:flex;flex-direction:column;flex:none;box-shadow:0 0 0 10px #1F2130, 0 30px 80px rgba(31,33,48,.35)}
+@media (max-width:460px){body{padding:0;gap:0}.phone{width:100vw;height:100dvh;border-radius:0;box-shadow:none}.guide{width:100%;border-radius:0;box-shadow:none}}
+.screen{flex:1 1 auto;display:flex;flex-direction:column;min-height:0;padding-top:14px}
+.scroll{flex:1 1 auto;overflow-y:auto;min-height:0;padding-bottom:24px}
 
-/* 머리: 흰 바, 그림자 하나 */
-.top{display:flex;align-items:center;gap:4px;padding:8px 8px 8px 4px;background:var(--sheet);box-shadow:var(--shadow-sm);position:relative;z-index:1}
+/* 앱 머리 */
+.top{display:flex;align-items:center;gap:4px;padding:10px 12px 10px 8px}
 .top .ttl{flex:1 1 auto;min-width:0}
-.top h1{margin:0;font-family:var(--f-title);font-weight:600;font-size:20px;line-height:28px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.top .sub{font-size:12px;line-height:18px;color:var(--sub)}
-.iconbtn{width:44px;height:44px;border:none;background:transparent;border-radius:200px;display:flex;align-items:center;justify-content:center;position:relative;flex:none;color:var(--ink)}
-.iconbtn:hover{background:var(--paper)}
-.badge{position:absolute;top:6px;right:6px;min-width:18px;height:18px;padding:0 5px;border-radius:200px;background:var(--accent);color:#fff;font:600 11px/18px var(--f-body);text-align:center}
+.top h1{margin:0;font-weight:600;font-size:18px;line-height:1.4;letter-spacing:-0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .sub{font-size:12px;line-height:1.45;color:var(--slate)}
+.iconbtn{width:44px;height:44px;border:none;background:var(--card);border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;flex:none;color:var(--ink);box-shadow:0 1px 3px rgba(51,51,51,.08)}
+.badge{position:absolute;top:2px;right:2px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--violet);color:#fff;font:600 11px/18px var(--f);text-align:center;box-shadow:0 0 0 2px var(--canvas)}
+.logo{width:28px;height:28px;border-radius:9px;background:conic-gradient(from 270deg,#8181FF 15%,#33DBDB 40%,#33D58E 55%,#FFD633 65%,#FC527D 85%,#8181FF 100%);flex:none;position:relative}
+.logo::after{content:"";position:absolute;inset:7px;border-radius:4px;background:#fff}
 
 /* 큰 제목 */
-.big{padding:24px 24px 8px}
-.big h1{margin:0;font-family:var(--f-title);font-weight:600;font-size:24px;line-height:32px;text-wrap:balance}
-.big p{margin:8px 0 0;font-size:16px;line-height:24px;color:var(--sub)}
+.big{padding:20px 24px 8px}
+.big h1{margin:0;font-weight:300;font-size:30px;line-height:1.25;letter-spacing:-0.03em;text-wrap:balance}
+.big h1 b{font-weight:600}
+.big p{margin:10px 0 0;font-size:15px;line-height:1.55;color:var(--slate)}
 
 /* 카드 */
-.sheet{background:var(--sheet);border-radius:8px;margin:16px 16px 0;overflow:hidden;border:1px solid var(--line)}
-.sheet .pad{padding:16px}
-.sheet-h{display:flex;align-items:baseline;justify-content:space-between;padding:16px 16px 0}
-.sheet-h h2{margin:0;font-family:var(--f-title);font-weight:600;font-size:16px;line-height:24px}
-.sheet-h span{font-size:14px;color:var(--sub)}
-.hint{font-size:14px;line-height:20px;color:var(--sub);margin:8px 0 0}
-.err{font-size:14px;line-height:20px;color:var(--late);margin:8px 0 0;font-weight:600}
+.sheet{background:var(--card);border-radius:24px;margin:16px 16px 0;overflow:hidden;box-shadow:var(--shadow)}
+.sheet .pad{padding:20px}
+.sheet-h{display:flex;align-items:baseline;justify-content:space-between;padding:20px 20px 4px}
+.sheet-h h2{margin:0;font-weight:600;font-size:16px;line-height:1.5}
+.sheet-h span{font-size:13px;color:var(--slate)}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;padding:28px 24px 0}
+.sec-h h2{margin:0;font-weight:600;font-size:17px}
+.sec-h span{font-size:13px;color:var(--slate)}
+.hint{font-size:13px;line-height:1.5;color:var(--slate);margin:8px 0 0}
+.err{font-size:14px;line-height:1.5;color:var(--late);margin:8px 0 0;font-weight:500}
 
 /* 줄 */
-.line{display:flex;align-items:center;gap:16px;width:100%;padding:16px;border:none;background:transparent;text-align:left;border-top:1px solid var(--line)}
+.line{display:flex;align-items:center;gap:14px;width:100%;padding:16px 20px;border:none;background:transparent;text-align:left;border-top:1px solid #EEF0F5}
 .sheet .line:first-child{border-top:none}
-button.line:hover,a.line:hover{background:#FAFBFD}
+button.line:active{background:#FAFAFC}
 .line .grow{flex:1 1 auto;min-width:0}
-.line .t{font-weight:600;font-size:16px;line-height:24px}
-.line .s{font-size:14px;line-height:20px;color:var(--sub);margin-top:2px}
-.chev{flex:none;color:var(--fog)}
+.line .t{font-weight:500;font-size:16px;line-height:1.45}
+.line .s{font-size:13px;line-height:1.5;color:var(--slate);margin-top:2px}
+.chev{flex:none;color:#A9ACBC}
 
-/* 아바타: 라일락 바탕, 남색 글자 */
-.av{width:36px;height:36px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font:600 14px/1 var(--f-title);color:var(--ink2);background:var(--tint)}
+/* 아바타 */
+.av{width:36px;height:36px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font:600 14px/1 var(--f);color:var(--ink);background:var(--c, var(--periwinkle))}
 .av.sm{width:28px;height:28px;font-size:12px}
-.me{display:inline-block;margin-left:6px;padding:0 8px;border-radius:200px;background:var(--tint);color:var(--accent);font:600 12px/18px var(--f-body);vertical-align:1px}
+.stack{display:flex}
+.stack .av{width:28px;height:28px;font-size:11px;border:2px solid #fff;margin-left:-8px}
+.stack .av:first-child{margin-left:0}
+.me{display:inline-block;margin-left:6px;padding:0 7px;border-radius:6px;background:var(--violet-wash);color:var(--violet-ink);font:600 11px/18px var(--f);vertical-align:1px}
 
-/* 도장판 */
-.board-h,.brow{display:grid;align-items:center;column-gap:8px}
-.board-h{padding:16px 16px 8px;font-size:12px;line-height:18px;color:var(--sub)}
-.board-h b{display:block;color:var(--ink);font-size:14px;font-weight:600}
+/* 보드: 상태 칩 */
+.board-h,.brow{display:grid;align-items:center;column-gap:6px}
+.board-h{padding:18px 16px 10px;font-size:12px;color:var(--slate)}
+.board-h b{display:block;color:var(--ink);font-size:13px;font-weight:600}
 .board-h .bh{text-align:center}
-.brow{width:100%;padding:12px 16px;border:none;background:transparent;text-align:left;border-top:1px solid var(--line)}
-.brow:hover{background:#FAFBFD}
-.who{display:flex;align-items:center;gap:12px;min-width:0}
-.who b{font-size:16px;font-weight:600}
-.who small{display:block;font-size:12px;line-height:18px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brow{width:100%;padding:10px 16px;border:none;background:transparent;text-align:left;border-top:1px solid #EEF0F5}
+.brow:active{background:#FAFAFC}
+.who{display:flex;align-items:center;gap:10px;min-width:0}
+.who b{font-size:15px;font-weight:500}
+.who small{display:block;font-size:12px;color:var(--slate);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .who .nm{min-width:0}
-.slot{display:flex;flex-direction:column;align-items:center;gap:4px}
-.sd{font-size:12px;line-height:16px;color:var(--sub);min-height:16px}
-.sd.late{color:var(--late);font-weight:600}
-.stamp{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;font-size:12px;font-weight:600}
-.stamp.todo{border:1.5px dashed var(--line)}
-.stamp.done{background:var(--accent);color:#fff;font-size:13px}
-.stamp.done span{transform:rotate(-10deg)}
-.stamp.late{border:1.5px dashed var(--late);color:var(--late);background:#fff}
-.stamp.next{border:2px solid var(--accent);background:var(--tint);color:var(--accent);font-size:11px;line-height:1.2;text-align:center}
-.stamp.ext{border:1.5px dashed var(--line)}
-.stk{position:absolute;left:-6px;right:-6px;top:12px;background:var(--tint);color:var(--ink2);border:1px solid var(--line);border-radius:4px;font-size:11px;font-weight:600;text-align:center;padding:2px 0}
-.legend{display:flex;flex-wrap:wrap;gap:8px 16px;padding:12px 16px 16px;font-size:12px;line-height:18px;color:var(--sub);border-top:1px solid var(--line)}
-.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:-2px;margin-right:6px}
-.legend .ld{background:var(--accent)} .legend .lt{border:1.5px dashed var(--fog)} .legend .ll{border:1.5px dashed var(--late)} .legend .le{background:var(--tint);border:1px solid var(--line);border-radius:3px}
+.slot{display:block}
+.sd{display:none}
+.stamp{height:40px;width:100%;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;font-weight:500;line-height:1.2}
+.stamp small{font-size:10px;font-weight:400;opacity:.8}
+.stamp.done{background:var(--mint);color:#1F3A0E}
+.stamp.todo{background:var(--canvas);color:var(--slate)}
+.stamp.next{background:var(--violet);color:#fff;font-weight:600}
+.stamp.ext{background:var(--peach);color:var(--peach-ink)}
+.stamp.late{background:var(--late-bg);color:var(--late);font-weight:600}
+.stk{display:none}
+.legend{display:flex;flex-wrap:wrap;gap:8px;padding:14px 16px 18px;border-top:1px solid #EEF0F5}
+.legend span{display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:6px;font-size:12px;font-weight:500}
+.legend i{display:none}
+.lg-done{background:var(--mint);color:#1F3A0E}.lg-todo{background:var(--canvas);color:var(--slate)}.lg-late{background:var(--late-bg);color:var(--late)}.lg-ext{background:var(--peach);color:var(--peach-ink)}.lg-next{background:var(--violet);color:#fff}
 
 /* 팀 머리 */
-.hero{display:flex;align-items:center;gap:16px;margin:16px 16px 0;padding:16px;border-radius:8px;background:var(--tint)}
-.dday{font-family:var(--f-title);font-weight:600;font-size:32px;line-height:41px;color:var(--ink)}
-.hero p{margin:0;font-size:14px;line-height:20px;color:var(--sub)}
-.hero p b{color:var(--ink);font-weight:600}
+.hero{margin:8px 16px 0;padding:22px 22px 20px;border-radius:24px;background:var(--violet);color:#fff;display:flex;flex-direction:column;gap:14px;box-shadow:0 12px 32px rgba(97,97,255,.28)}
+.hero .row{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.dday{font-weight:300;font-size:44px;line-height:1;letter-spacing:-0.04em}
+.hero p{margin:0;font-size:13px;line-height:1.5;color:#E9E9FF}
+.hero p b{color:#fff;font-weight:600;font-size:14px}
+.prog{height:8px;border-radius:4px;background:rgba(255,255,255,.28);overflow:hidden}
+.prog i{display:block;height:100%;border-radius:4px;background:#fff}
+.hero .stack .av{border-color:var(--violet)}
 .tools{display:flex;gap:8px;flex-wrap:wrap;padding:16px 16px 0}
 
 /* 띠 */
-.ribbon{display:flex;align-items:center;gap:12px;margin:16px 16px 0;padding:12px 16px;border-radius:8px;background:var(--sheet);border:1px solid var(--line);width:calc(100% - 32px);text-align:left}
-.ribbon .grow{flex:1 1 auto;font-size:14px;line-height:20px}
+.ribbon{display:flex;align-items:center;gap:12px;margin:12px 16px 0;padding:14px 16px;border-radius:16px;background:var(--card);border:none;width:calc(100% - 32px);text-align:left;box-shadow:var(--shadow)}
+.ribbon .grow{flex:1 1 auto;font-size:14px;line-height:1.5}
 
-/* 버튼: 주 버튼은 알약 + 액센트, 보조는 외곽선 알약, 도구는 4px */
-.bar{display:flex;gap:8px;padding:12px 16px 16px;background:var(--sheet);box-shadow:0 -1px 0 var(--line)}
-.btn{min-height:48px;border-radius:200px;border:1px solid var(--accent);background:transparent;color:var(--accent);font-size:16px;font-weight:600;padding:0 24px;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
-.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:var(--shadow-sm)}
+/* 버튼 */
+.bar{display:flex;gap:8px;padding:12px 16px 24px;background:linear-gradient(rgba(245,246,248,0),var(--canvas) 30%)}
+.btn{min-height:52px;border-radius:160px;border:1px solid var(--slate);background:var(--card);color:var(--ink);font-size:16px;font-weight:500;padding:0 22px;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.btn.primary{background:var(--violet);color:#fff;border-color:var(--violet);font-weight:600;box-shadow:0 8px 20px rgba(97,97,255,.3)}
 .btn.grow{flex:1 1 0}.btn.grow2{flex:2 1 0}
-.btn.small{min-height:44px;border-radius:4px;border-color:var(--line);color:var(--ink);font-size:14px;font-weight:600;padding:0 14px;background:var(--sheet)}
-.btn.small.primary{border-radius:200px;background:var(--accent);border-color:var(--accent);color:#fff}
-.btn.text{border:none;background:transparent;color:var(--accent);font-weight:400;padding:0 4px;min-height:44px}
-.btn.text:hover{text-decoration:underline}
+.btn.small{min-height:44px;font-size:14px;padding:0 16px;border-color:var(--pebble)}
+.btn.small.primary{border-color:var(--violet);box-shadow:none}
+.btn.text{border:none;background:transparent;color:var(--violet-ink);font-weight:500;padding:0 4px;min-height:44px}
 .btn[disabled]{opacity:.4;cursor:default;box-shadow:none}
+.btn:active:not([disabled]){transform:scale(.98)}
 
 /* 입력 */
-.label{display:block;font-size:14px;line-height:20px;font-weight:600;margin:0 0 8px}
-.field{width:100%;height:48px;border:1px solid var(--line);border-radius:4px;background:var(--sheet);padding:0 12px;font-size:16px}
-.field::placeholder{color:var(--fog)}
-textarea.field{height:88px;padding:12px;resize:none;line-height:24px}
-.field:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.label{display:block;font-size:14px;font-weight:500;margin:0 0 8px}
+.field{width:100%;height:52px;border:1px solid var(--pebble);border-radius:6px;background:var(--card);padding:0 14px;font-size:16px}
+.field::placeholder{color:#9A9DAE}
+textarea.field{height:92px;padding:12px 14px;resize:none;line-height:1.5}
+.field:focus{outline:none;border-color:var(--violet);box-shadow:0 0 0 3px var(--violet-wash)}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{min-height:44px;border:1px solid var(--line);border-radius:4px;background:var(--sheet);padding:0 14px;font-size:14px;text-align:left}
-.chip[aria-pressed="true"]{border-color:var(--accent);background:var(--tint);color:var(--accent);font-weight:600;box-shadow:0 0 0 1px var(--accent)}
-.chip[aria-pressed="true"] .hint{color:var(--ink2)}
+.chip{min-height:44px;border:1px solid var(--pebble);border-radius:160px;background:var(--card);padding:0 16px;font-size:14px;text-align:left}
+.chip[aria-pressed="true"]{border-color:var(--violet);background:var(--violet-wash);color:var(--violet-ink);font-weight:600}
+.chip[aria-pressed="true"] .hint{color:var(--violet-ink)}
 .chip[disabled]{opacity:.45}
 .grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.pick{display:flex;align-items:center;gap:12px;width:100%;min-height:56px;border:1px dashed var(--fog);border-radius:4px;background:var(--paper);padding:0 16px;text-align:left;color:var(--ink)}
-.pick.has{border:1px solid var(--line);background:var(--sheet)}
+.grid2 .chip{border-radius:16px}
+.pick{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;border:1.5px dashed var(--mist);border-radius:16px;background:var(--canvas);padding:0 16px;text-align:left;color:var(--ink)}
+.pick.has{border:none;background:var(--periwinkle)}
 
 /* 알림 */
-.seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;margin:16px 16px 0;padding:4px;border-radius:200px;background:var(--tint)}
-.seg button{height:40px;border:none;border-radius:200px;background:transparent;font-size:14px;color:var(--sub)}
-.seg button[aria-selected="true"]{background:var(--sheet);color:var(--accent);font-weight:600;box-shadow:var(--shadow-sm)}
-.alert{display:flex;gap:12px;padding:16px;border-top:1px solid var(--line)}
+.seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;margin:8px 16px 0;padding:4px;border-radius:160px;background:var(--card);box-shadow:var(--shadow)}
+.seg button{height:40px;border:none;border-radius:160px;background:transparent;font-size:14px;color:var(--slate);font-weight:500}
+.seg button[aria-selected="true"]{background:var(--violet);color:#fff;font-weight:600}
+.alert{display:flex;gap:14px;padding:18px 20px;border-top:1px solid #EEF0F5}
 .sheet .alert:first-child{border-top:none}
-.alert .ic{width:36px;height:36px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font:600 14px/1 var(--f-title)}
-.ic.late{background:#fff;color:var(--late);border:1.5px dashed var(--late)}
-.ic.ext{background:var(--tint);color:var(--ink2)}
-.ic.help{background:var(--tint);color:var(--accent)}
-.ic.ack{background:var(--accent);color:#fff}
-.ic.me{background:var(--tint);color:var(--accent);border:2px solid var(--accent);font-size:12px;white-space:nowrap}
+.alert .ic{width:40px;height:40px;border-radius:12px;flex:none;display:flex;align-items:center;justify-content:center;font:600 13px/1 var(--f)}
+.ic.late{background:var(--late-bg);color:var(--late)}
+.ic.ext{background:var(--peach);color:var(--peach-ink)}
+.ic.help{background:var(--sky);color:#0D4A5A}
+.ic.ack{background:var(--mint);color:#1F3A0E}
+.ic.me{background:var(--violet);color:#fff;white-space:nowrap}
 .alert .body{flex:1 1 auto;min-width:0}
-.alert p{margin:0 0 4px;font-size:16px;line-height:24px}
-.alert .when{font-size:12px;line-height:18px;color:var(--sub)}
+.alert p{margin:0 0 4px;font-size:15px;line-height:1.55}
+.alert .when{font-size:12px;color:var(--slate)}
 .alert .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 
 /* 상세 */
-.stage{padding:16px;border-top:1px solid var(--line)}
+.stage{padding:18px 20px;border-top:1px solid #EEF0F5}
 .sheet .stage:first-child{border-top:none}
 .stage .hd{display:flex;align-items:center;gap:12px}
-.stage .hd .stamp{width:40px;height:40px;font-size:11px}
-.stage .hd .stamp.done{font-size:12px}
-.stage .nm{font-weight:600;font-size:16px;line-height:24px}
-.stage .st{font-size:14px;line-height:20px;color:var(--sub)}
-.file{display:flex;align-items:center;gap:12px;margin-top:12px;padding:0 16px;min-height:52px;border:1px solid var(--line);border-radius:8px;background:var(--paper);width:100%;text-align:left;font-size:16px;color:var(--ink)}
-.memo{margin:12px 0 0;font-size:14px;line-height:20px;color:var(--sub)}
-.checks{display:flex;align-items:center;gap:12px;margin-top:12px;font-size:14px;line-height:20px;color:var(--sub)}
+.stage .hd .slot{order:2;margin-left:auto}
+.stage .hd .stamp{width:auto;height:28px;padding:0 10px;flex-direction:row;gap:4px}
+.stage .nm{font-weight:600;font-size:16px}
+.stage .st{font-size:13px;color:var(--slate)}
+.file{display:flex;align-items:center;gap:12px;margin-top:14px;padding:0 16px;min-height:56px;border:none;border-radius:16px;background:var(--canvas);width:100%;text-align:left;font-size:15px;color:var(--ink)}
+.file svg{color:var(--violet)}
+.memo{margin:12px 0 0;font-size:14px;line-height:1.55;color:var(--slate)}
+.checks{display:flex;align-items:center;gap:12px;margin-top:14px;font-size:13px;color:var(--slate)}
 .checks span{flex:1 1 auto}
 
 /* 빈·오류 */
-.empty{margin:16px 16px 0;padding:24px;border-radius:8px;background:var(--sheet);border:1px solid var(--line);text-align:left}
-.empty h2{font-family:var(--f-title);font-weight:600;font-size:20px;line-height:28px;margin:16px 0 8px}
-.empty p{margin:0;font-size:16px;line-height:24px;color:var(--sub)}
-.ghost-row{display:flex;gap:8px}
-.ghost-row i{width:32px;height:32px;border-radius:50%;border:1.5px dashed var(--fog)}
-.errbox{margin:16px 16px 0;padding:24px;border-radius:8px;background:var(--sheet);border:1px solid var(--line)}
-.errbox h2{font-family:var(--f-title);font-weight:600;font-size:20px;line-height:28px;margin:0 0 8px}
-.errbox p{margin:0;font-size:16px;line-height:24px;color:var(--sub)}
-.errmark{width:44px;height:44px;border-radius:50%;border:1.5px dashed var(--late);color:var(--late);display:flex;align-items:center;justify-content:center;font:600 20px/1 var(--f-title);margin-bottom:16px}
+.empty{margin:16px 16px 0;padding:28px 24px;border-radius:24px;background:var(--lavender);text-align:left}
+.empty h2{font-weight:600;font-size:19px;margin:18px 0 8px}
+.empty p{margin:0;font-size:15px;line-height:1.55;color:#4A4458}
+.ghost-row{display:flex;gap:6px}
+.ghost-row i{width:44px;height:28px;border-radius:6px;background:rgba(255,255,255,.7)}
+.ghost-row i:first-child{background:var(--violet)}
+.errbox{margin:16px 16px 0;padding:28px 24px;border-radius:24px;background:var(--card);box-shadow:var(--shadow)}
+.errbox h2{font-weight:600;font-size:20px;margin:0 0 8px}
+.errbox p{margin:0;font-size:15px;line-height:1.55;color:var(--slate)}
+.errmark{width:52px;height:52px;border-radius:16px;background:var(--late-bg);color:var(--late);display:flex;align-items:center;justify-content:center;font:600 22px/1 var(--f);margin-bottom:18px}
 
 /* 토스트 */
-.toast{position:absolute;left:16px;right:16px;bottom:88px;background:var(--ink);color:#fff;padding:12px 16px;font-size:14px;line-height:20px;border-radius:8px;box-shadow:var(--shadow-md);opacity:0;transform:translateY(8px);transition:opacity .18s,transform .18s;pointer-events:none;z-index:5}
+.toast{position:absolute;left:16px;right:16px;bottom:96px;background:#1F2130;color:#fff;padding:14px 18px;font-size:14px;line-height:1.5;border-radius:16px;box-shadow:var(--shadow-up);opacity:0;transform:translateY(8px);transition:opacity .2s,transform .2s;pointer-events:none;z-index:5}
 .toast.on{opacity:1;transform:none}
-@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}.btn:active:not([disabled]){transform:none}}
 
-/* 미리보기 문서 */
-.doc{margin:16px 16px 0;border-radius:8px;background:#fff;border:1px solid var(--line);padding:24px;min-height:380px}
-.doc .lnx{height:10px;border-radius:4px;background:var(--paper);margin:12px 0}
+.doc{margin:16px 16px 0;border-radius:24px;background:#fff;box-shadow:var(--shadow);padding:28px 24px;min-height:400px}
+.doc .lnx{height:10px;border-radius:5px;background:var(--canvas);margin:14px 0}
 .doc .lnx.s{width:62%}
+.kakao{border-radius:16px;background:var(--canvas);padding:14px 16px;font-size:14px;line-height:1.55}
 
-/* 단톡 미리보기 */
-.kakao{border-radius:8px;background:var(--tint);padding:12px 16px;font-size:14px;line-height:20px;color:var(--ink2)}
-
-/* 안내 패널 */
-.guide{width:300px;background:#fff;border-radius:8px;border:1px solid var(--line);box-shadow:var(--shadow-md);padding:24px;font-size:14px;line-height:20px;flex:none}
-.guide h2{font-family:var(--f-title);font-weight:600;font-size:20px;line-height:28px;margin:0 0 8px}
-.guide .now{background:var(--tint);color:var(--accent);padding:1px 4px;border-radius:4px}
+.guide{width:320px;background:#fff;border-radius:24px;box-shadow:var(--shadow);padding:28px;font-size:14px;line-height:1.55;flex:none}
+.guide h2{font-weight:600;font-size:20px;margin:0 0 8px}
+.guide .now{background:var(--violet-wash);color:var(--violet-ink);padding:1px 6px;border-radius:6px}
 .guide ol{padding-left:20px;margin:12px 0}
 .guide li{margin:4px 0}
 .guide li.cur{font-weight:600}
-.guide li.done{color:var(--fog);text-decoration:line-through}
+.guide li.done{color:#9A9DAE;text-decoration:line-through}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 </style>
 </head>
@@ -352,8 +353,8 @@ var IC = {
   share:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1.1-4.6A8 8 0 1 1 21 12z"/></svg>',
   up:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4"/><path d="M7 9l5-5 5 5"/><path d="M4 20h16"/></svg>'
 };
-var COLS = ['var(--accent)'];
-var PERSONA_COL = {'김민수':'var(--accent)','이수아':'var(--accent)','한도윤':'var(--accent)','정예린':'var(--accent)'};
+var COLS = ['#ABF0FF','#D1FAFF','#FCD0F8','#E7ECFF'];
+var PERSONA_COL = {'김민수':'#DBDBFF','이수아':'#BCFE90','한도윤':'#FFE1CC','정예린':'#EDDFF7'};
 function colOf(t, mi){ var nm = t.members[mi].name; return PERSONA_COL[nm] || COLS[mi % COLS.length]; }
 function av(name, col, small){ return '<span class="av' + (small ? ' sm' : '') + '" style="--c:' + col + '" aria-hidden="true">' + esc(name.charAt(0)) + '</span>'; }
 function longDate(d){ return (d.getMonth()+1) + '월 ' + d.getDate() + '일 ' + DOW[d.getDay()] + '요일'; }
@@ -369,44 +370,43 @@ function top(title, sub, opts){
 function stamp(t, m, i, col, isMe){
   var c = m.cells[i], late = isLate(t,m,i) && c.s!=='done', nxt = isMe && i === nextIdx(m);
   var label = t.stages[i].label + ' ';
-  if (c.s==='done') return '<span class="slot"><span class="stamp done" style="--c:' + col + '" aria-label="' + label + md(c.at) + ' 올림"><span>올림</span></span><span class="sd">' + md(c.at) + '</span></span>';
-  if (late) return '<span class="slot"><span class="stamp late" aria-label="' + label + '기한 지남">지남</span><span class="sd late">' + md(cellDue(t,m,i)) + '</span></span>';
-  if (c.s==='ext') return '<span class="slot"><span class="stamp ext" aria-label="' + label + md(c.due) + '까지 연장"><span class="stk">~' + md(c.due) + '</span></span><span class="sd">연장</span></span>';
-  if (nxt) return '<span class="slot"><span class="stamp next" aria-label="' + label + '내 차례">내<br>차례</span><span class="sd">~' + md(cellDue(t,m,i)) + '</span></span>';
-  return '<span class="slot"><span class="stamp todo" aria-label="' + label + '기한 전"></span><span class="sd"></span></span>';
+  if (c.s==='done') return '<span class="slot"><span class="stamp done" aria-label="' + label + md(c.at) + ' 올림">올림<small>' + md(c.at) + '</small></span></span>';
+  if (late) return '<span class="slot"><span class="stamp late" aria-label="' + label + '기한 지남">지남<small>' + md(cellDue(t,m,i)) + '</small></span></span>';
+  if (c.s==='ext') return '<span class="slot"><span class="stamp ext" aria-label="' + label + md(c.due) + '까지 연장">연장<small>~' + md(c.due) + '</small></span></span>';
+  if (nxt) return '<span class="slot"><span class="stamp next" aria-label="' + label + '내 차례">내 차례<small>~' + md(cellDue(t,m,i)) + '</small></span></span>';
+  return '<span class="slot"><span class="stamp todo" aria-label="' + label + '기한 전">기한 전</span></span>';
 }
+function stackOf(t){ return '<span class="stack" aria-hidden="true">' + t.members.map(function(mm, mi){ return av(mm.name, colOf(t, mi)); }).join('') + '</span>'; }
 
 /* ───────── 화면들 ───────── */
 var V = {};
 
 V.start = function(){
-  var h = '<div class="scroll"><div class="big" style="padding-top:36px"><h1>어디까지 했어?</h1><p>조별과제에서 서로 어디까지 했는지 도장판처럼 보이는 웹이에요. 사람을 고르면 그 사람의 휴대폰으로 처음부터 따라가 봐요.</p><p style="font-size:13px">기준 날짜: 2026년 11월 15일 일요일</p></div>';
+  var h = '<div class="scroll"><div class="big" style="padding-top:28px"><span class="logo" aria-hidden="true" style="display:block;width:44px;height:44px;border-radius:14px;margin-bottom:18px"></span><h1><b>어디까지 했어?</b></h1><p>조별과제에서 서로 어디까지 했는지 한 보드에서 보는 앱이에요. 사람을 고르면 그 사람의 휴대폰으로 처음부터 따라가 봐요.</p><p style="font-size:13px">기준 날짜: 2026년 11월 15일 일요일</p></div>';
   h += '<div class="sheet">';
   SCEN.forEach(function(sc){
     h += '<button class="line" data-a="scen" data-id="' + sc.id + '">' + av(sc.me, PERSONA_COL[sc.me]) + '<div class="grow"><div class="t">' + esc(sc.title) + '</div><div class="s">' + esc(sc.why) + '</div></div>' + IC.chev + '</button>';
   });
-  h += '</div><div class="sheet"><button class="line" data-a="free"><span class="av" style="--c:var(--sub)" aria-hidden="true">+</span><div class="grow"><div class="t">자유롭게 둘러보기</div><div class="s">팀장 김민수의 홈에서 시작해요</div></div>' + IC.chev + '</button></div></div>';
+  h += '</div><div class="sheet"><button class="line" data-a="free"><span class="av" style="--c:#E7ECFF" aria-hidden="true">+</span><div class="grow"><div class="t">자유롭게 둘러보기</div><div class="s">팀장 김민수의 홈에서 시작해요</div></div>' + IC.chev + '</button></div></div>';
   return h;
 };
 
 V.home = function(){
   var ts = myTeams();
-  var h = '<header class="top"><span style="width:14px"></span><div class="ttl"></div></header>';
-  h += '<div class="scroll"><div class="big" style="padding-top:0"><h1>' + esc(S.me.slice(1)) + '님,<br>조별과제 ' + ts.length + '개를 하고 있어요</h1></div>';
+  var h = '<header class="top" style="padding-left:20px"><span class="logo" aria-hidden="true"></span><div class="ttl" style="margin-left:8px"><h1 style="font-size:16px">어디까지 했어?</h1></div>' + av(S.me, PERSONA_COL[S.me] || '#E7ECFF') + '</header>';
+  h += '<div class="scroll"><div class="big" style="padding-top:12px"><h1><b>' + esc(S.me.slice(1)) + '님,</b><br>조별과제 ' + ts.length + '개를 하고 있어요</h1></div>';
   var best = null;
   ts.forEach(function(t){ var m = meIn(t), i = nextIdx(m); if (i<0) return; var d = cellDue(t,m,i); if (!best || d < best.d) best = {t:t, i:i, d:d}; });
   if (best){
-    h += '<div class="sheet"><button class="line" data-a="upload" data-team="' + best.t.id + '" data-i="' + best.i + '"><span class="stamp next" style="width:44px;height:44px;flex:none">내<br>차례</span><div class="grow"><div class="s" style="margin:0 0 2px">가장 먼저 할 것</div><div class="t">' + esc(best.t.name) + '의 ‘' + esc(best.t.stages[best.i].label) + '’</div><div class="s">' + longDate(best.d) + '까지, ' + dday(best.d) + '</div></div>' + IC.chev + '</button></div>';
+    h += '<button class="hero" style="border:none;width:calc(100% - 32px);text-align:left;cursor:pointer" data-a="upload" data-team="' + best.t.id + '" data-i="' + best.i + '"><div class="row"><p style="font-size:13px">가장 먼저 할 것</p><span style="background:rgba(255,255,255,.2);border-radius:6px;padding:2px 8px;font-size:12px;font-weight:600">' + dday(best.d) + '</span></div><div style="font-size:20px;font-weight:600;line-height:1.35">' + esc(best.t.name) + '<br>‘' + esc(best.t.stages[best.i].label) + '’ 올리기</div><p>' + longDate(best.d) + '까지</p></button>';
   }
-  h += '<div class="sheet-h" style="padding:22px 20px 0"><h2>내 팀</h2></div><div class="sheet">';
+  h += '<div class="sec-h"><h2>내 팀</h2><span>' + ts.length + '개</span></div>';
   ts.forEach(function(t){
     var total = t.members.length * t.stages.length, done = doneCount(t), late = lateCount(t);
-    var dots = '';
-    t.members.forEach(function(m, mi){ m.cells.forEach(function(c,i){ var col = colOf(t, mi); dots += '<i style="width:9px;height:9px;border-radius:50%;' + (c.s==='done' ? 'background:' + col : (isLate(t,m,i) ? 'border:1.5px dashed var(--late)' : 'border:1.5px dashed var(--dash)')) + '"></i>'; }); });
-    var st = done === 0 ? '아직 찍힌 도장이 없어요' : (total + '칸 중 ' + done + '칸 찍힘' + (late ? ', 기한 지남 ' + late + '칸' : ''));
-    h += '<button class="line" data-a="openteam" data-id="' + t.id + '"><div class="grow"><div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><span class="t">' + esc(t.name) + '</span><span style="font-size:13px;font-weight:600;flex:none">' + dday(t.due) + '</span></div><div class="s">' + st + '</div><div aria-hidden="true" style="display:flex;flex-wrap:wrap;gap:4px;margin-top:10px">' + dots + '</div></div>' + IC.chev + '</button>';
+    var chip = late ? '<span style="background:var(--late-bg);color:var(--late);border-radius:6px;padding:2px 8px;font-size:12px;font-weight:500">지남 ' + late + '</span>' : (done === 0 ? '<span style="background:var(--lavender);color:#4A4458;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:500">새 팀</span>' : '<span style="background:var(--mint);color:#1F3A0E;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:500">순조로움</span>');
+    h += '<div class="sheet"><button class="line" data-a="openteam" data-id="' + t.id + '" style="padding:20px"><div class="grow"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span class="t">' + esc(t.name) + '</span>' + chip + '</div><div class="s">팀 마감 ' + longDate(t.due) + ', ' + dday(t.due) + '</div><div style="display:flex;align-items:center;gap:12px;margin-top:14px">' + stackOf(t) + '<div class="prog" style="flex:1 1 auto;background:var(--canvas)" aria-hidden="true"><i style="width:' + Math.round(done*100/total) + '%;background:var(--violet)"></i></div><span style="font-size:12px;color:var(--slate)">' + done + '/' + total + '</span></div></div></button></div>';
   });
-  h += '</div></div><div class="bar"><button class="btn grow" data-a="create">새 팀 만들기</button></div>';
+  h += '</div><div class="bar"><button class="btn primary grow" data-a="create">새 팀 만들기</button></div>';
   return h;
 };
 
@@ -458,15 +458,15 @@ V.team = function(p){
   var t = team(p.team), m = meIn(t), alerts = (S.teamAlerts[t.id]||[]).length + ((S.mine[t.id]||[]).length);
   var total = t.members.length * t.stages.length, done = doneCount(t);
   var h = top(t.name, '', {bell:{team:t.id, n:alerts}});
-  h += '<div class="scroll"><div class="hero"><span class="dday">' + dday(t.due) + '</span><p><b>팀 마감 ' + longDate(t.due) + '</b><br>' + total + '칸 중 ' + done + '칸 찍힘, 팀원 ' + t.members.length + '/' + t.size + '명</p></div>';
+  h += '<div class="scroll"><div class="hero"><div class="row"><span class="dday">' + dday(t.due) + '</span>' + stackOf(t) + '</div><p><b>팀 마감 ' + longDate(t.due) + '</b><br>' + total + '칸 중 ' + done + '칸 올림, 팀원 ' + t.members.length + '/' + t.size + '명</p><div class="prog" aria-hidden="true"><i style="width:' + Math.round(done*100/total) + '%"></i></div></div>';
   var acks = (S.mine[t.id]||[]).filter(function(a){ return a.k==='ack'; });
   if (acks.length) h += '<button class="line ribbon" data-a="detail" data-team="' + t.id + '" data-m="' + acks[0].m + '"><span class="ic ack" style="width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800">✓</span><span class="grow">' + esc(acks[0].text) + '</span>' + IC.chev + '</button>';
   if (done === 0){
     var missing = t.size - t.members.length, first = t.stages[0];
-    h += '<div class="empty"><div class="ghost-row" aria-hidden="true"><i></i><i></i><i></i></div><h2>아직 찍힌 도장이 없어요</h2><p>첫 칸 ‘' + esc(first.label) + '’은 ' + longDate(first.due) + '까지예요. 기한 전에는 누구에게도 알림이 가지 않아요.</p>' + (missing > 0 ? '<p style="margin-top:14px;color:var(--ink);font-weight:600">아직 안 들어온 팀원 ' + missing + '명</p><button class="btn small" style="margin-top:8px" data-a="reshare" data-team="' + t.id + '">' + IC.share + ' 팀 링크 다시 보내기</button>' : '') + '</div>';
+    h += '<div class="empty"><div class="ghost-row" aria-hidden="true"><i></i><i></i><i></i></div><h2>아직 올라온 결과물이 없어요</h2><p>첫 칸 ‘' + esc(first.label) + '’은 ' + longDate(first.due) + '까지예요. 기한 전에는 누구에게도 알림이 가지 않아요.</p>' + (missing > 0 ? '<p style="margin-top:14px;color:var(--ink);font-weight:600">아직 안 들어온 팀원 ' + missing + '명</p><button class="btn small" style="margin-top:8px" data-a="reshare" data-team="' + t.id + '">' + IC.share + ' 팀 링크 다시 보내기</button>' : '') + '</div>';
   }
-  var ni = nextIdx(m), cols = 'minmax(0,1fr) repeat(' + t.stages.length + ', ' + (t.stages.length > 3 ? 48 : 54) + 'px)';
-  h += '<section class="sheet" aria-label="팀 도장판"><div class="board-h" style="grid-template-columns:' + cols + '"><span>팀원</span>';
+  var ni = nextIdx(m), cols = 'minmax(0,1fr) repeat(' + t.stages.length + ', ' + (t.stages.length > 3 ? 50 : 60) + 'px)';
+  h += '<div class="sec-h"><h2>진행 보드</h2><span>칸을 누르면 결과물을 봐요</span></div><section class="sheet" aria-label="팀 진행 보드"><div class="board-h" style="grid-template-columns:' + cols + '"><span>팀원</span>';
   t.stages.forEach(function(s){ h += '<span class="bh"><b>' + esc(s.label) + '</b>~' + md(s.due) + '</span>'; });
   h += '</div>';
   t.members.forEach(function(mm, mi){
@@ -475,7 +475,7 @@ V.team = function(p){
     mm.cells.forEach(function(c, i){ h += stamp(t, mm, i, col, isMe); });
     h += '</button>';
   });
-  h += '<div class="legend"><span><i class="ld"></i>올림</span><span><i class="lt"></i>기한 전</span><span><i class="ll"></i>기한 지남</span><span><i class="le"></i>연장한 날짜</span></div></section>';
+  h += '<div class="legend"><span class="lg-done">올림</span><span class="lg-next">내 차례</span><span class="lg-todo">기한 전</span><span class="lg-ext">연장</span><span class="lg-late">지남</span></div></section>';
   var notes = [];
   t.members.forEach(function(mm){ mm.cells.forEach(function(c,i){ if (c.s==='ext') notes.push(mm.name + '님 ‘' + t.stages[i].label + '’ ' + md(c.due) + '까지 연장, ' + c.reason); }); });
   if (notes.length) h += '<p class="hint" style="padding:0 20px">' + notes.map(esc).join('<br>') + '</p>';
