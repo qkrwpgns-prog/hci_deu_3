@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>어디까지 했어? 프로토타입</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@700;800&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<style>
+:root{
+  --paper:#FFFFFF; --ink:#16181D; --rule:#E2E4E8; --rule-strong:#C9CDD3; --muted:#5B6270;
+  --hl:#FFE066; --late:#C2410C; --ext:#2459C9; --desk:#ECEDEF;
+  --f-head:'Gothic A1','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --f-body:'IBM Plex Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--desk);color:var(--ink);font-family:var(--f-body)}
+body{min-height:100vh;display:flex;flex-wrap:wrap;gap:24px;justify-content:center;align-items:flex-start;padding:24px 16px}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--ink)}
+
+/* 폰 프레임 */
+.phone{width:390px;height:844px;background:var(--paper);border:1px solid var(--rule-strong);position:relative;overflow:hidden;display:flex;flex-direction:column;flex:none}
+@media (max-width:430px){body{padding:0;gap:0}.phone{width:100vw;height:100dvh;border:none}.guide{width:100%;margin:0;border-left:none;border-right:none}}
+.screen{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+.scroll{flex:1 1 auto;overflow-y:auto;min-height:0}
+
+/* 상단 */
+.top{display:flex;align-items:center;gap:4px;padding:8px 12px 8px 4px;border-bottom:2px solid var(--ink)}
+.top .ttl{flex:1 1 auto;min-width:0}
+.top h1{margin:0;font-family:var(--f-head);font-weight:800;font-size:19px;letter-spacing:-0.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .sub{font-size:12px;color:var(--muted)}
+.iconbtn{width:44px;height:44px;border:none;background:transparent;display:flex;align-items:center;justify-content:center;position:relative;flex:none}
+.iconbtn:focus-visible,.btn:focus-visible,.chip:focus-visible,.row-btn:focus-visible,.tab:focus-visible{outline:3px solid var(--ext);outline-offset:2px}
+.badge{position:absolute;top:4px;right:2px;min-width:18px;height:18px;padding:0 4px;background:var(--late);color:#fff;font:600 11px/18px var(--f-mono);text-align:center}
+.mono{font-family:var(--f-mono);font-weight:500;letter-spacing:-0.2px}
+
+/* 본문 요소 */
+.pad{padding:16px}
+.h2{font-family:var(--f-head);font-weight:800;font-size:15px;margin:0 0 8px}
+.lead{font-size:14px;color:var(--muted);margin:4px 0 0;line-height:1.5}
+.hl{background:linear-gradient(transparent 12%,var(--hl) 12%,var(--hl) 88%,transparent 88%)}
+.section{border-bottom:1px solid var(--rule);padding:14px 16px}
+.label{display:block;font-size:13px;font-weight:600;margin:0 0 6px}
+.field{width:100%;height:48px;border:1px solid var(--rule-strong);border-radius:4px;padding:0 12px;font-size:15px;background:#fff}
+textarea.field{height:76px;padding:10px 12px;resize:none;line-height:1.5}
+.field:focus{outline:2px solid var(--ink);outline-offset:0;border-color:var(--ink)}
+.help{font-size:12px;color:var(--muted);margin:6px 0 0}
+.err{font-size:13px;color:var(--late);margin:8px 0 0;font-weight:600}
+
+/* 버튼 */
+.bar{display:flex;gap:8px;padding:10px 16px 18px;border-top:1px solid var(--rule-strong);background:#fff}
+.btn{min-height:48px;border-radius:4px;border:1px solid var(--ink);background:#fff;font-size:15px;font-weight:600;padding:0 14px;display:flex;align-items:center;justify-content:center;gap:6px;text-decoration:none}
+.btn.primary{background:var(--ink);color:#fff}
+.btn.grow{flex:1 1 0}
+.btn.grow2{flex:2 1 0}
+.btn.small{min-height:40px;font-size:13px;font-weight:500;padding:0 10px}
+.btn.ghost{border-color:transparent;text-decoration:underline;text-underline-offset:3px;font-weight:500}
+.btn[disabled]{opacity:.45;cursor:default}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{min-height:40px;border:1px solid var(--rule-strong);background:#fff;border-radius:4px;padding:0 12px;font-size:14px}
+.chip[aria-pressed="true"]{border:2px solid var(--ink);font-weight:600;background:var(--hl)}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+
+/* 팀 플래너 표 */
+.planner{width:100%;border-collapse:collapse;table-layout:fixed}
+.planner th{font-weight:600;font-size:12px;text-align:left;padding:8px 6px;border-bottom:2px solid var(--ink);vertical-align:bottom}
+.planner th .mono{display:block;font-size:12px;color:var(--muted);font-weight:500}
+.planner td{border-bottom:1px solid var(--rule);padding:0;vertical-align:top;height:58px}
+.planner td+td,.planner th+th{border-left:1px solid var(--rule)}
+.row-btn{display:flex;flex-direction:column;justify-content:center;gap:2px;width:100%;height:58px;border:none;background:transparent;text-align:left;padding:4px 8px}
+.row-btn .nm{font-weight:600;font-size:14px}
+.row-btn .pt{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cell{display:flex;flex-direction:column;justify-content:center;height:58px;padding:4px 6px;font-size:12px;line-height:1.3}
+.cell b{font-size:13px}
+.cell.done{color:var(--ink)}
+.cell.todo{color:var(--muted)}
+.cell.late{color:var(--late);box-shadow:inset 0 0 0 2px var(--late);background-image:repeating-linear-gradient(135deg,transparent 0 6px,rgba(194,65,12,.08) 6px 8px)}
+.cell.ext{color:var(--ext);box-shadow:inset 0 0 0 2px var(--ext)}
+.cell.next{background:var(--hl)}
+.me-tag{font:600 10px/1 var(--f-mono);border:1px solid var(--ink);padding:1px 3px;margin-left:4px;vertical-align:1px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--muted);padding:10px 16px 0}
+.legend .l{color:var(--late)} .legend .e{color:var(--ext)}
+.notes{padding:10px 16px;font-size:12px;color:var(--muted);line-height:1.6}
+.notes p{margin:0}
+
+/* 리스트 줄 */
+.line{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--rule);background:#fff;border-left:none;border-right:none;border-top:none;width:100%;text-align:left}
+button.line{cursor:pointer}
+.line .grow{flex:1 1 auto;min-width:0}
+.line .t{font-weight:600;font-size:15px}
+.line .s{font-size:12px;color:var(--muted);margin-top:2px}
+.meter{display:flex;gap:2px;margin-top:8px}
+.meter i{flex:1 1 0;height:6px;background:var(--rule)}
+.meter i.on{background:var(--ink)}
+.meter i.bad{background:var(--late)}
+.chev{flex:none}
+
+/* 알림 */
+.tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-bottom:1px solid var(--rule-strong)}
+.tab{height:48px;border:none;background:#fff;font-size:14px;color:var(--muted)}
+.tab[aria-selected="true"]{color:var(--ink);font-weight:600;box-shadow:inset 0 -3px 0 var(--ink)}
+.alert{padding:14px 16px;border-bottom:1px solid var(--rule)}
+.alert .k{font:600 12px/1 var(--f-mono);display:inline-block;padding:3px 5px;margin-right:6px}
+.alert .k.late{color:var(--late);box-shadow:inset 0 0 0 1.5px var(--late)}
+.alert .k.ext{color:var(--ext);box-shadow:inset 0 0 0 1.5px var(--ext)}
+.alert .k.me{background:var(--hl)}
+.alert p{margin:8px 0;font-size:14px;line-height:1.55}
+.alert .when{font-size:12px;color:var(--muted)}
+.alert .acts{display:flex;gap:6px;flex-wrap:wrap}
+
+/* 단계 상세 */
+.stage{padding:14px 16px;border-bottom:1px solid var(--rule)}
+.stage .hd{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.stage .nm{font-weight:600;font-size:15px}
+.file{display:flex;align-items:center;gap:8px;margin-top:10px;padding:10px 12px;border:1px solid var(--rule-strong);background:#fff;width:100%;text-align:left;border-radius:4px;min-height:44px}
+.memo{margin:8px 0 0;font-size:13px;color:var(--muted);line-height:1.5}
+.checks{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12px;color:var(--muted)}
+.checks span{flex:1 1 auto}
+
+/* 빈 상태·오류 */
+.empty{margin:20px 16px;padding:22px 18px;border:1px dashed var(--rule-strong)}
+.empty h2{font-family:var(--f-head);font-weight:800;font-size:17px;margin:0 0 6px}
+.errbox{margin:16px;padding:16px;border:2px solid var(--late)}
+.errbox h2{font-family:var(--f-head);font-weight:800;font-size:18px;margin:0 0 6px;color:var(--late)}
+
+/* 토스트 */
+.toast{position:absolute;left:16px;right:16px;bottom:92px;background:var(--ink);color:#fff;padding:12px 14px;font-size:14px;line-height:1.45;border-radius:4px;opacity:0;transform:translateY(8px);transition:opacity .18s,transform .18s;pointer-events:none;z-index:5}
+.toast.on{opacity:1;transform:none}
+
+/* 시작 화면 */
+.start-hd{padding:28px 20px 16px;border-bottom:2px solid var(--ink)}
+.start-hd h1{font-family:var(--f-head);font-weight:800;font-size:26px;margin:0;letter-spacing:-0.5px}
+.scen{display:flex;gap:12px;align-items:flex-start}
+.scen .no{font:600 13px/1 var(--f-mono);border:1px solid var(--ink);width:26px;height:26px;display:flex;align-items:center;justify-content:center;flex:none;margin-top:2px}
+
+/* 문서 미리보기 */
+.doc{margin:16px;border:1px solid var(--rule-strong);padding:18px 16px;min-height:360px}
+.doc .lnx{height:10px;background:var(--rule);margin:10px 0}
+.doc .lnx.s{width:60%}
+
+/* 가이드 패널 */
+.guide{width:300px;background:#fff;border:1px solid var(--rule-strong);padding:16px;font-size:14px;line-height:1.55;flex:none}
+.guide h2{font-family:var(--f-head);font-weight:800;font-size:15px;margin:0 0 6px}
+.guide .now{background:var(--hl);padding:2px 4px}
+.guide ol{padding-left:20px;margin:8px 0}
+.guide li.cur{font-weight:600}
+.guide li.done{color:var(--muted);text-decoration:line-through}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<div class="phone" id="phone" aria-live="polite">
+  <div class="screen" id="app"></div>
+  <div class="toast" id="toast" role="status"></div>
+</div>
+<aside class="guide" id="guide" aria-label="시나리오 안내"></aside>
+
+<script>
+(function(){
+'use strict';
+/* ───────── 날짜 도우미 (기준: 2026-11-15 일요일) ───────── */
+var TODAY = new Date(2026, 10, 15);
+var DOW = ['일','월','화','수','목','금','토'];
+function md(d){ return (d.getMonth()+1) + '/' + d.getDate(); }
+function mdw(d){ return md(d) + ' (' + DOW[d.getDay()] + ')'; }
+function D(m, d){ return new Date(2026, m-1, d); }
+function addDays(d, n){ var x = new Date(d); x.setDate(x.getDate()+n); return x; }
+function dday(d){ var n = Math.round((d - TODAY)/86400000); return n === 0 ? 'D-DAY' : (n > 0 ? 'D-' + n : 'D+' + (-n)); }
+function iso(d){ var m = d.getMonth()+1, dd = d.getDate(); return d.getFullYear() + '-' + (m<10?'0':'') + m + '-' + (dd<10?'0':'') + dd; }
+function fromIso(s){ var p = s.split('-'); return new Date(+p[0], +p[1]-1, +p[2]); }
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+
+/* ───────── 더미 데이터 ───────── */
+function seed(){
+  var mkt = {
+    id:'mkt', name:'마케팅원론 기획서', due:D(11,20), size:4, isNew:false,
+    stages:[{label:'자료조사', due:D(11,12)}, {label:'초안', due:D(11,16)}, {label:'완성', due:D(11,19)}],
+    members:[
+      {name:'김민수', part:'시장조사 · 취합', cells:[
+        {s:'done', at:D(11,10), file:'시장조사_자료모음.xlsx', memo:'경쟁사 3곳 가격·채널 정리. 출처는 2번째 시트에.', checks:['이수아','정예린']},
+        {s:'done', at:D(11,14), file:'시장조사_초안.docx', memo:'목차 2장까지 썼어요. 4P랑 이어지는 부분 표시해 둠.', checks:['정예린']},
+        {s:'todo'}]},
+      {name:'이수아', part:'4P 분석', cells:[
+        {s:'done', at:D(11,11), file:'4P_자료모음.pdf', memo:'가격 부분 출처는 표 2쪽에 정리했어요.', checks:['김민수','정예린']},
+        {s:'todo'}, {s:'todo'}]},
+      {name:'한도윤', part:'발표자료', cells:[
+        {s:'done', at:D(11,12), link:'https://docs.google.com/presentation/…', memo:'참고 슬라이드 링크만 모아 뒀어요.', checks:[]},
+        {s:'todo'}, {s:'todo'}]},
+      {name:'정예린', part:'SWOT 분석', cells:[
+        {s:'late'}, {s:'todo'}, {s:'todo'}]}
+    ]
+  };
+  var cap = {
+    id:'cap', name:'캡스톤디자인 시스템 개발', due:D(12,4), size:4, isNew:false,
+    stages:[{label:'설계', due:D(11,13)}, {label:'구현', due:D(11,27)}, {label:'테스트', due:D(12,2)}],
+    members:[
+      {name:'김민수', part:'서버', cells:[{s:'done', at:D(11,12), file:'설계서_v1.pdf', memo:'ERD 포함', checks:['박서준']}, {s:'todo'}, {s:'todo'}]},
+      {name:'박서준', part:'앱 화면', cells:[{s:'done', at:D(11,13), file:'화면설계.fig 링크', memo:'', checks:[]}, {s:'todo'}, {s:'todo'}]},
+      {name:'최하은', part:'데이터', cells:[{s:'done', at:D(11,13), memo:'더미 데이터 200건 준비 완료', checks:[]}, {s:'todo'}, {s:'todo'}]},
+      {name:'윤지민', part:'문서·발표', cells:[{s:'ext', due:D(11,16), reason:'다른 과제 마감'}, {s:'todo'}, {s:'todo'}]}
+    ]
+  };
+  var gy = {
+    id:'gy', name:'교양 조별 발표', due:D(11,27), size:4, isNew:true,
+    stages:[{label:'자료조사', due:D(11,21)}, {label:'초안', due:D(11,24)}, {label:'완성', due:D(11,26)}],
+    members:[
+      {name:'김민수', part:'도입·결론', cells:[{s:'todo'},{s:'todo'},{s:'todo'}]},
+      {name:'한도윤', part:'사례 조사', cells:[{s:'todo'},{s:'todo'},{s:'todo'}]}
+    ]
+  };
+  return {
+    teams:[mkt, cap, gy],
+    teamAlerts:{
+      mkt:[
+        {k:'late', who:'정예린', text:'정예린님의 ‘자료조사’ 기한(11/12)이 지났어요. 아직 결과물도 연장 요청도 없어요.', when:'오늘 09:00', member:'정예린'},
+        {k:'ext', who:'윤지민', text:'이전 알림 예시는 다른 팀에서 왔어요.', when:'', hidden:true}
+      ],
+      cap:[{k:'ext', text:'윤지민님이 ‘설계’ 단계를 3일 연장했어요 (~11/16).', reason:'다른 과제 마감', when:'11/13'}],
+      gy:[]
+    }
+  };
+}
+
+/* ───────── 시나리오 ───────── */
+var SCEN = [
+  {id:'A', me:'김민수', title:'팀장 김민수 · 새 팀을 만들고 링크를 퍼뜨린다', why:'“제가 안 하면 아무도 안 할 것 같았어요” (P4-12)', start:['home'],
+    steps:[['home','‘+ 새 팀 만들기’를 누르세요'],['create','유형을 고르고 ‘팀 만들고 링크 받기’'],['share','‘카톡으로 보내기’ 후 ‘다음: 단계 정하기’'],['stages','기한을 고쳐 보고 ‘이대로 시작하기’'],['team','첫 팀 화면(빈 상태) 확인 → 뒤로 가기로 홈']]},
+  {id:'B', me:'이수아', title:'팀원 이수아 · 남의 진행을 보고 초안을 올린다', why:'“다른 사람들이 어디까지 했는지 보이면…” (P6-64b)', start:['join'],
+    steps:[['join','‘팀 들어가기’를 누르세요'],['team','김민수 줄을 눌러 결과물을 보세요'],['detail','초안을 열어 보고 ‘확인했어요’ → 뒤로'],['team2','‘내 결과물 올리기’'],['upload','파일을 고르고 ‘초안’ 단계로 올리기']]},
+  {id:'C', me:'한도윤', title:'팀원 한도윤 · 기한 하루 전, 사유를 골라 연장한다', why:'“안 된다는 말을 하기 편했으면” (P6-64a), 새벽 4시 제출 (P5-40)', start:['alerts', {tab:'mine', team:'mkt'}],
+    steps:[['alerts','나에게만 온 알림에서 ‘연장 요청하기’'],['extend','기간과 사유를 고르고 ‘연장하고 팀에 알리기’'],['team','내 칸이 →로 바뀐 것 확인 → 종 아이콘'],['alerts2','팀 알림에 내 연장이 올라간 것 확인']]},
+  {id:'D', me:'김민수', title:'팀장 김민수 · 기한 지남 알림을 단톡에 공유한다', why:'“저요. 늘 저예요.” (P4-52) — 공유는 누구나', start:['home'],
+    steps:[['home','‘마케팅원론 기획서’를 누르세요'],['team','종 아이콘(알림)을 누르세요'],['alerts','‘카톡 단톡방으로 공유’'],['alerts2','‘정예린 파트 보기’로 상태 확인'],['detail','뒤로 가기로 팀 화면']]},
+  {id:'E', me:'이수아', title:'오류 · 잘린 링크와 너무 큰 파일', why:'빈 화면에서 멈추지 않게', start:['errlink'],
+    steps:[['errlink','‘내 팀 목록으로’'],['home','‘마케팅원론 기획서’ → ‘내 결과물 올리기’'],['upload','파일 선택(큰 파일) 후 올리기'],['errupload','‘링크로 올리기’ → 링크 입력 후 올리기']]}
+];
+
+/* ───────── 상태 ───────── */
+var S = null;
+function reset(scen){
+  var d = seed();
+  S = {scen:scen, me:scen ? scen.me : '김민수', teams:d.teams, teamAlerts:d.teamAlerts, stack:[], step:0, flags:{}};
+  // 시나리오별 나에게만 알림
+  S.mine = {};
+  if (scen && scen.id === 'C'){
+    S.mine.mkt = [{k:'me', text:'내일(11/16)이 ‘초안’ 기한이에요. 올렸거나 늦어질 것 같으면 지금 알려 주세요. 이 알림은 팀원에게 보이지 않아요.', when:'오늘 09:00', stage:1}];
+  }
+  // 팀 알림 중 예시용 숨김 제거
+  S.teamAlerts.mkt = S.teamAlerts.mkt.filter(function(a){ return !a.hidden; });
+}
+function team(id){ for (var i=0;i<S.teams.length;i++) if (S.teams[i].id===id) return S.teams[i]; return null; }
+function myTeams(){ return S.teams.filter(function(t){ return t.members.some(function(m){ return m.name===S.me; }); }); }
+function meIn(t){ for (var i=0;i<t.members.length;i++) if (t.members[i].name===S.me) return t.members[i]; return null; }
+function cellDue(t, m, i){ var c = m.cells[i]; return c.s==='ext' ? c.due : t.stages[i].due; }
+function isLate(t, m, i){ var c = m.cells[i]; return c.s==='late' || ((c.s==='todo'||c.s==='ext') && cellDue(t,m,i) < TODAY); }
+function nextIdx(m){ for (var i=0;i<m.cells.length;i++) if (m.cells[i].s!=='done') return i; return -1; }
+function doneCount(t){ var n=0; t.members.forEach(function(m){ m.cells.forEach(function(c){ if(c.s==='done') n++; }); }); return n; }
+function lateCount(t){ var n=0; t.members.forEach(function(m){ m.cells.forEach(function(c,i){ if(isLate(t,m,i)) n++; }); }); return n; }
+
+/* ───────── 라우터 ───────── */
+function go(name, p, opt){
+  if (!opt || !opt.replace) { if (S.cur) S.stack.push(S.cur); }
+  S.cur = {name:name, p:p || {}};
+  render();
+}
+function back(){
+  if (S.stack.length){ S.cur = S.stack.pop(); render(); }
+  else { S.cur = {name:'start', p:{}}; render(); }
+}
+function resetTo(list){ // [[name,p],...] 마지막이 현재
+  S.stack = list.slice(0,-1).map(function(x){ return {name:x[0], p:x[1]||{}}; });
+  var l = list[list.length-1]; S.cur = {name:l[0], p:l[1]||{}}; render();
+}
+var toastTimer;
+function toast(msg){
+  var el = document.getElementById('toast'); el.textContent = msg; el.classList.add('on');
+  clearTimeout(toastTimer); toastTimer = setTimeout(function(){ el.classList.remove('on'); }, 2600);
+}
+
+/* ───────── 공통 조각 ───────── */
+var IC = {
+  back:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>',
+  bell:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>',
+  chev:'<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>',
+  file:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5"/></svg>',
+  link:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg>',
+  share:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1.1-4.6A8 8 0 1 1 21 12z"/></svg>'
+};
+function top(title, sub, opts){
+  opts = opts || {};
+  var h = '<header class="top">';
+  h += opts.noBack ? '<span style="width:12px"></span>' : '<button class="iconbtn" data-a="back" aria-label="뒤로 가기">' + IC.back + '</button>';
+  h += '<div class="ttl"><h1>' + esc(title) + '</h1>' + (sub ? '<div class="sub">' + sub + '</div>' : '') + '</div>';
+  if (opts.bell){ var n = opts.bell.n; h += '<button class="iconbtn" data-a="alerts" data-team="' + opts.bell.team + '" aria-label="알림' + (n ? ' ' + n + '개' : '') + '">' + IC.bell + (n ? '<span class="badge">' + n + '</span>' : '') + '</button>'; }
+  return h + '</header>';
+}
+function cellHTML(t, m, i, highlight){
+  var c = m.cells[i], cls = c.s, inner;
+  if (isLate(t,m,i) && c.s!=='done') { cls = 'late'; inner = '<b>! 지남</b><span class="mono">' + md(cellDue(t,m,i)) + '</span>'; }
+  else if (c.s==='done') inner = '<b>■ 올림</b><span class="mono">' + md(c.at) + '</span>';
+  else if (c.s==='ext') inner = '<b>→ 연장</b><span class="mono">~' + md(c.due) + '</span>';
+  else inner = '<b>□</b><span>기한 전</span>';
+  return '<div class="cell ' + cls + (highlight ? ' next' : '') + '">' + inner + '</div>';
+}
+
+/* ───────── 화면들 ───────── */
+var V = {};
+
+V.start = function(){
+  var h = '<div class="scroll"><div class="start-hd"><p class="lead" style="margin:0 0 6px">조별과제 진행이 보이는 웹 · 클릭 프로토타입</p><h1>어디까지 했어?</h1><p class="lead">시나리오를 고르면 그 사람의 휴대폰 화면으로 처음부터 따라가 볼 수 있어요. 기준 날짜는 2026년 11월 15일(일)입니다.</p></div>';
+  h += '<div style="padding:4px 0">';
+  SCEN.forEach(function(sc){
+    h += '<button class="line" data-a="scen" data-id="' + sc.id + '"><div class="scen"><span class="no">' + sc.id + '</span><div class="grow"><div class="t">' + esc(sc.title) + '</div><div class="s">' + esc(sc.why) + ' · ' + sc.steps.length + '단계</div></div></div>' + IC.chev + '</button>';
+  });
+  h += '<button class="line" data-a="free"><div class="scen"><span class="no">·</span><div class="grow"><div class="t">자유롭게 둘러보기</div><div class="s">팀장 김민수의 홈에서 시작</div></div></div>' + IC.chev + '</button>';
+  h += '</div></div>';
+  return h;
+};
+
+V.home = function(){
+  var ts = myTeams(), h = top('내 팀 ' + ts.length + '개', esc(S.me) + ' · 이 기기에 기억됨');
+  h += '<div class="scroll">';
+  // 내가 할 다음 단계 (형광펜 한 곳)
+  var best = null;
+  ts.forEach(function(t){ var m = meIn(t), i = nextIdx(m); if (i<0) return; var d = cellDue(t,m,i); if (!best || d < best.d) best = {t:t, i:i, d:d}; });
+  if (best){
+    h += '<div class="section"><div class="help" style="margin:0 0 4px">내가 할 다음 단계</div><div style="font-weight:600;font-size:15px"><span class="hl">' + esc(best.t.name) + ' · ‘' + esc(best.t.stages[best.i].label) + '’</span> <span class="mono">~' + mdw(best.d) + ' ' + dday(best.d) + '</span></div></div>';
+  }
+  ts.forEach(function(t){
+    var total = t.members.length * t.stages.length, done = doneCount(t), late = lateCount(t);
+    var meter = '';
+    t.members.forEach(function(m){ m.cells.forEach(function(c,i){ meter += '<i class="' + (c.s==='done' ? 'on' : (isLate(t,m,i) ? 'bad' : '')) + '"></i>'; }); });
+    var st = done === 0 ? '아직 올라온 결과물 없음' : (total + '칸 중 ' + done + '칸 올림' + (late ? ' · 기한 지남 ' + late : ''));
+    h += '<button class="line" data-a="openteam" data-id="' + t.id + '"><div class="grow"><div style="display:flex;justify-content:space-between;gap:8px"><span class="t">' + esc(t.name) + '</span><span class="mono" style="font-size:12px;color:var(--muted)">' + md(t.due) + ' ' + dday(t.due) + '</span></div><div class="s">' + st + '</div><div class="meter" aria-hidden="true">' + meter + '</div></div>' + IC.chev + '</button>';
+  });
+  h += '</div><div class="bar"><button class="btn primary grow" data-a="create">+ 새 팀 만들기</button></div>';
+  return h;
+};
+
+V.create = function(){
+  var f = S.flags.create || (S.flags.create = {name:'광고기획론 캠페인 PT', due:'2026-12-04', type:'발표'});
+  var types = [['발표','자료조사 · 초안 · 완성'],['보고서','목차 · 초안 · 완성'],['개발','설계 · 구현 · 테스트'],['직접 정하기','빈 단계에서 시작']];
+  var h = top('새 팀 만들기', '가입 없이 링크 하나로 팀원이 들어와요');
+  h += '<div class="scroll"><div class="section"><label class="label" for="c-name">과제 이름</label><input class="field" id="c-name" value="' + esc(f.name) + '"><p class="err" id="c-err" hidden>과제 이름을 적어 주세요.</p></div>';
+  h += '<div class="section"><label class="label" for="c-due">팀 마감일</label><input class="field mono" type="date" id="c-due" value="' + f.due + '"><p class="help">공식 마감보다 앞당겨 잡는 팀이 많아요.</p></div>';
+  h += '<div class="section"><span class="label" id="c-type">과제 유형 — 단계 템플릿이 달라져요</span><div class="grid2" role="group" aria-labelledby="c-type">';
+  types.forEach(function(x){ h += '<button class="chip" style="min-height:60px;text-align:left;padding:8px 12px" data-a="ctype" data-v="' + x[0] + '" aria-pressed="' + (f.type===x[0]) + '"><div style="font-weight:600">' + x[0] + '</div><div class="help" style="margin:2px 0 0">' + x[1] + '</div></button>'; });
+  h += '</div></div></div><div class="bar"><button class="btn primary grow" data-a="docreate">팀 만들고 링크 받기</button></div>';
+  return h;
+};
+
+V.share = function(p){
+  var t = team(p.team), h = top(p.again ? '팀 링크 공유' : '팀을 만들었어요', esc(t.name));
+  h += '<div class="scroll"><div class="section"><p style="margin:0 0 12px;font-size:15px;line-height:1.55">이 링크를 단톡방에 올리면 팀원이 이름만 적고 들어와요.</p><div style="border:1px solid var(--rule-strong);padding:12px 14px"><div class="help" style="margin:0 0 4px">팀 링크</div><div class="mono" style="font-size:16px">eodi.kr/t/' + t.id + '-4f2a</div></div>';
+  h += '<div class="grid2" style="margin-top:10px"><button class="btn primary" data-a="kakao" data-msg="단톡방에 팀 링크를 보냈어요 (시연: 실제 카톡은 열리지 않아요)">' + IC.share + ' 카톡으로 보내기</button><button class="btn" data-a="copy">링크 복사</button></div></div>';
+  h += '<div class="section"><div class="help" style="margin:0 0 6px">단톡방에는 이렇게 보여요</div><div style="background:#F4F5F6;padding:10px 12px;font-size:14px;line-height:1.5">[어디까지 했어?] ' + esc(t.name) + ' 팀 · 마감 ' + md(t.due) + '<br>링크 누르고 이름만 적어 주세요</div></div></div>';
+  h += p.again ? '<div class="bar"><button class="btn primary grow" data-a="back">팀 화면으로</button></div>' : '<div class="bar"><button class="btn primary grow" data-a="tostages" data-team="' + t.id + '">다음: 단계 정하기</button></div>';
+  return h;
+};
+
+V.stages = function(p){
+  var t = team(p.team), m = meIn(t);
+  var h = top('이렇게 나눠 볼까요?', esc(t.name) + ' · 팀 마감 <span class="mono">' + mdw(t.due) + '</span>');
+  h += '<div class="scroll"><div class="section"><h2 class="h2">단계 (모든 파트 공통)</h2><p class="help" style="margin:0 0 10px">팀 마감에서 거꾸로 기한을 제안했어요. 누구나 고칠 수 있어요.</p>';
+  t.stages.forEach(function(s, i){
+    h += '<div style="display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--rule);padding:6px 0"><span class="mono" style="width:22px">' + (i+1) + '</span><span style="flex:1 1 auto;font-weight:600">' + esc(s.label) + '</span><label class="sr" for="sd' + i + '">' + esc(s.label) + ' 기한</label><input class="field mono" style="width:150px;height:44px" type="date" id="sd' + i + '" data-a="sdate" data-i="' + i + '" value="' + iso(s.due) + '"><button class="iconbtn" data-a="sdel" data-i="' + i + '" aria-label="' + esc(s.label) + ' 단계 빼기"' + (t.stages.length<=1 ? ' disabled' : '') + '>✕</button></div>';
+  });
+  h += '<button class="btn ghost" style="margin-top:6px" data-a="sadd">+ 단계 추가</button><p class="err" id="s-err" hidden></p></div>';
+  h += '<div class="section"><h2 class="h2">누가 무엇을 맡나요</h2><label class="label" for="mypart">내 파트 (' + esc(S.me) + ')</label><input class="field" id="mypart" value="' + esc(m.part) + '"><p class="help">팀원은 링크로 들어와 각자 자기 파트를 적어요. 지금은 나만 들어와 있어요.</p></div></div>';
+  h += '<div class="bar"><button class="btn primary grow" data-a="startteam" data-team="' + t.id + '">이대로 시작하기</button></div>';
+  return h;
+};
+
+V.join = function(){
+  var h = '<header class="top"><span style="width:12px"></span><div class="ttl"><h1>마케팅원론 기획서</h1><div class="sub">팀에 초대됐어요 · 팀 마감 <span class="mono">11/20</span></div></div></header>';
+  h += '<div class="scroll"><div class="section" style="background:#F4F5F6"><div class="help" style="margin:0">단톡방 링크로 들어왔어요 · eodi.kr/t/mkt-4f2a</div></div>';
+  h += '<div class="section"><h2 class="h2" style="font-size:22px">이름만 알려 주세요</h2><p class="lead" style="margin:0 0 14px">가입·설치 없이 바로 팀 화면으로 가요. 이 기기에서는 다음부터 자동으로 들어와져요.</p><label class="label" for="j-name">팀에서 부를 이름</label><input class="field" id="j-name" value="이수아"><p class="err" id="j-err" hidden>이름을 적어 주세요.</p></div>';
+  h += '<div class="section"><div class="label">이미 들어온 팀원 3명</div><div class="chips"><span class="chip" style="display:inline-flex;align-items:center">김민수</span><span class="chip" style="display:inline-flex;align-items:center">한도윤</span><span class="chip" style="display:inline-flex;align-items:center">정예린</span></div></div></div>';
+  h += '<div class="bar"><button class="btn primary grow" data-a="dojoin">팀 들어가기</button></div>';
+  return h;
+};
+
+V.team = function(p){
+  var t = team(p.team), m = meIn(t), alerts = (S.teamAlerts[t.id]||[]).length + ((S.mine[t.id]||[]).length);
+  var h = top(t.name, '팀 마감 <span class="mono">' + mdw(t.due) + ' ' + dday(t.due) + '</span> · ' + t.members.length + '/' + t.size + '명', {bell:{team:t.id, n:alerts}});
+  h += '<div class="scroll">';
+  if (doneCount(t) === 0){
+    var missing = t.size - t.members.length;
+    var first = t.stages[0];
+    h += '<div class="empty"><h2>아직 올라온 결과물이 없어요</h2><p class="lead" style="margin:0">첫 단계 ‘' + esc(first.label) + '’ 기한은 <span class="mono">' + mdw(first.due) + '</span>이에요. 기한 전에는 누구에게도 알림이 가지 않아요.</p></div>';
+    if (missing > 0) h += '<div class="section"><div style="font-weight:600">아직 안 들어온 팀원 ' + missing + '명</div><p class="help" style="margin:4px 0 10px">단톡방에 링크를 한 번 더 올려 보세요.</p><button class="btn small" data-a="reshare" data-team="' + t.id + '">팀 링크 다시 공유</button></div>';
+  }
+  var ni = nextIdx(m);
+  h += '<table class="planner"><caption class="sr">팀원별 단계 진행표</caption><thead><tr><th style="width:110px">팀원 · 파트</th>';
+  t.stages.forEach(function(s){ h += '<th scope="col">' + esc(s.label) + '<span class="mono">~' + md(s.due) + '</span></th>'; });
+  h += '</tr></thead><tbody>';
+  t.members.forEach(function(mm, mi){
+    h += '<tr><th scope="row" style="padding:0;border-bottom:1px solid var(--rule)"><button class="row-btn" data-a="detail" data-team="' + t.id + '" data-m="' + mi + '" aria-label="' + esc(mm.name) + ' 파트 보기"><span class="nm">' + esc(mm.name) + (mm.name===S.me ? '<span class="me-tag">나</span>' : '') + '</span><span class="pt">' + esc(mm.part) + '</span></button></th>';
+    mm.cells.forEach(function(c, i){ h += '<td>' + cellHTML(t, mm, i, mm.name===S.me && i===ni) + '</td>'; });
+    h += '</tr>';
+  });
+  h += '</tbody></table>';
+  h += '<div class="legend"><span>■ 올림</span><span>□ 기한 전</span><span class="l">! 기한 지남</span><span class="e">→ 연장</span><span style="background:var(--hl);color:var(--ink);padding:0 3px">내 다음 단계</span></div>';
+  var notes = [];
+  t.members.forEach(function(mm){ mm.cells.forEach(function(c,i){ if (c.s==='ext') notes.push('→ ' + mm.name + ' ‘' + t.stages[i].label + '’ ~' + md(c.due) + ' · 사유: ' + c.reason); }); });
+  if (notes.length) h += '<div class="notes">' + notes.map(function(n){ return '<p>' + esc(n) + '</p>'; }).join('') + '</div>';
+  h += '<div style="padding:10px 16px 16px"><button class="btn small" data-a="sharestatus" data-team="' + t.id + '">' + IC.share + ' 오늘 현황 단톡에 공유</button></div>';
+  h += '</div><div class="bar"><button class="btn grow" data-a="extend" data-team="' + t.id + '"' + (ni<0 ? ' disabled' : '') + '>연장 요청</button><button class="btn primary grow2" data-a="upload" data-team="' + t.id + '"' + (ni<0 ? ' disabled' : '') + '>내 결과물 올리기</button></div>';
+  return h;
+};
+
+V.detail = function(p){
+  var t = team(p.team), m = t.members[p.m], mine = m.name === S.me;
+  var h = top(m.name + ' · ' + m.part, esc(t.name));
+  h += '<div class="scroll">';
+  m.cells.forEach(function(c, i){
+    var s = t.stages[i], late = isLate(t,m,i) && c.s!=='done';
+    var badge = c.s==='done' ? '<span class="mono" style="font-size:12px;color:var(--muted)">' + md(c.at) + ' 올림</span>'
+      : late ? '<span class="mono" style="font-size:12px;color:var(--late);font-weight:600">! ' + md(cellDue(t,m,i)) + ' 지남</span>'
+      : c.s==='ext' ? '<span class="mono" style="font-size:12px;color:var(--ext);font-weight:600">→ ~' + md(c.due) + '</span>'
+      : '<span class="mono" style="font-size:12px;color:var(--muted)">~' + md(s.due) + '</span>';
+    h += '<div class="stage"><div class="hd"><span class="nm">' + (c.s==='done' ? '■ ' : late ? '! ' : c.s==='ext' ? '→ ' : '□ ') + esc(s.label) + '</span>' + badge + '</div>';
+    if (c.s==='done'){
+      if (c.file) h += '<button class="file" data-a="preview" data-team="' + t.id + '" data-m="' + p.m + '" data-i="' + i + '">' + IC.file + '<span style="flex:1 1 auto">' + esc(c.file) + '</span>' + IC.chev + '</button>';
+      if (c.link) h += '<button class="file" data-a="preview" data-team="' + t.id + '" data-m="' + p.m + '" data-i="' + i + '">' + IC.link + '<span style="flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(c.link) + '</span>' + IC.chev + '</button>';
+      if (c.memo) h += '<p class="memo">“' + esc(c.memo) + '”</p>';
+      var who = c.checks.length ? '확인: ' + c.checks.join(', ') : '아직 확인한 사람이 없어요';
+      var checked = c.checks.indexOf(S.me) >= 0;
+      h += '<div class="checks"><span>' + esc(who) + '</span>' + (mine ? '' : '<button class="btn small" data-a="check" data-team="' + t.id + '" data-m="' + p.m + '" data-i="' + i + '" aria-pressed="' + checked + '"' + (checked ? ' disabled' : '') + '>' + (checked ? '확인함' : '확인했어요') + '</button>') + '</div>';
+    } else if (c.s==='ext'){
+      h += '<p class="memo">사유: ' + esc(c.reason) + '</p>';
+      if (mine) h += '<button class="btn small" style="margin-top:8px" data-a="upload" data-team="' + t.id + '" data-i="' + i + '">이 단계 올리기</button>';
+    } else if (late){
+      h += '<p class="memo">아직 결과물도 연장 요청도 없어요.' + (mine ? '' : ' 팀 알림으로 한 번 알려졌어요.') + '</p>';
+      if (mine) h += '<button class="btn small" style="margin-top:8px" data-a="upload" data-team="' + t.id + '" data-i="' + i + '">이 단계 올리기</button>';
+    } else if (mine && i === nextIdx(m)){
+      h += '<button class="btn small" style="margin-top:8px" data-a="upload" data-team="' + t.id + '" data-i="' + i + '">이 단계 올리기</button>';
+    }
+    h += '</div>';
+  });
+  h += '</div><div class="bar"><button class="btn grow" data-a="back">팀 화면으로</button></div>';
+  return h;
+};
+
+V.preview = function(p){
+  var t = team(p.team), m = t.members[p.m], c = m.cells[p.i];
+  var h = top(c.file || '링크', esc(m.name) + ' · ' + esc(t.stages[p.i].label) + ' · <span class="mono">' + md(c.at) + '</span>');
+  h += '<div class="scroll"><div class="doc" aria-label="문서 미리보기"><div style="font-weight:600;margin-bottom:10px">' + esc(m.part) + ' — ' + esc(t.stages[p.i].label) + '</div><div class="lnx"></div><div class="lnx"></div><div class="lnx s"></div><div style="height:16px"></div><div class="lnx"></div><div class="lnx s"></div><p class="help" style="margin-top:24px">미리보기 (시연용) — 실서비스에서는 원본 파일·링크가 열려요.</p></div></div>';
+  h += '<div class="bar"><button class="btn grow" data-a="back">닫기</button></div>';
+  return h;
+};
+
+V.upload = function(p){
+  var t = team(p.team), m = meIn(t);
+  var f = S.flags.upload || (S.flags.upload = {stage: p.i != null ? +p.i : nextIdx(m), file:'', link:'', memo:''});
+  if (p.linkMode && !f.focusLink) { f.focusLink = true; }
+  var h = top('결과물 올리기', esc(m.part) + ' · ' + esc(S.me));
+  h += '<div class="scroll"><div class="section"><span class="label" id="u-st">어느 단계인가요?</span><div class="grid' + (t.stages.length===4 ? '4' : '2') + '" style="grid-template-columns:repeat(' + t.stages.length + ',minmax(0,1fr))" role="group" aria-labelledby="u-st">';
+  t.stages.forEach(function(s, i){
+    var c = m.cells[i], dis = c.s==='done';
+    h += '<button class="chip" style="min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center" data-a="ustage" data-i="' + i + '" aria-pressed="' + (f.stage===i) + '"' + (dis ? ' disabled' : '') + '><span>' + (dis ? '■ ' : '') + esc(s.label) + '</span><span class="mono" style="font-size:11px">' + (dis ? '올림' : '~' + md(cellDue(t,m,i))) + '</span></button>';
+  });
+  h += '</div></div>';
+  h += '<div class="section"><span class="label">무엇을 올릴까요? <span style="font-weight:400;color:var(--muted)">— 하나만 있어도 돼요</span></span>';
+  h += '<button class="file" data-a="pickfile" style="justify-content:center;border-style:dashed;min-height:64px">' + IC.file + '<span>' + (f.file ? esc(f.file) + ' <span class="help">(바꾸기)</span>' : '파일 선택') + '</span></button>';
+  h += '<label class="label" for="u-link" style="margin-top:14px">또는 링크 (구글 문서, 노션 등)</label><input class="field" id="u-link" inputmode="url" placeholder="https://" value="' + esc(f.link) + '">';
+  h += '<label class="label" for="u-memo" style="margin-top:14px">한 줄 메모</label><textarea class="field" id="u-memo" placeholder="팀원이 알아 두면 좋을 것">' + esc(f.memo) + '</textarea><p class="err" id="u-err" hidden>파일, 링크, 메모 중 하나는 있어야 해요.</p></div>';
+  h += '<p class="help" style="padding:0 16px 16px">올리면 이 칸이 ‘■ 올림’으로 바뀌고 팀 화면에 바로 보여요. 올렸다고 팀원에게 알림이 가지는 않아요.</p></div>';
+  h += '<div class="bar"><button class="btn primary grow" data-a="doupload" data-team="' + t.id + '">‘' + esc(t.stages[f.stage] ? t.stages[f.stage].label : '') + '’ 단계로 올리기</button></div>';
+  return h;
+};
+
+V.extend = function(p){
+  var t = team(p.team), m = meIn(t), i = nextIdx(m);
+  var f = S.flags.extend || (S.flags.extend = {days:1, reason:'', memo:''});
+  var base = cellDue(t,m,i), nd = addDays(base, f.days), over = nd > t.due;
+  var h = top('늦어질 것 같아요', esc(m.part) + ' · ' + esc(S.me));
+  h += '<div class="scroll"><div class="section" style="display:flex;justify-content:space-between;align-items:center"><span>‘' + esc(t.stages[i].label) + '’ 단계</span><span class="mono" style="font-weight:600">~' + mdw(base) + ' ' + dday(base) + '</span></div>';
+  h += '<div class="section"><span class="label" id="e-days">얼마나 늦어질 것 같나요?</span><div class="grid4" style="grid-template-columns:repeat(3,minmax(0,1fr))" role="group" aria-labelledby="e-days">';
+  [1,2,3].forEach(function(d){ h += '<button class="chip mono" data-a="edays" data-v="' + d + '" aria-pressed="' + (f.days===d) + '">+' + d + '일</button>'; });
+  h += '</div><p class="help">새 기한: <span class="mono" style="color:var(--ink);font-weight:600">' + mdw(nd) + '</span> · 팀 마감 <span class="mono">' + md(t.due) + '</span>까지만 연장돼요.</p>';
+  if (over) h += '<p class="err">팀 마감을 넘겨요. ‘막혔어요 · 도움 필요’로 팀에 도움을 요청해 주세요.</p>';
+  h += '</div><div class="section"><span class="label" id="e-rs">사유 — 하나 고르세요</span><div class="chips" role="group" aria-labelledby="e-rs">';
+  ['알바·일정 겹침','다른 과제 마감','막혔어요 · 도움 필요','몸이 안 좋아요'].forEach(function(r){ h += '<button class="chip" data-a="ereason" data-v="' + r + '" aria-pressed="' + (f.reason===r) + '">' + r + '</button>'; });
+  h += '</div><label class="label" for="e-memo" style="margin-top:14px">덧붙일 말 (선택)</label><textarea class="field" id="e-memo" placeholder="예: 월요일 밤까지 올릴게요">' + esc(f.memo) + '</textarea><p class="err" id="e-err" hidden>사유를 하나 골라 주세요.</p></div>';
+  var preview = f.reason === '막혔어요 · 도움 필요' || over
+    ? '? ' + S.me + '님이 ‘' + t.stages[i].label + '’ 단계에서 도움을 요청했어요'
+    : '→ ' + S.me + '님이 ‘' + t.stages[i].label + '’ 단계를 ' + f.days + '일 연장했어요 (~' + md(nd) + ')' + (f.reason ? ' · 사유: ' + f.reason : '');
+  h += '<div class="section" style="background:#F4F5F6"><div class="help" style="margin:0 0 4px">팀에 이렇게 알려져요 · 승인 없이 바로 적용</div><p style="margin:0;color:var(--ext);font-weight:600;line-height:1.5">' + esc(preview) + '</p></div></div>';
+  h += '<div class="bar"><button class="btn primary grow" data-a="doextend" data-team="' + t.id + '">' + (over || f.reason==='막혔어요 · 도움 필요' ? '팀에 도움 요청하기' : '연장하고 팀에 알리기') + '</button></div>';
+  return h;
+};
+
+V.alerts = function(p){
+  var t = team(p.team), tab = p.tab || 'team';
+  var teamA = S.teamAlerts[t.id] || [], mineA = S.mine[t.id] || [];
+  var h = top('알림', esc(t.name));
+  h += '<div class="tabs" role="tablist"><button class="tab" role="tab" data-a="tab" data-v="team" aria-selected="' + (tab==='team') + '">팀 알림 <span class="mono">' + teamA.length + '</span></button><button class="tab" role="tab" data-a="tab" data-v="mine" aria-selected="' + (tab==='mine') + '">나에게만 <span class="mono">' + mineA.length + '</span></button></div>';
+  h += '<div class="scroll">';
+  if (tab==='mine'){
+    h += '<p class="help" style="padding:10px 16px 0;margin:0">내 단계 기한 하루 전·당일 알림이에요. 팀원에게는 보이지 않아요.</p>';
+    if (!mineA.length) h += '<div class="empty"><h2>나에게만 온 알림이 없어요</h2><p class="lead" style="margin:0">내 단계 기한이 가까워지면 여기에 먼저 알려 드려요.</p></div>';
+    mineA.forEach(function(a){
+      h += '<div class="alert"><span class="k me">나에게만</span><span class="when">' + esc(a.when) + '</span><p>' + esc(a.text) + '</p><div class="acts"><button class="btn small primary" data-a="upload" data-team="' + t.id + '">결과물 올리기</button><button class="btn small" data-a="extend" data-team="' + t.id + '">연장 요청하기</button></div></div>';
+    });
+  } else {
+    h += '<p class="help" style="padding:10px 16px 0;margin:0">연장·도움 요청과, 기한이 하루 지나도 아무 소식이 없을 때만 팀에 알려요.</p>';
+    if (!teamA.length) h += '<div class="empty"><h2>팀 알림이 없어요</h2><p class="lead" style="margin:0">모두 기한 안에 올리고 있어요.</p></div>';
+    teamA.forEach(function(a, ai){
+      var k = a.k==='late' ? '<span class="k late">! 기한 지남</span>' : a.k==='help' ? '<span class="k ext">? 도움 요청</span>' : '<span class="k ext">→ 연장</span>';
+      h += '<div class="alert">' + k + '<span class="when">' + esc(a.when) + '</span><p>' + esc(a.text) + (a.reason ? '<br><span class="help" style="margin:0">사유: ' + esc(a.reason) + '</span>' : '') + '</p><div class="acts"><button class="btn small" data-a="kakao" data-msg="단톡방에 공유했어요 (시연: 실제 카톡은 열리지 않아요)">' + IC.share + ' 카톡 단톡방으로 공유</button>';
+      if (a.member){ var mi = -1; t.members.forEach(function(mm, j){ if (mm.name===a.member) mi = j; }); if (mi>=0) h += '<button class="btn small ghost" data-a="detail" data-team="' + t.id + '" data-m="' + mi + '">' + esc(a.member) + ' 파트 보기</button>'; }
+      h += '</div></div>';
+    });
+    if (teamA.some(function(a){ return a.k==='late'; })) h += '<div class="section"><div class="help" style="margin:0 0 6px">단톡방에 공유되면 (미리보기)</div><div style="background:#F4F5F6;padding:10px 12px;font-size:13px;line-height:1.5">[어디까지 했어?] ' + esc(teamA.filter(function(a){return a.k==='late';})[0].text) + ' 팀 화면 보기 ›</div><p class="help">실서비스에서는 카톡 알림으로 자동 발송돼요.</p></div>';
+  }
+  h += '</div>';
+  return h;
+};
+
+V.errlink = function(){
+  var h = '<header class="top"><span style="width:12px"></span><div class="ttl"><h1>어디까지 했어?</h1><div class="sub mono">eodi.kr/t/mkt-4f</div></div></header>';
+  h += '<div class="scroll"><div class="errbox"><h2>이 링크로는 팀을 찾을 수 없어요</h2><p class="lead" style="margin:0">링크가 잘렸거나 팀이 삭제됐을 수 있어요. 단톡방에서 링크 전체를 다시 눌러 보거나, 링크를 올린 사람에게 새 링크를 부탁하세요.</p></div></div>';
+  h += '<div class="bar"><button class="btn primary grow" data-a="tohome">내 팀 목록으로</button></div>';
+  return h;
+};
+
+V.errupload = function(p){
+  var f = S.flags.upload || {};
+  var h = top('올리지 못했어요', '결과물 올리기');
+  h += '<div class="scroll"><div class="errbox"><h2>! 파일이 너무 커요</h2><p class="lead" style="margin:0">' + esc(f.file || '파일') + '이 50MB를 넘어요. 구글 드라이브 같은 링크로 올리면 크기 제한이 없어요. 적어 둔 메모는 그대로 있어요.</p></div></div>';
+  h += '<div class="bar"><button class="btn grow" data-a="retry">다시 시도</button><button class="btn primary grow" data-a="linkmode">링크로 올리기</button></div>';
+  return h;
+};
+
+/* ───────── 렌더 ───────── */
+var SCREEN_KEY = {home:'home', create:'create', share:'share', stages:'stages', join:'join', team:'team', detail:'detail', preview:'detail', upload:'upload', extend:'extend', alerts:'alerts', errlink:'errlink', errupload:'errupload'};
+function render(){
+  var c = S.cur, app = document.getElementById('app');
+  document.getElementById('toast').classList.remove('on');
+  app.innerHTML = V[c.name](c.p);
+  app.scrollTop = 0;
+  var f = app.querySelector('.top h1'); if (f) { f.setAttribute('tabindex','-1'); }
+  if (c.name==='upload' && S.flags.upload && S.flags.upload.focusLink){ var l = document.getElementById('u-link'); if (l) l.focus(); }
+  trackStep();
+  renderGuide();
+}
+function trackStep(){
+  var sc = S.scen; if (!sc) return;
+  var key = S.cur.name;
+  // 시나리오 단계 자동 진행: 다음 단계의 화면 키와 일치하면 이동
+  for (var k = S.step; k < sc.steps.length; k++){
+    var want = sc.steps[k][0].replace(/2$/, '');
+    if (want === key && (k === S.step || k === S.step + 1)){
+      if (sc.steps[k][0].slice(-1) === '2' && k === S.step) {}
+      S.step = k; break;
+    }
+  }
+}
+function renderGuide(){
+  var g = document.getElementById('guide'), sc = S.scen, h;
+  if (!sc){
+    h = '<h2>시나리오 안내</h2><p style="margin:0">' + (S.cur.name==='start' ? '왼쪽 화면에서 시나리오를 골라 주세요. 각 시나리오는 퍼소나 한 명의 하루를 따라가요.' : '자유롭게 둘러보는 중이에요.') + '</p>';
+    if (S.cur.name!=='start') h += '<button class="btn small" style="margin-top:12px" data-a="restart">시나리오 선택으로</button>';
+  } else {
+    h = '<h2>시나리오 ' + sc.id + '</h2><p style="margin:0 0 6px">' + esc(sc.title) + '</p><p class="help" style="margin:0">' + esc(sc.why) + '</p><ol>';
+    sc.steps.forEach(function(st, k){ h += '<li class="' + (k < S.step ? 'done' : k === S.step ? 'cur' : '') + '">' + (k === S.step ? '<span class="now">' + esc(st[1]) + '</span>' : esc(st[1])) + '</li>'; });
+    h += '</ol>';
+    if (S.flags.finished) h += '<p style="margin:8px 0;font-weight:600">시나리오 끝! 다른 시나리오도 따라가 보세요.</p>';
+    h += '<div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn small" data-a="replay">처음부터 다시</button><button class="btn small" data-a="restart">시나리오 선택으로</button></div>';
+  }
+  g.innerHTML = h;
+}
+function advance(stepKey){ // 행동 기반 단계 진행
+  var sc = S.scen; if (!sc) return;
+  for (var k=0;k<sc.steps.length;k++) if (sc.steps[k][0]===stepKey && k >= S.step) { S.step = k; break; }
+}
+function finish(){ if (S.scen){ S.step = S.scen.steps.length; S.flags.finished = true; } }
+
+/* ───────── 이벤트 ───────── */
+function startScen(sc){
+  reset(sc);
+  var st = sc.start, home = {name:'home', p:{}};
+  S.cur = null; S.stack = [];
+  if (sc.id==='C'){ S.stack = [home, {name:'team', p:{team:'mkt'}}]; S.cur = {name:'alerts', p:{team:'mkt', tab:'mine'}}; render(); return; }
+  if (sc.id==='B'){ S.stack = []; S.cur = {name:'join', p:{}}; render(); return; }
+  if (sc.id==='E'){ S.stack = []; S.cur = {name:'errlink', p:{}}; render(); return; }
+  S.cur = {name:st[0], p:st[1]||{}}; render();
+}
+document.addEventListener('click', function(e){
+  var b = e.target.closest('[data-a]'); if (!b || b.disabled) return;
+  var a = b.getAttribute('data-a'), d = b.dataset;
+  var t = d.team ? team(d.team) : null;
+  switch(a){
+    case 'scen': startScen(SCEN.filter(function(s){ return s.id===d.id; })[0]); break;
+    case 'free': reset(null); S.cur = {name:'start', p:{}}; go('home'); break;
+    case 'restart': reset(null); S.stack = []; S.cur = {name:'start', p:{}}; render(); break;
+    case 'replay': startScen(S.scen); break;
+    case 'back': back(); break;
+    case 'tohome': resetTo([['home']]); if (S.scen && S.scen.id==='E') advance('home'); renderGuide(); break;
+    case 'openteam': go('team', {team:d.id}); break;
+    case 'create': S.flags.create = null; go('create'); break;
+    case 'ctype': S.flags.create.type = d.v; S.flags.create.name = document.getElementById('c-name').value; S.flags.create.due = document.getElementById('c-due').value; render(); break;
+    case 'docreate': {
+      var name = document.getElementById('c-name').value.trim(), due = document.getElementById('c-due').value;
+      if (!name){ document.getElementById('c-err').hidden = false; document.getElementById('c-name').focus(); return; }
+      var dueD = due ? fromIso(due) : addDays(TODAY, 14);
+      if (dueD <= TODAY) dueD = addDays(TODAY, 7);
+      var tpl = {'발표':['자료조사','초안','완성'], '보고서':['목차','초안','완성'], '개발':['설계','구현','테스트'], '직접 정하기':['1단계']}[S.flags.create.type];
+      var span = Math.round((dueD - TODAY)/86400000), stages = tpl.map(function(lb, i){ var off = Math.max(1, Math.round(span * (i+1) / (tpl.length+0.5))); var dd = addDays(TODAY, off); if (dd >= dueD) dd = addDays(dueD, -1); return {label:lb, due:dd}; });
+      var nt = {id:'new' + Date.now().toString(36).slice(-4), name:name, due:dueD, size:4, isNew:true, stages:stages, members:[{name:S.me, part:'기획 총괄', cells:stages.map(function(){ return {s:'todo'}; })}]};
+      S.teams.unshift(nt); S.teamAlerts[nt.id] = [];
+      go('share', {team:nt.id}); break; }
+    case 'kakao': toast(d.msg); if (S.scen && S.scen.id==='D') advance('alerts2'); renderGuide(); break;
+    case 'copy': toast('팀 링크를 복사했어요'); break;
+    case 'tostages': go('stages', {team:d.team}); break;
+    case 'sdate': break;
+    case 'sdel': { t = team(S.cur.p.team); collectStages(t); t.stages.splice(+d.i, 1); t.members.forEach(function(m){ m.cells.splice(+d.i, 1); }); render(); break; }
+    case 'sadd': { t = team(S.cur.p.team); collectStages(t); var last = t.stages[t.stages.length-1].due; var nd = addDays(last, 1); if (nd >= t.due) nd = addDays(t.due, -1); t.stages.push({label:'검토', due:nd}); t.members.forEach(function(m){ m.cells.push({s:'todo'}); }); render(); break; }
+    case 'startteam': {
+      t = team(d.team); if (!collectStages(t)) return;
+      var part = document.getElementById('mypart').value.trim(); if (part) meIn(t).part = part;
+      resetTo([['home'], ['team', {team:t.id}]]); toast('팀을 시작했어요. 팀원이 들어오면 여기에 보여요.'); break; }
+    case 'dojoin': {
+      var nm = document.getElementById('j-name').value.trim();
+      if (!nm){ document.getElementById('j-err').hidden = false; return; }
+      if (nm !== '이수아'){ var mk = team('mkt'), mm = meIn({members:mk.members.filter(function(x){return x.name===nm;})}); if (!mm){ S.me = nm; mk.members.push({name:nm, part:'파트 미정', cells:mk.stages.map(function(){ return {s:'todo'}; })}); } else S.me = nm; }
+      resetTo([['home'], ['team', {team:'mkt'}]]); toast('들어왔어요! 이 기기에서는 다음부터 바로 열려요.'); break; }
+    case 'detail': go('detail', {team:d.team, m:+d.m}); break;
+    case 'preview': go('preview', {team:d.team, m:+d.m, i:+d.i}); break;
+    case 'check': { var c = t.members[+d.m].cells[+d.i]; if (c.checks.indexOf(S.me) < 0) c.checks.push(S.me); render(); toast(t.members[+d.m].name + '님에게 ‘확인했어요’가 보여요'); break; }
+    case 'alerts': go('alerts', {team:d.team, tab:'team'}); break;
+    case 'tab': S.cur.p.tab = d.v; render(); break;
+    case 'sharestatus': { var tt = team(d.team); toast('오늘 현황을 단톡방에 공유했어요: ' + doneCount(tt) + '칸 올림' + (lateCount(tt) ? ', 기한 지남 ' + lateCount(tt) : '') + ' (시연)'); break; }
+    case 'reshare': go('share', {team:d.team, again:true}); break;
+    case 'upload': S.flags.upload = null; go('upload', {team:d.team, i: d.i != null ? +d.i : null}); break;
+    case 'ustage': saveUpload(); S.flags.upload.stage = +d.i; render(); break;
+    case 'pickfile': {
+      saveUpload(); var f = S.flags.upload, tm = team(S.cur.p.team);
+      var big = S.scen && S.scen.id==='E';
+      var names = {'이수아':'4P_분석_초안.docx', '한도윤':'발표자료_초안.pptx', '김민수':'시장조사_최종.docx'};
+      f.file = big ? '발표자료_최종_영상포함.pptx (82MB)' : (names[S.me] || '결과물.pdf') ; f.big = big;
+      if (S.scen && S.scen.id==='B') { if (!f.memo) f.memo = '4P 중 가격·유통까지 썼어요. 촉진은 내일 보강할게요.'; }
+      render(); break; }
+    case 'doupload': {
+      saveUpload(); var f2 = S.flags.upload, tm2 = team(d.team), me = meIn(tm2);
+      if (!f2.file && !f2.link && !f2.memo){ document.getElementById('u-err').hidden = false; return; }
+      if (f2.file && f2.big){ go('errupload', {team:d.team}); if (S.scen) advance('errupload'); renderGuide(); return; }
+      var cc = me.cells[f2.stage];
+      me.cells[f2.stage] = {s:'done', at:TODAY, file:f2.file || '', link:f2.link || '', memo:f2.memo || '', checks:[]};
+      // 내 알림 정리
+      if (S.mine[tm2.id]) S.mine[tm2.id] = S.mine[tm2.id].filter(function(x){ return x.stage !== f2.stage; });
+      var label = tm2.stages[f2.stage].label;
+      S.flags.upload = null;
+      resetTo([['home'], ['team', {team:tm2.id}]]);
+      toast('‘' + label + '’을 올렸어요. 팀 화면에 바로 보여요.');
+      if (S.scen && (S.scen.id==='B' || S.scen.id==='E')) finish(); renderGuide();
+      break; }
+    case 'retry': S.flags.upload.file = ''; S.flags.upload.big = false; back(); break;
+    case 'linkmode': S.flags.upload.file = ''; S.flags.upload.big = false; S.flags.upload.link = 'https://drive.google.com/file/d/발표자료_최종'; S.flags.upload.focusLink = true; back(); toast('링크를 넣어 두었어요. 확인하고 올려 주세요.'); break;
+    case 'extend': S.flags.extend = null; go('extend', {team:d.team}); break;
+    case 'edays': saveExtend(); S.flags.extend.days = +d.v; render(); break;
+    case 'ereason': saveExtend(); S.flags.extend.reason = d.v; render(); break;
+    case 'doextend': {
+      saveExtend(); var fx = S.flags.extend, tx = team(d.team), mx = meIn(tx), ix = nextIdx(mx);
+      if (!fx.reason){ document.getElementById('e-err').hidden = false; return; }
+      var basex = cellDue(tx,mx,ix), ndx = addDays(basex, fx.days), help = fx.reason==='막혔어요 · 도움 필요' || ndx > tx.due;
+      var lab = tx.stages[ix].label;
+      if (help){
+        S.teamAlerts[tx.id].unshift({k:'help', text:S.me + '님이 ‘' + lab + '’ 단계에서 도움을 요청했어요.' + (fx.memo ? ' “' + fx.memo + '”' : ''), when:'방금'});
+        toast('팀에 도움 요청을 알렸어요');
+      } else {
+        mx.cells[ix] = {s:'ext', due:ndx, reason:fx.reason};
+        S.teamAlerts[tx.id].unshift({k:'ext', text:S.me + '님이 ‘' + lab + '’ 단계를 ' + fx.days + '일 연장했어요 (~' + md(ndx) + ').' + (fx.memo ? ' “' + fx.memo + '”' : ''), reason:fx.reason, when:'방금'});
+        toast('‘' + lab + '’ 기한이 ' + md(ndx) + '로 바뀌고 팀에 알렸어요');
+      }
+      if (S.mine[tx.id]) S.mine[tx.id] = S.mine[tx.id].filter(function(x){ return x.stage !== ix; });
+      S.flags.extend = null;
+      resetTo([['home'], ['team', {team:tx.id}]]);
+      if (S.scen && S.scen.id==='C') advance('team'); renderGuide();
+      break; }
+  }
+});
+document.addEventListener('change', function(e){
+  if (e.target.matches('[data-a="sdate"]') && S.cur.name==='stages') collectStages(team(S.cur.p.team));
+});
+function collectStages(t){
+  var ok = true, prev = TODAY, err = document.getElementById('s-err');
+  t.stages.forEach(function(s, i){
+    var el = document.getElementById('sd' + i); if (!el || !el.value) return;
+    var dd = fromIso(el.value);
+    if (dd <= prev || dd > t.due){ ok = false; } else { s.due = dd; prev = dd; }
+  });
+  if (err){ err.hidden = ok; err.textContent = '기한은 앞 단계보다 늦고 팀 마감(' + md(t.due) + ')보다 빨라야 해요.'; }
+  return ok;
+}
+function saveUpload(){ var f = S.flags.upload; if (!f) return; var l = document.getElementById('u-link'), m = document.getElementById('u-memo'); if (l) f.link = l.value.trim(); if (m) f.memo = m.value.trim(); }
+function saveExtend(){ var f = S.flags.extend; if (!f) return; var m = document.getElementById('e-memo'); if (m) f.memo = m.value.trim(); }
+
+// 시나리오 단계 키를 화면 이동에 맞춰 보정
+var _go = go;
+go = function(name, p, opt){
+  _go(name, p, opt);
+  var sc = S.scen; if (!sc) return;
+  var map = {A:{create:'create', share:'share', stages:'stages', team:'team'},
+             B:{team: S.step >= 2 ? 'team2' : 'team', detail:'detail', upload:'upload'},
+             C:{extend:'extend'},
+             D:{team:'team', alerts:'alerts', detail:'detail'},
+             E:{home:'home', upload:'upload'}}[sc.id] || {};
+  if (map[name]) advance(map[name]);
+  if (sc.id==='C' && name==='alerts' && S.step >= 2) advance('alerts2'), finish();
+  if (sc.id==='A' && name==='team' && team(p.team) && team(p.team).isNew) {}
+  renderGuide();
+};
+var _back = back;
+back = function(){
+  _back();
+  var sc = S.scen; if (!sc) return;
+  if (sc.id==='A' && S.cur.name==='home' && S.step >= 4) finish();
+  if (sc.id==='B' && S.cur.name==='team' && S.step >= 2) advance('team2');
+  if (sc.id==='D' && S.cur.name==='alerts' && S.step >= 4) finish();
+  if (sc.id==='D' && S.cur.name==='team' && S.step >= 4) finish();
+  renderGuide();
+};
+// resetTo 이후 시나리오 A: 팀 시작 시 마지막 단계
+var _resetTo = resetTo;
+resetTo = function(list){ _resetTo(list); var sc = S.scen; if (sc && sc.id==='A' && S.cur.name==='team') advance('team'); renderGuide(); };
+
+reset(null); S.cur = {name:'start', p:{}}; render();
+})();
+</script>
+</body>
+</html>

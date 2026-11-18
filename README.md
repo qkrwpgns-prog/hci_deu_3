@@ -8,3 +8,5 @@
 - `docs/personas.md` : 페르소나 3종 전문 (특징·W8 표·근거 카드)
 - `data/variables.csv`(참여자×행동변수 점수), `data/participants.csv`, `data/variable_evidence.csv`, `data/transcripts.md` : 참여자 정보, 행동변수 근거, 익명화 전사본
 - `data/README.md` : 자료 안내와 행동변수 정의
+- `docs/기획서_v2.md` : 서비스 기획서 v2 (경쟁 분석, 차별점, KPI, 심사 점검, IA, 화면 흐름, 디자인 방향)
+- `prototype/index.html` : 클릭 프로토타입 (브라우저로 열기, 시나리오 A~E)
