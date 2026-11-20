@@ -76,6 +76,7 @@ flowchart LR
   S09 -.->|"그만두고 뒤로"| S10b
   S09b -.->|"도움 요청 보내기"| S06
   S09b -.->|"뒤로"| S09
+  S06 -.->|"연장한 새 기한 6시간 전 다시 알림"| S10b
   S10b -->|"연장 요청하기"| S09
   S10b -.->|"올리기"| S08
   S10b -.->|"뒤로"| S06
@@ -162,7 +163,7 @@ flowchart LR
 <div class="box"><pre class="mermaid">
 flowchart LR
   S10b["알림 나에게만 10-b"] -->|"D-1 알림 보고 연장 요청하기"| S09["연장 요청 09"]
-  S09 -->|"사유 고르고 연장하고 팀에 알리기, 일수는 1일 기본"| S06["팀 진행 06"]
+  S09 -->|"사유 고르고 연장하고 팀에 알리기, 일수 1일 기본, 새 기한 날짜와 시각 표시"| S06["팀 진행 06"]
   S10b -.->|"다 해서 올리기"| S08["결과물 올리기 08"]
   S10b -.->|"알림 쌓임: 지금 할 것 하나만 강조"| S10b
   S10b -.->|"D-1 놓침: 기한 6시간 전 한 번 더 알림"| S10b
@@ -172,6 +173,7 @@ flowchart LR
   S09 -.->|"그만두고 뒤로"| S10b
   S09b -.->|"도움 요청 보내기"| S06
   S09b -.->|"뒤로"| S09
+  S06 -.->|"연장한 새 기한 6시간 전 다시 알림"| S10b
   classDef has fill:#e8f1ff,stroke:#4a7fd6
   classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
   classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
