@@ -29,13 +29,14 @@ flowchart LR
   S08 -.->|"올리다 그만두고 뒤로"| S06
   S12A -.->|"링크 다시 받기 문구 복사, 새 링크로 다시 들어오기"| S04
   S11 -.->|"내 결과물 올리기"| S08
+  S06b -.->|"팀원이 확인하면 알림"| S10b["알림 나에게만 10-b"]
   S07b -.->|"뒤로"| S06
   S07c -.->|"뒤로"| S06
   S05 -.->|"저장"| S06
   classDef has fill:#e8f1ff,stroke:#4a7fd6
   classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
   classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
-  class S04,S06,S07,S08,S06b,S12A,S11,S07b,S07c,S05,S09,S12B has
+  class S04,S06,S07,S08,S06b,S12A,S11,S07b,S07c,S05,S09,S12B,S10b has
 </pre></div>
 <script>mermaid.initialize({startOnLoad:true,theme:"neutral",flowchart:{htmlLabels:true}})</script>
 </body></html>
