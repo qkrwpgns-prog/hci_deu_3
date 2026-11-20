@@ -299,7 +299,7 @@ var SCEN = [
   {id:'E', me:'이수아', title:'오류: 잘린 링크와 너무 큰 파일', why:'빈 화면에서 멈추지 않게', start:['errlink'],
     steps:[['errlink','‘내 팀 목록으로’'],['home','‘마케팅원론 기획서’에서 ‘내 결과물 올리기’'],['upload','파일 선택(큰 파일) 후 올리기'],['errupload','‘링크로 올리기’ 후 다시 올리기']]},
   {id:'F', me:'김민수', title:'팀장 김민수, 제출 전에 최종본 확인과 기여 기록을 본다', why:'“누가 언제 뭘 했는지 기록이 자동으로 남았으면” (P4-60a)', start:['home'],
-    steps:[['home','‘마케팅원론 기획서’를 누르세요'],['team','아래 ‘결과물 모아보기’를 누르세요'],['files','최종본 확인 현황을 보고 ‘기여 기록 보기’'],['contrib','팀원별 기록을 보고 ‘동료평가용으로 정리하기’']]}
+    steps:[['home','‘마케팅원론 기획서’를 누르세요'],['team','아래 ‘결과물 모아보기’를 누르세요'],['files','최종본 확인 현황을 보고 ‘기여 기록 보기’'],['contrib','‘한눈에 보기’로 차트를 열어 보세요'],['cchart','막대를 눌러 값을 보고 ‘동료평가용으로 정리하기’']]}
 ];
 
 /* ───────── 상태 ───────── */
@@ -654,6 +654,7 @@ V.contrib = function(p){
   var t = team(p.team);
   var h = top('기여 기록', esc(t.name));
   h += '<div class="scroll"><div class="ribbon" style="background:var(--periwinkle);box-shadow:none"><span class="grow">점수나 순위가 아니라, 서비스에 남은 기록이에요. 팀원 모두 같은 내용을 봐요.</span></div>';
+  h += '<button class="ribbon" data-a="cchart" data-team="' + t.id + '"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span class="grow"><b>한눈에 보기</b><br><span class="hint" style="margin:0">팀원 기록을 차트 하나로 모아 봐요</span></span>' + IC.chev + '</button>';
   t.members.forEach(function(mm, mi){
     var st = teamStats(t, mm, mi), n = mm.cells.length;
     var strip = mm.cells.map(function(c, i){ var late = isLate(t,mm,i) && c.s!=='done';
@@ -674,6 +675,51 @@ V.contrib = function(p){
     h += '</div></div>';
   });
   h += '<p class="hint" style="padding:16px 24px 0">기록은 결과물 올리기, 확인했어요, 연장·도움 요청, 최종본 취합에서 자동으로 쌓여요. 따로 적을 필요가 없어요.</p></div>';
+  h += '<div class="bar"><button class="btn primary grow" data-a="contribexport" data-team="' + t.id + '">동료평가용으로 정리하기</button></div>';
+  return h;
+};
+
+var CSERIES = [
+  {k:'up', name:'올린 결과물', unit:'칸', col:'#6161FF'},
+  {k:'onTime', name:'기한 안에 올림', unit:'칸', col:'#1A9E8F'},
+  {k:'given', name:'남의 결과물 확인', unit:'번', col:'#E07B2E'},
+  {k:'req', name:'연장·도움 요청', unit:'번', col:'#D6457A'}
+];
+V.cchart = function(p){
+  var t = team(p.team), view = p.view || 'chart';
+  var rows = t.members.map(function(mm, mi){ var st = teamStats(t, mm, mi); st.req = st.ext + st.help; return {name:mm.name, me:mm.name===S.me, st:st}; });
+  var max = 1; rows.forEach(function(r){ CSERIES.forEach(function(se){ max = Math.max(max, r.st[se.k]); }); });
+  var h = top('기여 기록 한눈에 보기', esc(t.name));
+  h += '<div class="seg" role="tablist"><button role="tab" data-a="cview" data-v="chart" aria-selected="' + (view==='chart') + '">차트</button><button role="tab" data-a="cview" data-v="table" aria-selected="' + (view==='table') + '">표</button></div>';
+  h += '<div class="scroll"><div class="sheet" style="position:relative"><div class="pad">';
+  h += '<div style="font-weight:600;font-size:16px">팀원별 기록</div><p class="hint" style="margin:2px 0 12px">팀 등록 순서예요. 순위가 아니에요.</p>';
+  h += '<div style="display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:12px">' + CSERIES.map(function(se){ return '<span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--slate)"><i style="width:10px;height:10px;border-radius:3px;background:' + se.col + '"></i>' + se.name + '</span>'; }).join('') + '</div>';
+  if (view === 'chart'){
+    var W = 318, LW = 58, VW = 22, PW = W - LW - VW, BH = 8, GAP = 2, GRP = CSERIES.length * (BH + GAP) - GAP, ROWG = 22, H = rows.length * (GRP + ROWG) + 22;
+    var x = function(v){ return LW + v / max * PW; };
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" role="img" aria-label="팀원별 기여 기록 막대 차트. 자세한 값은 표 탭에 있어요.">';
+    for (var g = 0; g <= max; g++){ var gx = x(g); svg += '<line x1="' + gx + '" x2="' + gx + '" y1="0" y2="' + (H - 18) + '" stroke="#EEF0F5" stroke-width="1"/><text x="' + gx + '" y="' + (H - 4) + '" font-size="10" fill="#535768" text-anchor="middle">' + g + '</text>'; }
+    rows.forEach(function(r, ri){
+      var y0 = ri * (GRP + ROWG) + 6;
+      svg += '<text x="0" y="' + (y0 + GRP / 2 + 4) + '" font-size="12" font-weight="' + (r.me ? 600 : 500) + '" fill="#333333">' + esc(r.name) + '</text>';
+      CSERIES.forEach(function(se, si){
+        var v = r.st[se.k], y = y0 + si * (BH + GAP), w = Math.max(v / max * PW, v ? 4 : 0);
+        var tip = esc(r.name) + ', ' + se.name + ' ' + v + se.unit;
+        svg += '<g tabindex="0" data-tip="' + tip + '" aria-label="' + tip + '">';
+        svg += '<rect x="' + LW + '" y="' + (y - 2) + '" width="' + PW + '" height="' + (BH + 4) + '" fill="transparent"/>';
+        if (v) svg += '<rect x="' + LW + '" y="' + y + '" width="' + w + '" height="' + BH + '" rx="4" fill="' + se.col + '"/>';
+        else svg += '<rect x="' + LW + '" y="' + (y + BH / 2 - 1) + '" width="3" height="2" fill="#B8BCCB"/>';
+        svg += '<text x="' + (LW + w + 5) + '" y="' + (y + BH - 0.5) + '" font-size="10" fill="#535768">' + v + '</text></g>';
+      });
+    });
+    svg += '</svg>';
+    h += '<div style="position:relative" id="cc-wrap">' + svg + '<div id="cc-tip" role="status" style="position:absolute;pointer-events:none;background:#1F2130;color:#fff;font-size:12px;line-height:1.4;padding:6px 10px;border-radius:8px;white-space:nowrap;opacity:0"></div></div>';
+  } else {
+    h += '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr><th style="text-align:left;padding:8px 4px;border-bottom:1px solid var(--mist);font-weight:600">팀원</th>' + CSERIES.map(function(se){ return '<th style="text-align:right;padding:8px 4px;border-bottom:1px solid var(--mist);font-weight:600">' + se.name + '</th>'; }).join('') + '</tr></thead><tbody>';
+    rows.forEach(function(r){ h += '<tr><td style="padding:10px 4px;border-bottom:1px solid #EEF0F5">' + esc(r.name) + (r.me ? '<span class="me">나</span>' : '') + '</td>' + CSERIES.map(function(se){ return '<td style="text-align:right;padding:10px 4px;border-bottom:1px solid #EEF0F5">' + r.st[se.k] + se.unit + '</td>'; }).join('') + '</tr>'; });
+    h += '</tbody></table></div>';
+  }
+  h += '</div></div><p class="hint" style="padding:16px 24px 0">막대에 손가락을 대면 값이 보여요. 기록은 결과물 올리기, 확인했어요, 연장·도움 요청에서 자동으로 쌓여요.</p></div>';
   h += '<div class="bar"><button class="btn primary grow" data-a="contribexport" data-team="' + t.id + '">동료평가용으로 정리하기</button></div>';
   return h;
 };
@@ -780,6 +826,8 @@ document.addEventListener('click', function(e){
     case 'editstages': go('stages', {team:d.team, edit:true}); break;
     case 'files': go('files', {team:d.team}); break;
     case 'contrib': go('contrib', {team:d.team}); break;
+    case 'cchart': go('cchart', {team:d.team, view:'chart'}); break;
+    case 'cview': S.cur.p.view = d.v; render(); break;
     case 'fpreview': go('fpreview', {team:d.team}); break;
     case 'finalcheck': { var tf = team(d.team); if (tf.final.checks.indexOf(S.me) < 0) tf.final.checks.push(S.me); render(); toast(tf.final.by + '님에게 최종본 확인이 보여요'); break; }
     case 'contribexport': toast('팀원별 기록을 표로 정리했어요. 시연이라 파일은 만들지 않아요.'); if (S.scen && S.scen.id==='F') { finish(); renderGuide(); } break;
@@ -854,6 +902,17 @@ document.addEventListener('click', function(e){
       break; }
   }
 });
+function ccTip(e){
+  var g = e.target.closest && e.target.closest('[data-tip]'), tip = document.getElementById('cc-tip'); if (!tip) return;
+  if (!g){ tip.style.opacity = 0; return; }
+  var wrap = document.getElementById('cc-wrap').getBoundingClientRect(), r = g.getBoundingClientRect();
+  tip.textContent = g.getAttribute('data-tip'); tip.style.opacity = 1;
+  var left = Math.min(Math.max(r.left - wrap.left + 40, 0), wrap.width - tip.offsetWidth);
+  tip.style.left = left + 'px'; tip.style.top = (r.top - wrap.top - 30) + 'px';
+}
+document.addEventListener('mouseover', ccTip);
+document.addEventListener('focusin', ccTip);
+document.addEventListener('touchstart', ccTip, {passive:true});
 document.addEventListener('change', function(e){
   if (e.target.matches('[data-a="sdate"]') && S.cur.name==='stages') collectStages(team(S.cur.p.team));
 });
@@ -880,7 +939,7 @@ go = function(name, p, opt){
              C:{extend:'extend'},
              D:{team:'team', alerts:'alerts', detail:'detail'},
              E:{home:'home', upload:'upload'},
-             F:{team:'team', files:'files', contrib:'contrib'}}[sc.id] || {};
+             F:{team:'team', files:'files', contrib:'contrib', cchart:'cchart'}}[sc.id] || {};
   if (map[name]) advance(map[name]);
   if (sc.id==='C' && name==='alerts' && S.step >= 2) advance('alerts2'), finish();
   if (sc.id==='A' && name==='team' && team(p.team) && team(p.team).isNew) {}
