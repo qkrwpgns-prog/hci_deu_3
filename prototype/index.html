@@ -253,6 +253,8 @@ function seed(){
         {s:'late'}, {s:'todo'}, {s:'todo'}]}
     ]
   };
+  var notes = {'김민수':'시장조사와 최종 취합을 맡았어요. 팀 일정과 단계 기한도 처음에 정리했어요.', '이수아':'4P 분석을 맡았어요. 가격·유통 자료를 모으고 출처를 표로 정리했어요.', '한도윤':'발표자료를 맡았어요. 참고 슬라이드를 모아 두고 발표 흐름을 짜는 중이에요.'};
+  mkt.members.forEach(function(m){ m.roleNote = notes[m.name] || ''; });
   mkt.final = {file:'마케팅원론_기획서_최종본_v1.pdf', by:'김민수', at:'11/15 21:40', memo:'4P와 SWOT 자리는 비워 두고 합쳤어요. 빈 곳은 노란색으로 표시했어요.', checks:['이수아']};
   var cap = {
     id:'cap', name:'캡스톤디자인 시스템 개발', due:D(12,4), size:4, isNew:false,
@@ -661,6 +663,15 @@ V.contrib = function(p){
       var bg = c.s==='done' ? 'var(--mint)' : late ? 'var(--late-bg)' : c.s==='ext' ? 'var(--peach)' : 'var(--canvas)';
       return '<span title="' + esc(t.stages[i].label) + '" style="flex:1 1 0;height:8px;border-radius:4px;background:' + bg + '"></span>'; }).join('');
     h += '<div class="sheet"><div class="pad"><div style="display:flex;align-items:center;gap:12px">' + av(mm.name, colOf(t, mi)) + '<div style="flex:1 1 auto;min-width:0"><div style="font-weight:600;font-size:16px">' + esc(mm.name) + (mm.name===S.me ? '<span class="me">나</span>' : '') + '</div><div class="hint" style="margin:0">' + esc(mm.part) + '</div></div></div>';
+    var isMe = mm.name === S.me, editing = S.flags.roleEdit === mi;
+    h += '<div style="margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--periwinkle)">';
+    h += '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><span style="font-size:12px;font-weight:600;color:var(--violet-ink)">맡은 역할</span>' + (isMe && !editing ? '<button class="btn text" style="min-height:44px;margin:-10px -4px -10px 0;font-size:13px" data-a="roleedit" data-m="' + mi + '">' + (mm.roleNote ? '고치기' : '적기') + '</button>' : '') + '</div>';
+    if (editing){
+      h += '<label class="sr" for="r-note">' + esc(mm.name) + ' 맡은 역할</label><textarea class="field" id="r-note" maxlength="100" style="margin-top:6px;height:76px" placeholder="예: 4P 분석을 맡았어요. 가격 자료를 모아 표로 정리했어요.">' + esc(mm.roleNote || '') + '</textarea><p class="hint" style="margin:6px 0 10px">한두 문장, 100자까지 적을 수 있어요.</p><div style="display:flex;gap:8px"><button class="btn small" data-a="rolecancel">취소</button><button class="btn small primary" data-a="rolesave" data-team="' + t.id + '" data-m="' + mi + '">저장</button></div>';
+    } else {
+      h += '<p style="margin:4px 0 0;font-size:14px;line-height:1.55;color:' + (mm.roleNote ? 'var(--ink)' : 'var(--slate)') + '">' + (mm.roleNote ? esc(mm.roleNote) : (isMe ? '아직 적지 않았어요. 내가 맡은 일을 한두 문장으로 적어 주세요.' : '아직 적지 않았어요.')) + '</p>';
+    }
+    h += '</div>';
     h += '<div style="display:flex;gap:4px;margin:14px 0 12px" aria-hidden="true">' + strip + '</div>';
     h += '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;font-size:13px">';
     h += '<div style="background:var(--canvas);border-radius:12px;padding:10px 12px"><div class="hint" style="margin:0">올린 결과물</div><b style="font-size:18px">' + st.up + '</b> / ' + n + '칸</div>';
@@ -825,8 +836,11 @@ document.addEventListener('click', function(e){
     case 'sadd': { t = team(S.cur.p.team); collectStages(t); var last = t.stages[t.stages.length-1].due; var nd = addDays(last, 1); if (nd >= t.due) nd = addDays(t.due, -1); t.stages.push({label:'검토', due:nd}); t.members.forEach(function(m){ m.cells.push({s:'todo'}); }); render(); break; }
     case 'editstages': go('stages', {team:d.team, edit:true}); break;
     case 'files': go('files', {team:d.team}); break;
-    case 'contrib': go('contrib', {team:d.team}); break;
+    case 'contrib': S.flags.roleEdit = null; go('contrib', {team:d.team}); break;
     case 'cchart': go('cchart', {team:d.team, view:'chart'}); break;
+    case 'roleedit': S.flags.roleEdit = +d.m; render(); var ta = document.getElementById('r-note'); if (ta) ta.focus(); break;
+    case 'rolecancel': S.flags.roleEdit = null; render(); break;
+    case 'rolesave': { var tr = team(d.team), note = document.getElementById('r-note').value.trim(); tr.members[+d.m].roleNote = note; S.flags.roleEdit = null; render(); toast(note ? '맡은 역할을 저장했어요. 팀원 모두에게 보여요.' : '맡은 역할을 비웠어요.'); break; }
     case 'cview': S.cur.p.view = d.v; render(); break;
     case 'fpreview': go('fpreview', {team:d.team}); break;
     case 'finalcheck': { var tf = team(d.team); if (tf.final.checks.indexOf(S.me) < 0) tf.final.checks.push(S.me); render(); toast(tf.final.by + '님에게 최종본 확인이 보여요'); break; }
