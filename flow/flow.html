@@ -4,7 +4,7 @@
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script></head><body>
 <h1>어디까지 했어? 서비스 플로우</h1>
 <p class="lg"><span><i style="background:#e8f1ff;border:1px solid #4a7fd6"></i>와이어프레임 있음</span><span><i style="background:#fff4e0;border:1px dashed #d68a1a"></i>와이어프레임 없음</span><span><i style="background:#ffecec;border:1px dashed #c44"></i>새 화면</span></p>
-<h2>전체 서비스 플로우 (굵은 화살표: 핵심 플로우 1)</h2>
+<h2>전체 서비스 플로우 (굵은 화살표: 핵심 플로우 1, 실선: 플로우 2·3·4)</h2>
 <div class="box"><pre class="mermaid">
 flowchart LR
   subgraph G0["팀 밖"]
@@ -28,6 +28,7 @@ flowchart LR
     S09["연장 요청 09"]
     S09b["도움 요청 09-b"]
     S10b["알림 나에게만 10-b"]
+    S10["알림 팀 알림 10"]
   end
   subgraph G3["오류"]
     S12A["오류 잘못된 링크 12-A"]
@@ -65,6 +66,14 @@ flowchart LR
   S06b -.->|"확인 오면 알림"| S10b
   S06b -.->|"단톡에 알리기 + 오늘 현황"| S13
   S13 -.->|"앱으로 돌아오기"| S06b
+  S10 -->|"카톡 단톡방으로 공유"| S13
+  S13 -->|"보내고 돌아오면"| S10
+  S10 -.->|"기한 지남 알림"| S07c
+  S07c -.->|"팀장 일정 다시 잡기"| S06
+  S10 -.->|"나에게만 탭"| S10b
+  S10 -.->|"뒤로"| S06
+  S06 -.->|"알림 버튼"| S10
+  S10b -.->|"팀 알림 탭"| S10
   S11 -.->|"내 결과물 올리기"| S08
   S11 -.->|"링크 다시 공유"| S03
   S03 -.->|"다시 보낸 뒤"| S11
@@ -72,10 +81,13 @@ flowchart LR
   S01 -.->|"다른 과목 팀"| S06
   S06 -.->|"뒤로"| S01
   S02 -.->|"유형 기타"| S05
-  S09 -.->|"연장하고 팀에 알리기"| S06
-  S09 -.->|"팀 마감 넘김 또는 막혔어요"| S09b
-  S09b -.->|"팀에 도움 요청"| S06
-  S10b -.->|"연장 요청하기"| S09
+  S09 -->|"연장하고 팀에 알리기"| S06
+  S09 -.->|"막혔어요 또는 팀 마감 넘김"| S09b
+  S09 -.->|"그만두고 뒤로"| S10b
+  S09b -.->|"도움 요청 보내기"| S06
+  S09b -.->|"뒤로"| S09
+  S06 -.->|"연장한 새 기한 6시간 전 다시 알림"| S10b
+  S10b -->|"연장 요청하기"| S09
   S10b -.->|"올리기"| S08
   S10b -.->|"뒤로"| S06
   S02 -.->|"뒤로"| S01
@@ -84,7 +96,7 @@ flowchart LR
   classDef has fill:#e8f1ff,stroke:#4a7fd6
   classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
   classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
-  class S01,S02,S03,S04,S05,S06,S06b,S07,S07b,S07c,S08,S09,S09b,S10b,S11,S12A,S12B has
+  class S01,S02,S03,S04,S05,S06,S06b,S07,S07b,S07c,S08,S09,S09b,S10b,S10,S11,S12A,S12B has
   class S13 none
 </pre></div>
 <h2>플로우 1: 이수아가 들어와 남의 진행을 보고 초안을 올린다 (핵심)</h2>
@@ -160,6 +172,45 @@ flowchart LR
   classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
   classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
   class S01,S02,S03,S05,S11,S06,S08 has
+</pre></div>
+<h2>플로우 3: 한도윤이 기한 하루 전 알림을 받고 연장한다</h2>
+<div class="box"><pre class="mermaid">
+flowchart LR
+  S10b["알림 나에게만 10-b"] -->|"D-1 알림 보고 연장 요청하기"| S09["연장 요청 09"]
+  S09 -->|"사유 고르고 연장하고 팀에 알리기, 일수 1일 기본, 새 기한 날짜와 시각 표시"| S06["팀 진행 06"]
+  S10b -.->|"다 해서 올리기"| S08["결과물 올리기 08"]
+  S10b -.->|"알림 쌓임: 지금 할 것 하나만 강조"| S10b
+  S10b -.->|"D-1 놓침: 기한 6시간 전 한 번 더 알림"| S10b
+  S10b -.->|"뒤로"| S06
+  S09 -.->|"기한 지남 또는 사유 안 고름 또는 이미 연장함: 안내"| S09
+  S09 -.->|"막혔어요 또는 팀 마감 넘김"| S09b["도움 요청 09-b"]
+  S09 -.->|"그만두고 뒤로"| S10b
+  S09b -.->|"도움 요청 보내기"| S06
+  S09b -.->|"뒤로"| S09
+  S06 -.->|"연장한 새 기한 6시간 전 다시 알림"| S10b
+  classDef has fill:#e8f1ff,stroke:#4a7fd6
+  classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
+  classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
+  class S10b,S09,S06,S08,S09b has
+</pre></div>
+<h2>플로우 4: 팀장 김민수가 기한 지남 알림을 확인하고 단톡에 공유한다</h2>
+<div class="box"><pre class="mermaid">
+flowchart LR
+  S10["알림 팀 알림 10"] -->|"카톡 단톡방으로 공유"| S13["카톡 단톡방 서비스 밖"]
+  S13 -->|"보내고 돌아오면 공유했어요 안내"| S10
+  S10 -.->|"카톡 안 됨: 복사, 복사했어요 안내"| S10
+  S10 -.->|"보낼 문구 미리보기"| S10
+  S10 -.->|"기한 지남 알림 누름"| S07c["기한 지남 팀원 07-c"]
+  S07c -.->|"팀장 일정 다시 잡기: 그 팀원에게만 새 기한 알림"| S06
+  S10 -.->|"나에게만 탭"| S10b["알림 나에게만 10-b"]
+  S10 -.->|"뒤로"| S06["팀 진행 06"]
+  S06 -.->|"알림 버튼"| S10
+  S10b -.->|"팀 알림 탭"| S10
+  classDef has fill:#e8f1ff,stroke:#4a7fd6
+  classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
+  classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
+  class S10,S07c,S10b,S06 has
+  class S13 none
 </pre></div>
 <script>mermaid.initialize({startOnLoad:true,theme:"neutral",flowchart:{htmlLabels:true}})</script>
 </body></html>
