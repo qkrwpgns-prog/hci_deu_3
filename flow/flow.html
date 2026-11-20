@@ -68,6 +68,7 @@ flowchart LR
   S03 -.->|"다시 보낸 뒤"| S11
   S11 -.->|"모두 들어옴"| S06
   S01 -.->|"다른 과목 팀"| S06
+  S06 -.->|"뒤로"| S01
   S02 -.->|"유형 기타"| S05
   S02 -.->|"뒤로"| S01
   S03 -.->|"뒤로"| S01
@@ -95,6 +96,7 @@ flowchart LR
   S06 -.->|"맡은 파트 없음"| S05["단계 파트 정하기 05"]
   S06 -.->|"내 단계 다 올림: 다 올렸어요 안내"| S06
   S06 -.->|"올리기 대신 연장"| S09["연장 요청 09"]
+  S06 -.->|"뒤로"| S01["홈 내 팀 목록 01"]
   S07 -.->|"결과물이 열리지 않음: 안내와 다시 올려 달라고 알림"| S07
   S07 -.->|"확인 안 하고 뒤로"| S06
   S08 -.->|"파일이 너무 큼"| S12B["오류 업로드 실패 12-B"]
@@ -118,7 +120,7 @@ flowchart LR
   classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
   classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
   class S13 none
-  class S04,S06,S07,S08,S06b,S12A,S11,S07b,S07c,S05,S09,S12B,S10b has
+  class S04,S06,S07,S08,S06b,S12A,S11,S07b,S07c,S05,S09,S12B,S10b has,S01
 </pre></div>
 <h2>플로우 2: 팀장 김민수가 팀을 만들고 링크를 퍼뜨린다</h2>
 <div class="box"><pre class="mermaid">
