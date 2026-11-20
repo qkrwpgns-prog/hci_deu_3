@@ -1,0 +1,37 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>서비스 플로우</title>
+<style>body{font-family:system-ui,sans-serif;margin:0;padding:24px;background:#fafaf8;color:#222}h1{font-size:22px}h2{font-size:17px;margin:32px 0 6px}.box{background:#fff;border:1px solid #ddd;border-radius:12px;padding:16px;overflow-x:auto}.lg{font-size:13px;color:#555}.lg span{display:inline-block;margin-right:14px}.lg i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-1px}</style>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script></head><body>
+<h1>어디까지 했어? 서비스 플로우</h1>
+<p class="lg"><span><i style="background:#e8f1ff;border:1px solid #4a7fd6"></i>와이어프레임 있음</span><span><i style="background:#fff4e0;border:1px dashed #d68a1a"></i>와이어프레임 없음</span><span><i style="background:#ffecec;border:1px dashed #c44"></i>새 화면</span></p>
+<h2>플로우 1: 이수아가 들어와 남의 진행을 보고 초안을 올린다 (핵심)</h2>
+<div class="box"><pre class="mermaid">
+flowchart LR
+  S04["링크로 들어오기 04"] -->|"이름 적고 팀 들어가기"| S06["팀 진행 06"]
+  S06 -->|"먼저 올린 팀원 칸 누르기"| S07["팀원 파트 결과물 보기 07"]
+  S07 -->|"결과물 열고 확인했어요 누른 뒤 뒤로"| S06
+  S06 -->|"내 결과물 올리기"| S08["결과물 올리기 08"]
+  S08 -->|"초안 단계 고르고 올리기"| S06b["올린 직후 06-b"]
+  S04 -.->|"이름 비움: 이름을 적어 주세요 안내"| S04
+  S04 -.->|"링크가 잘못됨"| S12A["오류 잘못된 링크 12-A"]
+  S06 -.->|"아직 아무도 안 올림"| S11["빈 상태 11"]
+  S06 -.->|"내 칸 누름"| S07b["내 파트 07-b"]
+  S06 -.->|"기한 지난 팀원 칸 누름"| S07c["기한 지남 팀원 07-c"]
+  S06 -.->|"남의 것 안 보고 바로 올리기"| S08
+  S06 -.->|"맡은 파트 없음"| S05["단계 파트 정하기 05"]
+  S06 -.->|"내 단계 다 올림: 다 올렸어요 안내"| S06
+  S06 -.->|"올리기 대신 연장"| S09["연장 요청 09"]
+  S07 -.->|"결과물이 열리지 않음"| N1["결과물 열기 실패 안내 (미정)"]
+  S07 -.->|"확인 안 하고 뒤로"| S06
+  S08 -.->|"파일이 너무 큼"| S12B["오류 업로드 실패 12-B"]
+  S12B -.->|"링크로 올리기 또는 다시 시도"| S08
+  S08 -.->|"아무것도 안 넣음: 안내"| S08
+  S08 -.->|"올리다 그만두고 뒤로"| S06
+  classDef has fill:#e8f1ff,stroke:#4a7fd6
+  classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
+  classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
+  class S04,S06,S07,S08,S06b,S12A,S11,S07b,S07c,S05,S09,S12B has
+  class N1 new
+</pre></div>
+<script>mermaid.initialize({startOnLoad:true,theme:"neutral",flowchart:{htmlLabels:true}})</script>
+</body></html>
