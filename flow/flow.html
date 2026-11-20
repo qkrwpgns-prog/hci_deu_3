@@ -27,6 +27,9 @@ flowchart LR
   S12B -.->|"링크로 올리기 또는 다시 시도"| S08
   S08 -.->|"아무것도 안 넣음: 안내"| S08
   S08 -.->|"올리다 그만두고 뒤로"| S06
+  S07b -.->|"뒤로"| S06
+  S07c -.->|"뒤로"| S06
+  S05 -.->|"저장"| S06
   classDef has fill:#e8f1ff,stroke:#4a7fd6
   classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
   classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
