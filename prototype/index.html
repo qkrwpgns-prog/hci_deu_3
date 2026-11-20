@@ -289,11 +289,11 @@ function seed(){
 /* ───────── 시나리오 ───────── */
 var SCEN = [
   {id:'A', me:'김민수', title:'팀장 김민수, 새 팀을 만들고 링크를 퍼뜨린다', why:'“제가 안 하면 아무도 안 할 것 같았어요” (P4-12)', start:['home'],
-    steps:[['home','‘새 팀 만들기’를 누르세요'],['create','유형을 고르고 ‘팀 만들고 링크 받기’'],['share','‘카톡으로 보내기’ 후 ‘다음: 단계 정하기’'],['stages','기한을 고쳐 보고 ‘이대로 시작하기’'],['team','빈 도장판을 확인하고 뒤로 가기로 홈']]},
+    steps:[['home','‘새 팀 만들기’를 누르세요'],['create','유형을 고르고 ‘팀 만들고 링크 받기’'],['share','‘카톡으로 보내기’ 후 ‘다음: 단계 정하기’'],['stages','기한을 고쳐 보고 ‘이대로 시작하기’'],['team','빈 보드를 보고 뒤로 가서 홈으로']]},
   {id:'B', me:'이수아', title:'팀원 이수아, 남의 진행을 보고 초안을 올린다', why:'“다른 사람들이 어디까지 했는지 보이면…” (P6-64b)', start:['join'],
-    steps:[['join','‘팀 들어가기’를 누르세요'],['team','김민수 줄을 눌러 결과물을 보세요'],['detail','초안을 열어 보고 ‘확인했어요’, 그다음 뒤로'],['team2','‘내 결과물 올리기’'],['upload','파일을 고르고 ‘초안’ 칸에 올리기']]},
+    steps:[['join','‘팀 들어가기’를 누르세요'],['team','김민수 줄을 눌러 결과물을 보세요'],['detail','초안을 열어 보고 ‘확인했어요’ 누른 뒤 뒤로'],['team2','‘내 결과물 올리기’'],['upload','파일을 고르고 ‘초안’ 칸에 올리기']]},
   {id:'C', me:'한도윤', title:'팀원 한도윤, 기한 하루 전, 사유를 골라 연장한다', why:'“안 된다는 말을 하기 편했으면” (P6-64a), 새벽 4시 제출 (P5-40)', start:['alerts', {tab:'mine', team:'mkt'}],
-    steps:[['alerts','나에게만 온 알림에서 ‘연장 요청하기’'],['extend','기간과 사유를 고르고 ‘연장하고 팀에 알리기’'],['team','내 칸에 연장 스티커가 붙은 것 확인, 그다음 종 아이콘'],['alerts2','팀 알림에 내 연장이 올라간 것 확인']]},
+    steps:[['alerts','나에게만 온 알림에서 ‘연장 요청하기’'],['extend','기간과 사유를 고르고 ‘연장하고 팀에 알리기’'],['team','내 칸이 ‘연장’으로 바뀐 걸 보고 종 아이콘 누르기'],['alerts2','팀 알림에 내 연장이 올라간 것 확인']]},
   {id:'D', me:'김민수', title:'팀장 김민수, 기한 지남 알림을 단톡에 공유한다', why:'“저요. 늘 저예요.” (P4-52) 공유는 누구나', start:['home'],
     steps:[['home','‘마케팅원론 기획서’를 누르세요'],['team','종 아이콘(알림)을 누르세요'],['alerts','‘단톡방에 공유’'],['alerts2','‘정예린님 파트 보기’로 상태 확인'],['detail','뒤로 가기로 팀 화면']]},
   {id:'E', me:'이수아', title:'오류: 잘린 링크와 너무 큰 파일', why:'빈 화면에서 멈추지 않게', start:['errlink'],
@@ -312,7 +312,7 @@ function reset(scen){
   var meName = scen ? scen.me : '김민수';
   if (meName === '김민수') S.mine.mkt = [{k:'ack', text:'정예린님이 내 ‘초안’을 확인했어요.', when:'오늘 10:12', m:0, i:1}];
   if (scen && scen.id === 'C'){
-    S.mine.mkt = [{k:'me', text:'내일(11/16 월)이 ‘초안’ 기한이에요.', sub:'올렸거나 늦어질 것 같으면 지금 알려 주세요. 아무 소식 없이 11/17이 되면 그때 팀에 알려져요.', when:'오늘 09:00', stage:1}, {k:'ack', text:'이수아님이 내 ‘자료조사’를 확인했어요.', when:'어제 21:15', m:2, i:0}];
+    S.mine.mkt = [{k:'me', text:'내일(11/16 월)이 ‘초안’ 기한이에요.', sub:'올렸거나 늦어질 것 같으면 지금 알려 주세요. 11/17까지 소식이 없으면 그때 팀에도 알림이 가요.', when:'오늘 09:00', stage:1}, {k:'ack', text:'이수아님이 내 ‘자료조사’를 확인했어요.', when:'어제 21:15', m:2, i:0}];
   }
   // 팀 알림 중 예시용 숨김 제거
   S.teamAlerts.mkt = S.teamAlerts.mkt.filter(function(a){ return !a.hidden; });
@@ -385,7 +385,7 @@ function stackOf(t){ return '<span class="stack" aria-hidden="true">' + t.member
 var V = {};
 
 V.start = function(){
-  var h = '<div class="scroll"><div class="big" style="padding-top:28px"><span class="logo" aria-hidden="true" style="display:block;width:44px;height:44px;border-radius:14px;margin-bottom:18px"></span><h1><b>어디까지 했어?</b></h1><p>조별과제에서 서로 어디까지 했는지 한 보드에서 보는 앱이에요. 사람을 고르면 그 사람의 휴대폰으로 처음부터 따라가 봐요.</p><p style="font-size:13px">기준 날짜: 2026년 11월 15일 일요일</p></div>';
+  var h = '<div class="scroll"><div class="big" style="padding-top:28px"><span class="logo" aria-hidden="true" style="display:block;width:44px;height:44px;border-radius:14px;margin-bottom:18px"></span><h1><b>어디까지 했어?</b></h1><p>조별과제에서 서로 어디까지 했는지 한 보드에서 보는 앱이에요. 사람을 고르면 그 사람 휴대폰 화면으로 처음부터 따라가 봐요.</p><p style="font-size:13px">기준 날짜: 2026년 11월 15일 일요일</p></div>';
   h += '<div class="sheet">';
   SCEN.forEach(function(sc){
     h += '<button class="line" data-a="scen" data-id="' + sc.id + '">' + av(sc.me, PERSONA_COL[sc.me]) + '<div class="grow"><div class="t">' + esc(sc.title) + '</div><div class="s">' + esc(sc.why) + '</div></div>' + IC.chev + '</button>';
@@ -438,19 +438,19 @@ V.share = function(p){
 V.stages = function(p){
   var t = team(p.team), m = meIn(t);
   var h = top(p.edit ? '단계와 파트 고치기' : '이렇게 나눠 볼까요?', esc(t.name) + ', 팀 마감 ' + longDate(t.due));
-  h += '<div class="scroll"><div class="sheet"><div class="sheet-h"><h2>도장 칸 (모든 파트 공통)</h2></div><div class="pad" style="padding-top:4px"><p class="hint" style="margin:0 0 8px">팀 마감에서 거꾸로 기한을 나눴어요. 누구나 고칠 수 있어요.</p>';
+  h += '<div class="scroll"><div class="sheet"><div class="sheet-h"><h2>단계 (모든 파트 공통)</h2></div><div class="pad" style="padding-top:4px"><p class="hint" style="margin:0 0 8px">팀 마감에서 거꾸로 기한을 나눴어요. 누구나 고칠 수 있어요.</p>';
   t.stages.forEach(function(s, i){
     h += '<div style="display:flex;align-items:center;gap:10px;border-top:1px solid var(--line);padding:8px 0"><span class="stamp todo" style="width:34px;height:34px;flex:none;font-size:12px;color:var(--sub)">' + (i+1) + '</span><span style="flex:1 1 auto;font-weight:600;font-size:16px">' + esc(s.label) + '</span><label class="sr" for="sd' + i + '">' + esc(s.label) + ' 기한</label><input class="field" style="width:148px;height:44px;font-size:15px" type="date" id="sd' + i + '" data-a="sdate" data-i="' + i + '" value="' + iso(s.due) + '"><button class="iconbtn" data-a="sdel" data-i="' + i + '" aria-label="' + esc(s.label) + ' 단계 빼기"' + (t.stages.length<=1 ? ' disabled' : '') + '>✕</button></div>';
   });
   h += '<button class="btn text small" style="margin-top:4px;padding:0" data-a="sadd">단계 추가</button><p class="err" id="s-err" hidden></p></div></div>';
-  h += '<div class="sheet"><div class="pad"><label class="label" for="mypart">내 파트</label><input class="field" id="mypart" value="' + esc(m.part) + '"><p class="hint">' + (p.edit ? '다른 팀원의 파트는 각자 고쳐요. 기한이 바뀌면 팀 알림 1건으로 알려져요.' : '팀원은 링크로 들어와 각자 자기 파트를 적어요. 지금은 나만 들어와 있어요.') + '</p></div></div></div>';
+  h += '<div class="sheet"><div class="pad"><label class="label" for="mypart">내 파트</label><input class="field" id="mypart" value="' + esc(m.part) + '"><p class="hint">' + (p.edit ? '다른 사람 파트는 각자 고쳐요. 기한을 바꾸면 팀에 알림이 한 번 가요.' : '팀원은 링크로 들어와 각자 자기 파트를 적어요. 지금은 나만 들어와 있어요.') + '</p></div></div></div>';
   h += p.edit ? '<div class="bar"><button class="btn primary grow" data-a="savestages" data-team="' + t.id + '">저장하기</button></div>' : '<div class="bar"><button class="btn primary grow" data-a="startteam" data-team="' + t.id + '">이대로 시작하기</button></div>';
   return h;
 };
 
 V.join = function(){
   var h = '<header class="top"><span style="width:14px"></span><div class="ttl"><h1>마케팅원론 기획서</h1><div class="sub">팀에 초대받았어요</div></div></header>';
-  h += '<div class="scroll"><div class="big"><h1 style="font-size:24px">이름만 알려 주세요</h1><p>가입이나 설치 없이 바로 팀 화면으로 가요. 이 기기에서는 다음부터 바로 열려요.</p></div>';
+  h += '<div class="scroll"><div class="big"><h1 style="font-size:24px">이름만 알려 주세요</h1><p>가입이나 설치 없이 바로 팀 화면으로 가요. 다음부터는 이 기기에서 자동으로 열려요.</p></div>';
   h += '<div class="sheet"><div class="pad"><label class="label" for="j-name">팀에서 부를 이름</label><input class="field" id="j-name" value="이수아"><p class="err" id="j-err" hidden>이름을 적어 주세요.</p></div></div>';
   h += '<div class="sheet"><div class="pad"><div class="label">먼저 들어온 팀원 3명</div><div style="display:flex;gap:14px">' + ['김민수','한도윤','정예린'].map(function(n){ return '<span style="display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px">' + av(n, PERSONA_COL[n]) + n + '</span>'; }).join('') + '</div></div></div></div>';
   h += '<div class="bar"><button class="btn primary grow" data-a="dojoin">팀 들어가기</button></div>';
@@ -466,7 +466,7 @@ V.team = function(p){
   if (acks.length) h += '<button class="line ribbon" data-a="detail" data-team="' + t.id + '" data-m="' + acks[0].m + '"><span class="ic ack" style="width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800">✓</span><span class="grow">' + esc(acks[0].text) + '</span>' + IC.chev + '</button>';
   if (done === 0){
     var missing = t.size - t.members.length, first = t.stages[0];
-    h += '<div class="empty"><div class="ghost-row" aria-hidden="true"><i></i><i></i><i></i></div><h2>아직 올라온 결과물이 없어요</h2><p>첫 칸 ‘' + esc(first.label) + '’은 ' + longDate(first.due) + '까지예요. 기한 전에는 누구에게도 알림이 가지 않아요.</p>' + (missing > 0 ? '<p style="margin-top:14px;color:var(--ink);font-weight:600">아직 안 들어온 팀원 ' + missing + '명</p><button class="btn small" style="margin-top:8px" data-a="reshare" data-team="' + t.id + '">' + IC.share + ' 팀 링크 다시 보내기</button>' : '') + '</div>';
+    h += '<div class="empty"><div class="ghost-row" aria-hidden="true"><i></i><i></i><i></i></div><h2>아직 올라온 결과물이 없어요</h2><p>첫 칸 ‘' + esc(first.label) + '’은 ' + longDate(first.due) + '까지예요. 기한 전에는 아무한테도 알림이 안 가요.</p>' + (missing > 0 ? '<p style="margin-top:14px;color:var(--ink);font-weight:600">아직 안 들어온 팀원 ' + missing + '명</p><button class="btn small" style="margin-top:8px" data-a="reshare" data-team="' + t.id + '">' + IC.share + ' 팀 링크 다시 보내기</button>' : '') + '</div>';
   }
   var ni = nextIdx(m), cols = 'minmax(0,1fr) repeat(' + t.stages.length + ', ' + (t.stages.length > 3 ? 50 : 60) + 'px)';
   h += '<div class="sec-h"><h2>진행 보드</h2><span>칸을 누르면 결과물을 봐요</span></div><section class="sheet" aria-label="팀 진행 보드"><div class="board-h" style="grid-template-columns:' + cols + '"><span>팀원</span>';
@@ -506,7 +506,7 @@ V.detail = function(p){
       h += '<p class="memo">사유: ' + esc(c.reason) + '</p>';
       if (mine) h += '<button class="btn small primary" style="margin-top:10px" data-a="upload" data-team="' + t.id + '" data-i="' + i + '">이 칸 올리기</button>';
     } else if (late){
-      h += '<p class="memo">아직 결과물도 연장 요청도 없어요.' + (mine ? '' : ' ' + md(addDays(cellDue(t,m,i),1)) + '에 팀 알림으로 한 번 알려졌고, 같은 알림은 다시 보내지 않아요.') + '</p>';
+      h += '<p class="memo">아직 결과물도 연장 요청도 없어요.' + (mine ? '' : ' ' + md(addDays(cellDue(t,m,i),1)) + '에 팀에 한 번 알렸어요. 같은 알림은 다시 안 보내요.') + '</p>';
       if (mine) h += '<button class="btn small primary" style="margin-top:10px" data-a="upload" data-team="' + t.id + '" data-i="' + i + '">이 칸 올리기</button>';
     } else if (mine && i === nextIdx(m)){
       h += '<div class="grid2" style="margin-top:12px"><button class="btn small" data-a="extend" data-team="' + t.id + '">연장 요청</button><button class="btn small primary" data-a="upload" data-team="' + t.id + '" data-i="' + i + '">이 칸 올리기</button></div>';
@@ -539,7 +539,7 @@ V.upload = function(p){
   h += '<button class="pick' + (f.file ? ' has' : '') + '" data-a="pickfile">' + (f.file ? IC.file + '<span style="flex:1 1 auto;font-weight:600">' + esc(f.file) + '</span><span class="hint" style="margin:0">바꾸기</span>' : IC.up + '<span style="flex:1 1 auto">파일 고르기</span>') + '</button>';
   h += '<label class="label" for="u-link" style="margin-top:18px">링크</label><input class="field" id="u-link" inputmode="url" placeholder="구글 문서, 노션, 드라이브 주소" value="' + esc(f.link) + '">';
   h += '<label class="label" for="u-memo" style="margin-top:18px">한 줄 메모</label><textarea class="field" id="u-memo" placeholder="팀원이 알아 두면 좋을 것">' + esc(f.memo) + '</textarea><p class="err" id="u-err" hidden>파일, 링크, 메모 중 하나는 있어야 해요.</p></div></div>';
-  h += '<p class="hint" style="padding:12px 20px 0">올리면 이 칸에 내 도장이 찍혀요. 팀원에게 따로 알림은 가지 않아요.</p></div>';
+  h += '<p class="hint" style="padding:12px 20px 0">올리면 내 칸이 ‘올림’으로 바뀌어요. 팀원한테 알림은 따로 안 가요.</p></div>';
   h += '<div class="bar"><button class="btn primary grow" data-a="doupload" data-team="' + t.id + '">‘' + esc(t.stages[f.stage] ? t.stages[f.stage].label : '') + '’ 칸에 올리기</button></div>';
   return h;
 };
@@ -557,7 +557,7 @@ V.extend = function(p){
   ['알바·일정 겹침','다른 과제 마감','막혔어요, 도움 필요','몸이 안 좋아요'].forEach(function(r){ h += '<button class="chip" data-a="ereason" data-v="' + r + '" aria-pressed="' + (f.reason===r) + '">' + r + '</button>'; });
   h += '</div><label class="label" for="e-memo" style="margin-top:18px">덧붙일 말 (선택)</label><textarea class="field" id="e-memo" placeholder="예: 월요일 밤까지 올릴게요">' + esc(f.memo) + '</textarea><p class="err" id="e-err" hidden>사유를 하나 골라 주세요.</p></div></div>';
   var preview = help ? S.me + '님이 ‘' + t.stages[i].label + '’ 칸에서 도움을 요청했어요.' : S.me + '님이 ‘' + t.stages[i].label + '’ 칸을 ' + f.days + '일 연장했어요. 새 기한은 ' + md(nd) + '이에요.' + (f.reason ? ' 사유: ' + f.reason : '');
-  h += '<div class="sheet"><div class="pad"><div class="hint" style="margin:0 0 8px">팀에는 이렇게 알려져요. 승인 없이 바로 적용돼요.</div><div class="kakao">' + esc(preview) + '</div></div></div></div>';
+  h += '<div class="sheet"><div class="pad"><div class="hint" style="margin:0 0 8px">팀에는 이렇게 보여요. 누가 허락하지 않아도 바로 바뀌어요.</div><div class="kakao">' + esc(preview) + '</div></div></div></div>';
   h += '<div class="bar"><button class="btn primary grow" data-a="doextend" data-team="' + t.id + '">' + (help ? '팀에 도움 요청하기' : '연장하고 팀에 알리기') + '</button></div>';
   return h;
 };
@@ -569,7 +569,7 @@ V.alerts = function(p){
   h += '<div class="seg" role="tablist"><button role="tab" data-a="tab" data-v="team" aria-selected="' + (tab==='team') + '">팀 알림 ' + teamA.length + '</button><button role="tab" data-a="tab" data-v="mine" aria-selected="' + (tab==='mine') + '">나에게만 ' + mineA.length + '</button></div>';
   h += '<div class="scroll">';
   if (tab==='mine'){
-    h += '<p class="hint" style="padding:6px 20px 0">내 칸 기한 하루 전과 당일, 그리고 내 결과물에 온 ‘확인했어요’예요. 팀원에게는 보이지 않아요.</p>';
+    h += '<p class="hint" style="padding:6px 20px 0">내 칸 기한이 내일이거나 오늘일 때, 누가 내 결과물을 확인했을 때 와요. 팀원은 못 봐요.</p>';
     if (!mineA.length) h += '<div class="empty"><h2 style="margin-top:0">나에게만 온 알림이 없어요</h2><p>내 칸 기한이 가까워지면 여기에 먼저 알려 드려요.</p></div>';
     else {
       h += '<div class="sheet">';
@@ -580,7 +580,7 @@ V.alerts = function(p){
       h += '</div>';
     }
   } else {
-    h += '<p class="hint" style="padding:6px 20px 0">연장과 도움 요청, 그리고 기한 다음 날까지 아무 소식이 없을 때만 팀에 알려요.</p>';
+    h += '<p class="hint" style="padding:6px 20px 0">누가 연장하거나 도움을 청할 때, 기한이 하루 지나도 소식이 없을 때만 팀에 알려요.</p>';
     if (!teamA.length) h += '<div class="empty"><h2 style="margin-top:0">팀 알림이 없어요</h2><p>모두 기한 안에 올리고 있어요.</p></div>';
     else {
       h += '<div class="sheet">';
@@ -629,7 +629,7 @@ V.files = function(p){
     if (!mine) h += '<div class="pad" style="padding-top:4px"><button class="btn ' + (checked ? '' : 'primary ') + 'grow" style="width:100%" data-a="finalcheck" data-team="' + t.id + '"' + (checked ? ' disabled' : '') + '>' + (checked ? '최종본을 확인했어요' : '최종본 확인했어요') + '</button></div>';
     h += '</div>';
   } else {
-    h += '<div class="empty"><h2 style="margin-top:0">최종 취합본이 아직 없어요</h2><p>취합을 맡은 사람이 마지막 단계에서 최종본을 올리면, 여기서 팀원 모두가 확인할 수 있어요.</p></div>';
+    h += '<div class="empty"><h2 style="margin-top:0">최종 취합본이 아직 없어요</h2><p>취합 맡은 사람이 최종본을 올리면 여기서 다 같이 확인해요.</p></div>';
   }
   h += '<div class="sec-h"><h2>단계별 결과물</h2><span>' + doneCount(t) + '개</span></div>';
   t.stages.forEach(function(s, i){
@@ -653,7 +653,7 @@ V.fpreview = function(p){
 V.contrib = function(p){
   var t = team(p.team);
   var h = top('기여 기록', esc(t.name));
-  h += '<div class="scroll"><div class="ribbon" style="background:var(--periwinkle);box-shadow:none"><span class="grow">점수나 순위가 아니라, 서비스에 남은 기록이에요. 팀원 모두 같은 내용을 봐요.</span></div>';
+  h += '<div class="scroll"><div class="ribbon" style="background:var(--periwinkle);box-shadow:none"><span class="grow">누가 무엇을 했는지 남은 기록만 보여 줘요. 점수나 순위는 없고, 팀원 모두 같은 화면을 봐요.</span></div>';
   h += '<button class="ribbon" data-a="cchart" data-team="' + t.id + '"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--violet)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span class="grow"><b>한눈에 보기</b><br><span class="hint" style="margin:0">팀원 기록을 차트 하나로 모아 봐요</span></span>' + IC.chev + '</button>';
   t.members.forEach(function(mm, mi){
     var st = teamStats(t, mm, mi), n = mm.cells.length;
@@ -674,7 +674,7 @@ V.contrib = function(p){
     if (tags.length) h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">' + tags.join('') + '</div>';
     h += '</div></div>';
   });
-  h += '<p class="hint" style="padding:16px 24px 0">기록은 결과물 올리기, 확인했어요, 연장·도움 요청, 최종본 취합에서 자동으로 쌓여요. 따로 적을 필요가 없어요.</p></div>';
+  h += '<p class="hint" style="padding:16px 24px 0">따로 적지 않아도 앱을 쓰는 동안 기록이 쌓여요.</p></div>';
   h += '<div class="bar"><button class="btn primary grow" data-a="contribexport" data-team="' + t.id + '">동료평가용으로 정리하기</button></div>';
   return h;
 };
@@ -692,7 +692,7 @@ V.cchart = function(p){
   var h = top('기여 기록 한눈에 보기', esc(t.name));
   h += '<div class="seg" role="tablist"><button role="tab" data-a="cview" data-v="chart" aria-selected="' + (view==='chart') + '">차트</button><button role="tab" data-a="cview" data-v="table" aria-selected="' + (view==='table') + '">표</button></div>';
   h += '<div class="scroll"><div class="sheet" style="position:relative"><div class="pad">';
-  h += '<div style="font-weight:600;font-size:16px">팀원별 기록</div><p class="hint" style="margin:2px 0 12px">팀 등록 순서예요. 순위가 아니에요.</p>';
+  h += '<div style="font-weight:600;font-size:16px">팀원별 기록</div><p class="hint" style="margin:2px 0 12px">팀에 들어온 순서대로 놓았어요.</p>';
   h += '<div style="display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:12px">' + CSERIES.map(function(se){ return '<span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--slate)"><i style="width:10px;height:10px;border-radius:3px;background:' + se.col + '"></i>' + se.name + '</span>'; }).join('') + '</div>';
   if (view === 'chart'){
     var W = 318, LW = 58, VW = 22, PW = W - LW - VW, BH = 8, GAP = 2, GRP = CSERIES.length * (BH + GAP) - GAP, ROWG = 22, H = rows.length * (GRP + ROWG) + 22;
@@ -719,7 +719,7 @@ V.cchart = function(p){
     rows.forEach(function(r){ h += '<tr><td style="padding:10px 4px;border-bottom:1px solid #EEF0F5">' + esc(r.name) + (r.me ? '<span class="me">나</span>' : '') + '</td>' + CSERIES.map(function(se){ return '<td style="text-align:right;padding:10px 4px;border-bottom:1px solid #EEF0F5">' + r.st[se.k] + se.unit + '</td>'; }).join('') + '</tr>'; });
     h += '</tbody></table></div>';
   }
-  h += '</div></div><p class="hint" style="padding:16px 24px 0">막대에 손가락을 대면 값이 보여요. 기록은 결과물 올리기, 확인했어요, 연장·도움 요청에서 자동으로 쌓여요.</p></div>';
+  h += '</div></div><p class="hint" style="padding:16px 24px 0">막대를 누르면 값이 나와요.</p></div>';
   h += '<div class="bar"><button class="btn primary grow" data-a="contribexport" data-team="' + t.id + '">동료평가용으로 정리하기</button></div>';
   return h;
 };
@@ -830,13 +830,13 @@ document.addEventListener('click', function(e){
     case 'cview': S.cur.p.view = d.v; render(); break;
     case 'fpreview': go('fpreview', {team:d.team}); break;
     case 'finalcheck': { var tf = team(d.team); if (tf.final.checks.indexOf(S.me) < 0) tf.final.checks.push(S.me); render(); toast(tf.final.by + '님에게 최종본 확인이 보여요'); break; }
-    case 'contribexport': toast('팀원별 기록을 표로 정리했어요. 시연이라 파일은 만들지 않아요.'); if (S.scen && S.scen.id==='F') { finish(); renderGuide(); } break;
+    case 'contribexport': toast('팀원별 기록을 표로 정리했어요. 시연이라 파일은 안 만들어요.'); if (S.scen && S.scen.id==='F') { finish(); renderGuide(); } break;
     case 'savestages': {
       t = team(d.team); var before = t.stages.map(function(x){ return x.label + md(x.due); }).join();
       if (!collectStages(t)) return;
       var part2 = document.getElementById('mypart').value.trim(); if (part2) meIn(t).part = part2;
       var changed = before !== t.stages.map(function(x){ return x.label + md(x.due); }).join();
-      if (changed) (S.teamAlerts[t.id] = S.teamAlerts[t.id] || []).unshift({k:'ext', text:S.me + '님이 단계 기한을 고쳤어요: ' + t.stages.map(function(x){ return x.label + ' ~' + md(x.due); }).join(', '), when:'방금'});
+      if (changed) (S.teamAlerts[t.id] = S.teamAlerts[t.id] || []).unshift({k:'ext', text:S.me + '님이 단계 기한을 고쳤어요. ' + t.stages.map(function(x){ return x.label + ' ~' + md(x.due); }).join(', '), when:'방금'});
       back(); toast(changed ? '저장했어요. 바뀐 기한을 팀에 알렸어요.' : '저장했어요.'); break; }
     case 'startteam': {
       t = team(d.team); if (!collectStages(t)) return;
@@ -852,7 +852,7 @@ document.addEventListener('click', function(e){
     case 'check': { var c = t.members[+d.m].cells[+d.i]; if (c.checks.indexOf(S.me) < 0) c.checks.push(S.me); render(); toast(t.members[+d.m].name + '님에게 ‘확인했어요’가 보여요'); break; }
     case 'alerts': go('alerts', {team:d.team, tab:'team'}); break;
     case 'tab': S.cur.p.tab = d.v; render(); break;
-    case 'sharestatus': { var tt = team(d.team); toast('오늘 현황을 단톡방에 공유했어요: ' + doneCount(tt) + '칸 올림' + (lateCount(tt) ? ', 기한 지남 ' + lateCount(tt) : '') + ' (시연)'); break; }
+    case 'sharestatus': { var tt = team(d.team); toast('단톡방에 오늘 현황을 보냈어요. ' + doneCount(tt) + '칸 올림' + (lateCount(tt) ? ', 기한 지남 ' + lateCount(tt) + '칸' : '') + ' (시연)'); break; }
     case 'reshare': go('share', {team:d.team, again:true}); break;
     case 'upload': S.flags.upload = null; go('upload', {team:d.team, i: d.i != null ? +d.i : null}); break;
     case 'ustage': saveUpload(); S.flags.upload.stage = +d.i; render(); break;
@@ -874,7 +874,7 @@ document.addEventListener('click', function(e){
       var label = tm2.stages[f2.stage].label;
       S.flags.upload = null;
       resetTo([['home'], ['team', {team:tm2.id}]]);
-      toast('‘' + label + '’ 칸에 도장을 찍었어요. 팀 화면에 바로 보여요.');
+      toast('‘' + label + '’ 칸에 올렸어요. 팀 화면에 바로 보여요.');
       if (S.scen && (S.scen.id==='B' || S.scen.id==='E')) finish(); renderGuide();
       break; }
     case 'retry': S.flags.upload.file = ''; S.flags.upload.big = false; back(); break;
@@ -893,7 +893,7 @@ document.addEventListener('click', function(e){
       } else {
         mx.cells[ix] = {s:'ext', due:ndx, reason:fx.reason};
         S.teamAlerts[tx.id].unshift({k:'ext', text:S.me + '님이 ‘' + lab + '’ 칸을 ' + fx.days + '일 연장했어요. 새 기한은 ' + md(ndx) + '이에요.' + (fx.memo ? ' “' + fx.memo + '”' : ''), reason:fx.reason, when:'방금'});
-        toast('‘' + lab + '’ 기한이 ' + md(ndx) + '로 바뀌고 팀에 알렸어요');
+        toast('‘' + lab + '’ 기한을 ' + md(ndx) + '로 바꾸고 팀에 알렸어요');
       }
       if (S.mine[tx.id]) S.mine[tx.id] = S.mine[tx.id].filter(function(x){ return x.stage !== ix; });
       S.flags.extend = null;
