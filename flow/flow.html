@@ -70,6 +70,8 @@ flowchart LR
   S10 -.->|"기한 지남 알림"| S07c
   S10 -.->|"나에게만 탭"| S10b
   S10 -.->|"뒤로"| S06
+  S06 -.->|"알림 버튼"| S10
+  S10b -.->|"팀 알림 탭"| S10
   S11 -.->|"내 결과물 올리기"| S08
   S11 -.->|"링크 다시 공유"| S03
   S03 -.->|"다시 보낸 뒤"| S11
@@ -195,6 +197,8 @@ flowchart LR
   S10 -.->|"기한 지남 알림 누름"| S07c["기한 지남 팀원 07-c"]
   S10 -.->|"나에게만 탭"| S10b["알림 나에게만 10-b"]
   S10 -.->|"뒤로"| S06["팀 진행 06"]
+  S06 -.->|"알림 버튼"| S10
+  S10b -.->|"팀 알림 탭"| S10
   classDef has fill:#e8f1ff,stroke:#4a7fd6
   classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
   classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
