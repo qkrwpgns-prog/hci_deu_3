@@ -253,6 +253,7 @@ function seed(){
         {s:'late'}, {s:'todo'}, {s:'todo'}]}
     ]
   };
+  mkt.final = {file:'마케팅원론_기획서_최종본_v1.pdf', by:'김민수', at:'11/15 21:40', memo:'4P와 SWOT 자리는 비워 두고 합쳤어요. 빈 곳은 노란색으로 표시했어요.', checks:['이수아']};
   var cap = {
     id:'cap', name:'캡스톤디자인 시스템 개발', due:D(12,4), size:4, isNew:false,
     stages:[{label:'설계', due:D(11,13)}, {label:'구현', due:D(11,27)}, {label:'테스트', due:D(12,2)}],
@@ -296,7 +297,9 @@ var SCEN = [
   {id:'D', me:'김민수', title:'팀장 김민수, 기한 지남 알림을 단톡에 공유한다', why:'“저요. 늘 저예요.” (P4-52) 공유는 누구나', start:['home'],
     steps:[['home','‘마케팅원론 기획서’를 누르세요'],['team','종 아이콘(알림)을 누르세요'],['alerts','‘단톡방에 공유’'],['alerts2','‘정예린님 파트 보기’로 상태 확인'],['detail','뒤로 가기로 팀 화면']]},
   {id:'E', me:'이수아', title:'오류: 잘린 링크와 너무 큰 파일', why:'빈 화면에서 멈추지 않게', start:['errlink'],
-    steps:[['errlink','‘내 팀 목록으로’'],['home','‘마케팅원론 기획서’에서 ‘내 결과물 올리기’'],['upload','파일 선택(큰 파일) 후 올리기'],['errupload','‘링크로 올리기’ 후 다시 올리기']]}
+    steps:[['errlink','‘내 팀 목록으로’'],['home','‘마케팅원론 기획서’에서 ‘내 결과물 올리기’'],['upload','파일 선택(큰 파일) 후 올리기'],['errupload','‘링크로 올리기’ 후 다시 올리기']]},
+  {id:'F', me:'김민수', title:'팀장 김민수, 제출 전에 최종본 확인과 기여 기록을 본다', why:'“누가 언제 뭘 했는지 기록이 자동으로 남았으면” (P4-60a)', start:['home'],
+    steps:[['home','‘마케팅원론 기획서’를 누르세요'],['team','아래 ‘결과물 모아보기’를 누르세요'],['files','최종본 확인 현황을 보고 ‘기여 기록 보기’'],['contrib','팀원별 기록을 보고 ‘동료평가용으로 정리하기’']]}
 ];
 
 /* ───────── 상태 ───────── */
@@ -479,7 +482,7 @@ V.team = function(p){
   var notes = [];
   t.members.forEach(function(mm){ mm.cells.forEach(function(c,i){ if (c.s==='ext') notes.push(mm.name + '님 ‘' + t.stages[i].label + '’ ' + md(c.due) + '까지 연장, ' + c.reason); }); });
   if (notes.length) h += '<p class="hint" style="padding:0 20px">' + notes.map(esc).join('<br>') + '</p>';
-  h += '<div class="tools"><button class="btn small" data-a="sharestatus" data-team="' + t.id + '">' + IC.share + ' 오늘 현황 단톡에 공유</button><button class="btn small" data-a="editstages" data-team="' + t.id + '">단계와 파트 고치기</button></div>';
+  h += '<div class="tools"><button class="btn small" data-a="sharestatus" data-team="' + t.id + '">' + IC.share + ' 오늘 현황 단톡에 공유</button><button class="btn small" data-a="editstages" data-team="' + t.id + '">단계와 파트 고치기</button><button class="btn small" data-a="files" data-team="' + t.id + '">결과물 모아보기</button><button class="btn small" data-a="contrib" data-team="' + t.id + '">기여 기록</button></div>';
   h += '</div><div class="bar"><button class="btn grow" data-a="extend" data-team="' + t.id + '"' + (ni<0 ? ' disabled' : '') + '>연장 요청</button><button class="btn primary grow2" data-a="upload" data-team="' + t.id + '"' + (ni<0 ? ' disabled' : '') + '>내 결과물 올리기</button></div>';
   return h;
 };
@@ -594,6 +597,87 @@ V.alerts = function(p){
   return h;
 };
 
+function teamStats(t, mm, mi){
+  var st = {up:0, onTime:0, ext:0, late:0, given:0, help:0, final: t.final && t.final.by === mm.name};
+  mm.cells.forEach(function(c, i){
+    if (c.s==='done'){ st.up++; if (c.at <= t.stages[i].due) st.onTime++; }
+    if (c.s==='ext') st.ext++;
+    if (isLate(t,mm,i) && c.s!=='done') st.late++;
+  });
+  t.members.forEach(function(o){ o.cells.forEach(function(c){ if (c.s==='done' && c.checks && c.checks.indexOf(mm.name) >= 0) st.given++; }); });
+  if (t.final && t.final.checks.indexOf(mm.name) >= 0) st.given++;
+  (S.teamAlerts[t.id]||[]).forEach(function(a){ if (a.k==='help' && a.text.indexOf(mm.name + '님') === 0) st.help++; });
+  return st;
+}
+function pill(text, bg, fg){ return '<span style="display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:6px;font-size:12px;font-weight:500;background:' + bg + ';color:' + fg + '">' + text + '</span>'; }
+
+V.files = function(p){
+  var t = team(p.team), f = t.final;
+  var h = top('결과물 모아보기', esc(t.name));
+  h += '<div class="scroll">';
+  if (f){
+    var done = t.members.filter(function(mm){ return mm.name === f.by || f.checks.indexOf(mm.name) >= 0; }).length;
+    var mine = S.me === f.by, checked = f.checks.indexOf(S.me) >= 0;
+    h += '<div class="hero"><div class="row"><p style="font-size:13px">최종 취합본</p><span style="background:rgba(255,255,255,.2);border-radius:6px;padding:2px 8px;font-size:12px;font-weight:600">' + done + '/' + t.members.length + '명 확인</span></div>';
+    h += '<button class="file" style="margin:0;background:rgba(255,255,255,.14);color:#fff" data-a="fpreview" data-team="' + t.id + '"><span style="flex:1 1 auto;font-weight:600">' + esc(f.file) + '</span>' + IC.chev + '</button>';
+    h += '<p>' + esc(f.by) + '님이 ' + esc(f.at) + '에 올림. “' + esc(f.memo) + '”</p><div class="prog" aria-hidden="true"><i style="width:' + Math.round(done*100/t.members.length) + '%"></i></div></div>';
+    h += '<div class="sheet"><div class="sheet-h"><h2>제출 전 확인</h2><span>팀원 모두 확인하면 제출 준비 끝</span></div>';
+    t.members.forEach(function(mm, mi){
+      var ok = mm.name === f.by || f.checks.indexOf(mm.name) >= 0;
+      h += '<div class="line">' + av(mm.name, colOf(t, mi)) + '<div class="grow"><div class="t">' + esc(mm.name) + (mm.name===S.me ? '<span class="me">나</span>' : '') + '</div><div class="s">' + esc(mm.part) + '</div></div>' + (mm.name === f.by ? pill('올린 사람', 'var(--violet-wash)', 'var(--violet-ink)') : ok ? pill('확인했어요', 'var(--mint)', '#1F3A0E') : pill('아직', 'var(--canvas)', 'var(--slate)')) + '</div>';
+    });
+    if (!mine) h += '<div class="pad" style="padding-top:4px"><button class="btn ' + (checked ? '' : 'primary ') + 'grow" style="width:100%" data-a="finalcheck" data-team="' + t.id + '"' + (checked ? ' disabled' : '') + '>' + (checked ? '최종본을 확인했어요' : '최종본 확인했어요') + '</button></div>';
+    h += '</div>';
+  } else {
+    h += '<div class="empty"><h2 style="margin-top:0">최종 취합본이 아직 없어요</h2><p>취합을 맡은 사람이 마지막 단계에서 최종본을 올리면, 여기서 팀원 모두가 확인할 수 있어요.</p></div>';
+  }
+  h += '<div class="sec-h"><h2>단계별 결과물</h2><span>' + doneCount(t) + '개</span></div>';
+  t.stages.forEach(function(s, i){
+    var rows = '';
+    t.members.forEach(function(mm, mi){ var c = mm.cells[i]; if (c.s !== 'done') return;
+      rows += '<button class="line" data-a="detail" data-team="' + t.id + '" data-m="' + mi + '">' + av(mm.name, colOf(t, mi)) + '<div class="grow"><div class="t" style="font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(c.file || c.link || '메모') + '</div><div class="s">' + esc(mm.name) + ', ' + md(c.at) + ' 올림' + (c.checks.length ? ', 확인 ' + c.checks.length + '명' : '') + '</div></div>' + IC.chev + '</button>'; });
+    h += '<div class="sheet"><div class="sheet-h"><h2>' + esc(s.label) + '</h2><span>~' + md(s.due) + '</span></div>' + (rows || '<p class="hint" style="padding:4px 20px 18px;margin:0">아직 올라온 결과물이 없어요.</p>') + '</div>';
+  });
+  h += '</div><div class="bar"><button class="btn primary grow" data-a="contrib" data-team="' + t.id + '">기여 기록 보기</button></div>';
+  return h;
+};
+
+V.fpreview = function(p){
+  var t = team(p.team), f = t.final;
+  var h = top(f.file, esc(f.by) + '님, ' + esc(f.at));
+  h += '<div class="scroll"><div class="doc" aria-label="최종본 미리보기"><div style="font-weight:600;font-size:17px;margin-bottom:14px">' + esc(t.name) + ' 최종본</div><div class="lnx"></div><div class="lnx"></div><div class="lnx s"></div><div style="height:18px"></div><div class="lnx" style="background:var(--violet-wash)"></div><div class="lnx s"></div><p class="hint" style="margin-top:28px">시연용 미리보기예요. 실서비스에서는 원본 파일이 열려요.</p></div></div>';
+  h += '<div class="bar"><button class="btn grow" data-a="back">닫기</button></div>';
+  return h;
+};
+
+V.contrib = function(p){
+  var t = team(p.team);
+  var h = top('기여 기록', esc(t.name));
+  h += '<div class="scroll"><div class="ribbon" style="background:var(--periwinkle);box-shadow:none"><span class="grow">점수나 순위가 아니라, 서비스에 남은 기록이에요. 팀원 모두 같은 내용을 봐요.</span></div>';
+  t.members.forEach(function(mm, mi){
+    var st = teamStats(t, mm, mi), n = mm.cells.length;
+    var strip = mm.cells.map(function(c, i){ var late = isLate(t,mm,i) && c.s!=='done';
+      var bg = c.s==='done' ? 'var(--mint)' : late ? 'var(--late-bg)' : c.s==='ext' ? 'var(--peach)' : 'var(--canvas)';
+      return '<span title="' + esc(t.stages[i].label) + '" style="flex:1 1 0;height:8px;border-radius:4px;background:' + bg + '"></span>'; }).join('');
+    h += '<div class="sheet"><div class="pad"><div style="display:flex;align-items:center;gap:12px">' + av(mm.name, colOf(t, mi)) + '<div style="flex:1 1 auto;min-width:0"><div style="font-weight:600;font-size:16px">' + esc(mm.name) + (mm.name===S.me ? '<span class="me">나</span>' : '') + '</div><div class="hint" style="margin:0">' + esc(mm.part) + '</div></div></div>';
+    h += '<div style="display:flex;gap:4px;margin:14px 0 12px" aria-hidden="true">' + strip + '</div>';
+    h += '<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;font-size:13px">';
+    h += '<div style="background:var(--canvas);border-radius:12px;padding:10px 12px"><div class="hint" style="margin:0">올린 결과물</div><b style="font-size:18px">' + st.up + '</b> / ' + n + '칸</div>';
+    h += '<div style="background:var(--canvas);border-radius:12px;padding:10px 12px"><div class="hint" style="margin:0">기한 안에 올림</div><b style="font-size:18px">' + st.onTime + '</b>칸</div>';
+    h += '<div style="background:var(--canvas);border-radius:12px;padding:10px 12px"><div class="hint" style="margin:0">남의 결과물 확인</div><b style="font-size:18px">' + st.given + '</b>번</div>';
+    h += '<div style="background:var(--canvas);border-radius:12px;padding:10px 12px"><div class="hint" style="margin:0">연장·도움 요청</div><b style="font-size:18px">' + (st.ext + st.help) + '</b>번</div>';
+    h += '</div>';
+    var tags = [];
+    if (st.final) tags.push(pill('최종본 취합', 'var(--violet-wash)', 'var(--violet-ink)'));
+    if (st.late) tags.push(pill('기한 지남 ' + st.late + '칸', 'var(--late-bg)', 'var(--late)'));
+    if (tags.length) h += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px">' + tags.join('') + '</div>';
+    h += '</div></div>';
+  });
+  h += '<p class="hint" style="padding:16px 24px 0">기록은 결과물 올리기, 확인했어요, 연장·도움 요청, 최종본 취합에서 자동으로 쌓여요. 따로 적을 필요가 없어요.</p></div>';
+  h += '<div class="bar"><button class="btn primary grow" data-a="contribexport" data-team="' + t.id + '">동료평가용으로 정리하기</button></div>';
+  return h;
+};
+
 V.errlink = function(){
   var h = '<header class="top"><span style="width:14px"></span><div class="ttl"><h1>어디까지 했어?</h1><div class="sub">eodi.kr/t/mkt-4f</div></div></header>';
   h += '<div class="scroll"><div class="errbox"><div class="errmark" aria-hidden="true">?</div><h2>이 링크로는 팀을 찾을 수 없어요</h2><p>링크가 중간에 잘렸거나 팀이 삭제됐을 수 있어요. 단톡방에서 링크 전체를 다시 누르거나, 링크를 올린 사람에게 새 링크를 부탁해 주세요.</p></div></div>';
@@ -694,6 +778,11 @@ document.addEventListener('click', function(e){
     case 'sdel': { t = team(S.cur.p.team); collectStages(t); t.stages.splice(+d.i, 1); t.members.forEach(function(m){ m.cells.splice(+d.i, 1); }); render(); break; }
     case 'sadd': { t = team(S.cur.p.team); collectStages(t); var last = t.stages[t.stages.length-1].due; var nd = addDays(last, 1); if (nd >= t.due) nd = addDays(t.due, -1); t.stages.push({label:'검토', due:nd}); t.members.forEach(function(m){ m.cells.push({s:'todo'}); }); render(); break; }
     case 'editstages': go('stages', {team:d.team, edit:true}); break;
+    case 'files': go('files', {team:d.team}); break;
+    case 'contrib': go('contrib', {team:d.team}); break;
+    case 'fpreview': go('fpreview', {team:d.team}); break;
+    case 'finalcheck': { var tf = team(d.team); if (tf.final.checks.indexOf(S.me) < 0) tf.final.checks.push(S.me); render(); toast(tf.final.by + '님에게 최종본 확인이 보여요'); break; }
+    case 'contribexport': toast('팀원별 기록을 표로 정리했어요. 시연이라 파일은 만들지 않아요.'); if (S.scen && S.scen.id==='F') { finish(); renderGuide(); } break;
     case 'savestages': {
       t = team(d.team); var before = t.stages.map(function(x){ return x.label + md(x.due); }).join();
       if (!collectStages(t)) return;
@@ -790,7 +879,8 @@ go = function(name, p, opt){
              B:{team: S.step >= 2 ? 'team2' : 'team', detail:'detail', upload:'upload'},
              C:{extend:'extend'},
              D:{team:'team', alerts:'alerts', detail:'detail'},
-             E:{home:'home', upload:'upload'}}[sc.id] || {};
+             E:{home:'home', upload:'upload'},
+             F:{team:'team', files:'files', contrib:'contrib'}}[sc.id] || {};
   if (map[name]) advance(map[name]);
   if (sc.id==='C' && name==='alerts' && S.step >= 2) advance('alerts2'), finish();
   if (sc.id==='A' && name==='team' && team(p.team) && team(p.team).isNew) {}
