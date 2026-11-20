@@ -1,0 +1,115 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>한 장 요약</title>
+<style id="proto-style">
+</style>
+<style>
+html,body{margin:0;background:#e9eaee;font-family:system-ui,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#1d1d1f}
+#rp-bar{position:sticky;top:0;z-index:5;display:flex;gap:12px;align-items:center;padding:10px 16px;background:#1d1d1f;color:#fff;font-size:14px}
+#rp-bar button{font:inherit;font-weight:600;padding:8px 16px;border:0;border-radius:8px;background:#fff;color:#1d1d1f;cursor:pointer}
+#rp-board{width:1600px;margin:20px auto;background:#fff;padding:40px 44px;box-sizing:border-box;display:grid;grid-template-columns:repeat(12,1fr);gap:20px}
+.rp-head{grid-column:1/-1;display:flex;justify-content:space-between;align-items:flex-end;gap:24px;border-bottom:3px solid #1d1d1f;padding-bottom:16px}
+.rp-head h1{margin:0;font-size:40px;line-height:1.15}.rp-head p{margin:6px 0 0;font-size:19px;color:#444}.rp-meta{text-align:right;font-size:15px;color:#555;white-space:nowrap}
+.rp-card{border:1px solid #d9d9de;border-radius:14px;padding:18px 20px;min-width:0;background:#fff}
+.rp-card h2{margin:0 0 10px;font-size:15px;letter-spacing:.04em;color:#666;font-weight:600}
+.rp-card ul,.rp-card ol{margin:0;padding-left:20px;font-size:16px;line-height:1.55}.rp-card p{margin:0;font-size:16px;line-height:1.55}
+.rp-steps{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.rp-step{border-radius:12px;background:#f3f4f7;padding:14px 16px}.rp-step b{display:block;font-size:17px;margin-bottom:4px}.rp-step span{font-size:15px;color:#333;line-height:1.5}
+.rp-flow{grid-column:1/-1}.rp-flow .mermaid{margin:0;text-align:center}.rp-flow svg{max-width:100%;height:auto}
+.rp-check{grid-column:span 5}.rp-design{grid-column:span 3}.rp-decide{grid-column:span 4}
+.rp-table{width:100%;border-collapse:collapse;font-size:15px}.rp-table td,.rp-table th{border-top:1px solid #e3e3e8;padding:6px 6px;text-align:left;vertical-align:top}
+.rp-tag{display:inline-block;padding:1px 8px;border-radius:999px;font-size:13px;font-weight:600}.rp-ok{background:#e2f4e6;color:#1c6b2f}.rp-weak{background:#fff0d6;color:#8a5a00}.rp-miss{background:#ffe3e0;color:#a3261a}
+.rp-chips{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0}.rp-chip{display:flex;align-items:center;gap:8px;font-size:14px}.rp-chip i{width:28px;height:28px;border-radius:8px;border:1px solid #0002;display:inline-block}
+.rp-screens{grid-column:span 8}.rp-next{grid-column:span 4}
+.rp-shots{display:flex;gap:18px;flex-wrap:wrap}.rp-shotbox{width:195px}.rp-shotbox figcaption{font-size:14px;margin-top:8px;text-align:center;color:#333}
+.rp-shot{width:195px;height:390px;overflow:hidden;border:1px solid #cfcfd6;border-radius:16px;background:#fff;position:relative}
+.rp-shot>.screen{display:block!important;width:390px;min-height:780px;transform:scale(.5);transform-origin:0 0;pointer-events:none}
+.rp-empty{color:#888;font-size:15px}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+</head><body>
+<div id="rp-bar"><button id="rp-save">이미지로 저장</button><span id="rp-msg">아래 한 장이 그대로 이미지가 돼요.</span></div>
+<div id="rp-board">
+ <header class="rp-head"><div><h1>어디까지 했어?</h1><p>조별과제에서 결과물을 단계별로 올리면 그게 곧 진행 기록이 되어, 서로 어디까지 했는지 한 화면에 보이는 가입 없는 웹 링크</p></div><div class="rp-meta">팀 이름: <br>팀원: <br>2026-11-20</div></header>
+ <section class="rp-steps">
+  <div class="rp-step"><b>1. 자료 지도</b><span>기획서, 퍼소나 3명, 인터뷰 P1~P11, 와이어프레임 화면 19개를 한 장(docs/project-map.md)에 정리</span></div>
+  <div class="rp-step"><b>2. 서비스 플로우</b><span>플로우 4개(핵심: 이수아가 초안을 올린다). 화면 19개 중 13은 빼고, 09-b·10은 필요로 판단</span></div>
+  <div class="rp-step"><b>3. 기획 점검</b><span>2번 점검. 처음엔 약함 3·빠짐 2 → 다시 점검에서 모두 들어감. 팀 결정 13개, 기획서 고침</span></div>
+  <div class="rp-step"><b>4. 디자인</b><span class="rp-empty">아직 하지 않았어요</span></div>
+ </section>
+ <section class="rp-card rp-flow"><h2>핵심 플로우: 팀원 이수아가 들어와 남의 진행을 보고 초안을 올린다</h2><pre class="mermaid">
+flowchart LR
+  S04["링크로 들어오기 04"] -->|"이름 적고 팀 들어가기"| S06["팀 진행 06"]
+  S06 -->|"먼저 올린 팀원 칸 누르기"| S07["팀원 파트 결과물 보기 07"]
+  S07 -->|"결과물 열고 확인했어요 누른 뒤 뒤로"| S06
+  S06 -->|"내 결과물 올리기"| S08["결과물 올리기 08"]
+  S08 -->|"초안 단계 고르고 올리기"| S06b["올린 직후 06-b"]
+  S04 -.->|"이름 비움: 이름을 적어 주세요 안내"| S04
+  S04 -.->|"링크가 잘못됨"| S12A["오류 잘못된 링크 12-A"]
+  S06 -.->|"아직 아무도 안 올림"| S11["빈 상태 11"]
+  S06 -.->|"내 칸 누름"| S07b["내 파트 07-b"]
+  S06 -.->|"기한 지난 팀원 칸 누름"| S07c["기한 지남 팀원 07-c"]
+  S06 -.->|"남의 것 안 보고 바로 올리기"| S08
+  S06 -.->|"맡은 파트 없음"| S05["단계 파트 정하기 05"]
+  S06 -.->|"내 단계 다 올림: 다 올렸어요 안내"| S06
+  S06 -.->|"올리기 대신 연장"| S09["연장 요청 09"]
+  S09 -.->|"연장하고 팀에 알리기"| S06
+  S09 -.->|"팀 마감 넘김 또는 막혔어요"| S09b["도움 요청 09-b"]
+  S09b -.->|"팀에 도움 요청"| S06
+  S06 -.->|"뒤로"| S01["홈 내 팀 목록 01"]
+  S07 -.->|"결과물이 열리지 않음: 안내와 다시 올려 달라고 알림"| S07
+  S07 -.->|"확인 안 하고 뒤로"| S06
+  S08 -.->|"파일이 너무 큼"| S12B["오류 업로드 실패 12-B"]
+  S12B -.->|"링크로 올리기 또는 다시 시도"| S08
+  S08 -.->|"아무것도 안 넣음: 안내"| S08
+  S08 -.->|"올리다 그만두고 뒤로"| S06
+  S12A -.->|"링크 다시 받기 문구 복사, 새 링크로 다시 들어오기"| S04
+  S12A -.->|"내 팀 목록으로 보조 버튼"| S01
+  S11 -.->|"내 결과물 올리기"| S08
+  S06b -.->|"팀원이 확인하면 알림"| S10b["알림 나에게만 10-b"]
+  S08 -.->|"아직 고치는 중 골라 올리기"| S06b
+  S06b -.->|"올린 뒤 고치고 싶음: 내 칸 누르기"| S07b
+  S07b -.->|"올린 칸 다시 올리기"| S08
+  S07 -.->|"확인했어요에 한 줄 남기기 선택"| S07
+  S06b -.->|"단톡에 알리기 + 오늘 현황 선택"| S13["카톡 단톡방 서비스 밖"]
+  S13 -.->|"앱으로 돌아오기"| S06b
+  S07b -.->|"뒤로"| S06
+  S07c -.->|"도울 수 있어요: 그 팀원에게만 익명 알림"| S07c
+  S07c -.->|"뒤로"| S06
+  S05 -.->|"저장"| S06
+  classDef has fill:#e8f1ff,stroke:#4a7fd6
+  classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
+  classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
+  class S13 none
+  class S04,S06,S07,S08,S06b,S12A,S11,S07b,S07c,S05,S09,S09b,S12B,S10b,S01 has
+ </pre></section>
+ <section class="rp-card rp-check"><h2>기획 점검 결과</h2><table class="rp-table"><tr><th>핵심 기능</th><th>판정</th><th>그래서</th></tr>
+  <tr><td>① 올리는 순간 진행이 바뀐다</td><td><span class="rp-tag rp-ok">들어감</span></td><td>-</td></tr>
+  <tr><td>② 사유 고르기 + 승인 없는 연장, 알림 3단계, 도움 요청</td><td><span class="rp-tag rp-weak">약함</span> → <span class="rp-tag rp-ok">들어감</span></td><td>시나리오 C를 플로우 3으로 그림</td></tr>
+  <tr><td>③ "확인했어요" 한 번</td><td><span class="rp-tag rp-ok">들어감</span></td><td>-</td></tr>
+  <tr><td>④ 가입·설치 없는 링크</td><td><span class="rp-tag rp-ok">들어감</span></td><td>-</td></tr>
+  <tr><td>⑤ 오늘 현황 단톡에 공유</td><td><span class="rp-tag rp-weak">약함</span> → <span class="rp-tag rp-ok">들어감</span></td><td>06-b "단톡에 알리기"와 합침</td></tr>
+  <tr><td>알림 · 팀 알림 (10)</td><td><span class="rp-tag rp-miss">빠짐</span> → <span class="rp-tag rp-ok">들어감</span></td><td>시나리오 D를 플로우 4로 그림</td></tr>
+ </table></section>
+ <section class="rp-card rp-design"><h2>디자인 방향</h2><p class="rp-empty">아직 하지 않았어요</p></section>
+ <section class="rp-card rp-decide"><h2>우리가 내린 결정과 이유</h2><ol>
+  <li>올린 결과물을 "다시 올리기"로 바꿀 수 있고(이전 버전 남김), "아직 고치는 중"으로 올릴 수 있게 함. 초안을 일찍 쓰고 오래 고침(P6-34b), 실수를 두려워함(P6-42a)</li>
+  <li>기한 6시간 전에 나에게만 한 번 더 알리고, 연장하면 새 기한을 날짜와 시각까지 보여 줌. "오늘 안에"를 새벽 4시로 여겨 기한을 넘김(P5-40)</li>
+  <li>기한 지난 팀원 화면에서 누구나 "일정 다시 잡기", 다시 지나면 "이 단계 넘겨받기". "늘 저예요"(P4-52), 연락이 안 되는 팀원(P10-31)</li>
+ </ol></section>
+ <section class="rp-card rp-screens"><h2>주요 화면 (핵심 플로우 순서)</h2><p class="rp-empty">아직 만든 화면이 없어요</p></section>
+ <section class="rp-card rp-next"><h2>다음에 할 일</h2><ul>
+  <li>/design 으로 디자인 방향을 정하고 핵심 플로우 화면부터 만들기</li>
+  <li>남은 불편 살피기: 아이디어가 계속 엎어짐(P8-26, P9-22), 공유를 여전히 팀장만 누를 수 있음(P4-52)</li>
+  <li>/share 로 플로우와 디자인 화면 공유하기</li>
+ </ul></section>
+</div>
+<script>
+mermaid.initialize({startOnLoad:true,theme:"neutral",flowchart:{htmlLabels:false}});
+document.getElementById("rp-save").onclick=async()=>{const m=document.getElementById("rp-msg");
+ if(!window.html2canvas){m.textContent="인터넷이 안 돼서 저장 도구를 못 불러왔어요. 화면 캡처로 저장하세요.";return}
+ m.textContent="만드는 중이에요.";
+ try{const c=await html2canvas(document.getElementById("rp-board"),{scale:1.5,backgroundColor:"#ffffff",useCORS:true});
+  const a=document.createElement("a");a.download="summary.png";a.href=c.toDataURL("image/png");a.click();m.textContent="summary.png 로 저장했어요. 다운로드 폴더를 확인하세요."}
+ catch(e){m.textContent="저장하지 못했어요. 화면 캡처로 저장하세요."}};
+</script></body></html>
