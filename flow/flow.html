@@ -74,6 +74,8 @@ flowchart LR
   S09 -->|"연장하고 팀에 알리기"| S06
   S09 -.->|"막혔어요 또는 팀 마감 넘김"| S09b
   S09 -.->|"그만두고 뒤로"| S10b
+  S09b -.->|"도움 요청 보내기"| S06
+  S09b -.->|"뒤로"| S09
   S10b -->|"연장 요청하기"| S09
   S10b -.->|"올리기"| S08
   S10b -.->|"뒤로"| S06
@@ -167,6 +169,8 @@ flowchart LR
   S09 -.->|"기한 지남 또는 사유 안 고름 또는 이미 연장함: 안내"| S09
   S09 -.->|"막혔어요 또는 팀 마감 넘김"| S09b["도움 요청 09-b"]
   S09 -.->|"그만두고 뒤로"| S10b
+  S09b -.->|"도움 요청 보내기"| S06
+  S09b -.->|"뒤로"| S09
   classDef has fill:#e8f1ff,stroke:#4a7fd6
   classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
   classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
