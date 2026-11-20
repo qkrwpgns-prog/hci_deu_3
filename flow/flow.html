@@ -34,12 +34,15 @@ flowchart LR
   S06b -.->|"올린 뒤 고치고 싶음: 내 칸 누르기"| S07b
   S07b -.->|"올린 칸 다시 올리기"| S08
   S07 -.->|"확인했어요에 한 줄 남기기 선택"| S07
+  S06b -.->|"단톡에 알리기 선택"| S13["단톡방에 보이는 모습 13"]
+  S13 -.->|"앱으로 돌아오기"| S06b
   S07b -.->|"뒤로"| S06
   S07c -.->|"뒤로"| S06
   S05 -.->|"저장"| S06
   classDef has fill:#e8f1ff,stroke:#4a7fd6
   classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
   classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
+  class S13 none
   class S04,S06,S07,S08,S06b,S12A,S11,S07b,S07c,S05,S09,S12B,S10b has
 </pre></div>
 <script>mermaid.initialize({startOnLoad:true,theme:"neutral",flowchart:{htmlLabels:true}})</script>
