@@ -46,5 +46,32 @@ flowchart LR
   class S13 none
   class S04,S06,S07,S08,S06b,S12A,S11,S07b,S07c,S05,S09,S12B,S10b has
 </pre></div>
+<h2>플로우 2: 팀장 김민수가 팀을 만들고 링크를 퍼뜨린다</h2>
+<div class="box"><pre class="mermaid">
+flowchart LR
+  S01["홈 내 팀 목록 01"] -->|"새 팀 만들기"| S02["팀 만들기 02"]
+  S02 -->|"이름 마감 유형 정하고 팀 만들고 링크 받기"| S03["링크 공유 03"]
+  S03 -->|"카톡으로 보내기 후 다음 단계 정하기"| S05["단계 파트 정하기 05"]
+  S05 -->|"단계 고치고 파트 만들고 이대로 시작하기"| S11["빈 상태 11"]
+  S11 -->|"안 들어온 팀원 확인하고 뒤로"| S01
+  S01 -.->|"처음 써서 팀 없음: 새 팀 만들기만 크게"| S02
+  S01 -.->|"다른 과목 팀 누름"| S06["팀 진행 06"]
+  S02 -.->|"이름 비움 또는 지난 날짜: 안내"| S02
+  S02 -.->|"유형 기타: 단계 없이 시작"| S05
+  S02 -.->|"만들다 그만두고 뒤로"| S01
+  S03 -.->|"카톡 안 됨: 복사, 복사했어요 안내"| S03
+  S03 -.->|"링크 안 보내고 다음"| S05
+  S03 -.->|"미루고 뒤로: 새 팀 배지"| S01
+  S05 -.->|"기한이 팀 마감보다 늦음 또는 단계 모두 지움: 안내"| S05
+  S05 -.->|"정하다 그만두고 뒤로"| S03
+  S11 -.->|"링크 다시 공유"| S03
+  S03 -.->|"다시 보낸 뒤 돌아오기"| S11
+  S11 -.->|"모두 들어옴"| S06
+  S11 -.->|"내 결과물 올리기"| S08["결과물 올리기 08"]
+  classDef has fill:#e8f1ff,stroke:#4a7fd6
+  classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
+  classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
+  class S01,S02,S03,S05,S11,S06,S08 has
+</pre></div>
 <script>mermaid.initialize({startOnLoad:true,theme:"neutral",flowchart:{htmlLabels:true}})</script>
 </body></html>
