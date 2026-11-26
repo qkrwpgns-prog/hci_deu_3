@@ -1,0 +1,217 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>서비스 플로우</title>
+<style>body{font-family:system-ui,sans-serif;margin:0;padding:24px;background:#fafaf8;color:#222}h1{font-size:22px}h2{font-size:17px;margin:32px 0 6px}.box{background:#fff;border:1px solid #ddd;border-radius:12px;padding:16px;overflow-x:auto}.lg{font-size:13px;color:#555}.lg span{display:inline-block;margin-right:14px}.lg i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-1px}</style>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script></head><body>
+<h1>어디까지 했어? 서비스 플로우</h1>
+<p class="lg"><span><i style="background:#e8f1ff;border:1px solid #4a7fd6"></i>와이어프레임 있음</span><span><i style="background:#fff4e0;border:1px dashed #d68a1a"></i>와이어프레임 없음</span><span><i style="background:#ffecec;border:1px dashed #c44"></i>새 화면</span></p>
+<h2>전체 서비스 플로우 (굵은 화살표: 핵심 플로우 1, 실선: 플로우 2·3·4)</h2>
+<div class="box"><pre class="mermaid">
+flowchart LR
+  subgraph G0["팀 밖"]
+    S04["링크로 들어오기 04"]
+    S13["카톡 단톡방 서비스 밖"]
+  end
+  subgraph G1["홈"]
+    S01["홈 내 팀 목록 01"]
+    S02["팀 만들기 02"]
+    S03["링크 공유 03"]
+  end
+  subgraph G2["팀"]
+    S05["단계 파트 정하기 05"]
+    S11["빈 상태 11"]
+    S06["팀 진행 06"]
+    S06b["올린 직후 06-b"]
+    S07["팀원 파트 결과물 보기 07"]
+    S07b["내 파트 07-b"]
+    S07c["기한 지남 팀원 07-c"]
+    S08["결과물 올리기 08"]
+    S09["연장 요청 09"]
+    S09b["도움 요청 09-b"]
+    S10b["알림 나에게만 10-b"]
+    S10["알림 팀 알림 10"]
+  end
+  subgraph G3["오류"]
+    S12A["오류 잘못된 링크 12-A"]
+    S12B["오류 업로드 실패 12-B"]
+  end
+  S04 ==>|"팀 들어가기"| S06
+  S06 ==>|"팀원 칸 누르기"| S07
+  S07 ==>|"확인했어요 후 뒤로"| S06
+  S06 ==>|"내 결과물 올리기"| S08
+  S08 ==>|"초안 올리기"| S06b
+  S01 -->|"새 팀 만들기"| S02
+  S02 -->|"팀 만들고 링크 받기"| S03
+  S03 -->|"카톡 보내고 자동으로"| S05
+  S05 -->|"이대로 시작하기"| S11
+  S11 -->|"뒤로"| S01
+  S04 -.->|"링크 잘못됨"| S12A
+  S12A -.->|"새 링크로 다시"| S04
+  S12A -.->|"내 팀 목록으로"| S01
+  S06 -.->|"아무도 안 올림"| S11
+  S06 -.->|"내 칸"| S07b
+  S06 -.->|"기한 지난 칸"| S07c
+  S06 -.->|"바로 올리기"| S08
+  S06 -.->|"맡은 파트 없음"| S05
+  S06 -.->|"연장"| S09
+  S07 -.->|"확인 안 하고 뒤로"| S06
+  S07b -.->|"뒤로"| S06
+  S07b -.->|"다시 올리기"| S08
+  S07c -.->|"뒤로"| S06
+  S05 -.->|"저장"| S06
+  S08 -.->|"파일 너무 큼"| S12B
+  S12B -.->|"링크로 또는 다시 시도"| S08
+  S08 -.->|"그만두고 뒤로"| S06
+  S08 -.->|"고치는 중으로 올리기"| S06b
+  S06b -.->|"내 칸"| S07b
+  S06b -.->|"확인 오면 알림"| S10b
+  S06b -.->|"단톡에 알리기 + 오늘 현황"| S13
+  S13 -.->|"앱으로 돌아오기"| S06b
+  S10 -->|"카톡 단톡방으로 공유"| S13
+  S13 -->|"보내고 돌아오면"| S10
+  S10 -.->|"기한 지남 알림"| S07c
+  S07c -.->|"일정 다시 잡기 또는 이 단계 넘겨받기"| S06
+  S10 -.->|"나에게만 탭"| S10b
+  S10 -.->|"뒤로"| S06
+  S06 -.->|"알림 버튼"| S10
+  S10b -.->|"팀 알림 탭"| S10
+  S11 -.->|"내 결과물 올리기"| S08
+  S11 -.->|"링크 다시 공유"| S03
+  S03 -.->|"다시 보낸 뒤"| S11
+  S11 -.->|"모두 들어옴"| S06
+  S01 -.->|"다른 과목 팀"| S06
+  S06 -.->|"뒤로"| S01
+  S02 -.->|"유형 기타"| S05
+  S09 -->|"연장하고 팀에 알리기"| S06
+  S09 -.->|"막혔어요 또는 팀 마감 넘김"| S09b
+  S09 -.->|"그만두고 뒤로"| S10b
+  S09b -.->|"도움 요청 보내기"| S06
+  S09b -.->|"뒤로"| S09
+  S06 -.->|"연장한 새 기한 6시간 전 다시 알림"| S10b
+  S10b -->|"연장 요청하기"| S09
+  S10b -.->|"올리기"| S08
+  S10b -.->|"뒤로"| S06
+  S02 -.->|"뒤로"| S01
+  S03 -.->|"뒤로"| S01
+  S05 -.->|"뒤로"| S03
+  classDef has fill:#e8f1ff,stroke:#4a7fd6
+  classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
+  classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
+  class S01,S02,S03,S04,S05,S06,S06b,S07,S07b,S07c,S08,S09,S09b,S10b,S10,S11,S12A,S12B has
+  class S13 none
+</pre></div>
+<h2>플로우 1: 이수아가 들어와 남의 진행을 보고 초안을 올린다 (핵심)</h2>
+<div class="box"><pre class="mermaid">
+flowchart LR
+  S04["링크로 들어오기 04"] -->|"이름 적고 팀 들어가기"| S06["팀 진행 06"]
+  S06 -->|"먼저 올린 팀원 칸 누르기"| S07["팀원 파트 결과물 보기 07"]
+  S07 -->|"결과물 열고 확인했어요 누른 뒤 뒤로"| S06
+  S06 -->|"내 결과물 올리기"| S08["결과물 올리기 08"]
+  S08 -->|"초안 단계 고르고 올리기"| S06b["올린 직후 06-b"]
+  S04 -.->|"이름 비움: 이름을 적어 주세요 안내"| S04
+  S04 -.->|"링크가 잘못됨"| S12A["오류 잘못된 링크 12-A"]
+  S06 -.->|"아직 아무도 안 올림"| S11["빈 상태 11"]
+  S06 -.->|"내 칸 누름"| S07b["내 파트 07-b"]
+  S06 -.->|"기한 지난 팀원 칸 누름"| S07c["기한 지남 팀원 07-c"]
+  S06 -.->|"남의 것 안 보고 바로 올리기"| S08
+  S06 -.->|"맡은 파트 없음"| S05["단계 파트 정하기 05"]
+  S06 -.->|"내 단계 다 올림: 다 올렸어요 안내"| S06
+  S06 -.->|"올리기 대신 연장"| S09["연장 요청 09"]
+  S09 -.->|"연장하고 팀에 알리기"| S06
+  S09 -.->|"팀 마감 넘김 또는 막혔어요"| S09b["도움 요청 09-b"]
+  S09b -.->|"팀에 도움 요청"| S06
+  S06 -.->|"뒤로"| S01["홈 내 팀 목록 01"]
+  S07 -.->|"결과물이 열리지 않음: 안내와 다시 올려 달라고 알림"| S07
+  S07 -.->|"확인 안 하고 뒤로"| S06
+  S08 -.->|"파일이 너무 큼"| S12B["오류 업로드 실패 12-B"]
+  S12B -.->|"링크로 올리기 또는 다시 시도"| S08
+  S08 -.->|"아무것도 안 넣음: 안내"| S08
+  S08 -.->|"올리다 그만두고 뒤로"| S06
+  S12A -.->|"링크 다시 받기 문구 복사, 새 링크로 다시 들어오기"| S04
+  S12A -.->|"내 팀 목록으로 보조 버튼"| S01
+  S11 -.->|"내 결과물 올리기"| S08
+  S06b -.->|"팀원이 확인하면 알림"| S10b["알림 나에게만 10-b"]
+  S08 -.->|"아직 고치는 중 골라 올리기"| S06b
+  S06b -.->|"올린 뒤 고치고 싶음: 내 칸 누르기"| S07b
+  S07b -.->|"올린 칸 다시 올리기"| S08
+  S07 -.->|"확인했어요에 한 줄 남기기 선택"| S07
+  S06b -.->|"단톡에 알리기 + 오늘 현황 선택"| S13["카톡 단톡방 서비스 밖"]
+  S13 -.->|"앱으로 돌아오기"| S06b
+  S07b -.->|"뒤로"| S06
+  S07c -.->|"도울 수 있어요: 그 팀원에게만 익명 알림"| S07c
+  S07c -.->|"뒤로"| S06
+  S05 -.->|"저장"| S06
+  classDef has fill:#e8f1ff,stroke:#4a7fd6
+  classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
+  classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
+  class S13 none
+  class S04,S06,S07,S08,S06b,S12A,S11,S07b,S07c,S05,S09,S09b,S12B,S10b,S01 has
+</pre></div>
+<h2>플로우 2: 팀장 김민수가 팀을 만들고 링크를 퍼뜨린다</h2>
+<div class="box"><pre class="mermaid">
+flowchart LR
+  S01["홈 내 팀 목록 01"] -->|"새 팀 만들기"| S02["팀 만들기 02"]
+  S02 -->|"이름 팀이 약속한 마감 유형 정하고 팀 만들고 링크 받기"| S03["링크 공유 03"]
+  S03 -->|"카톡으로 보내고 돌아오면 자동으로"| S05["단계 파트 정하기 05"]
+  S05 -->|"단계 고치고 파트 만들고 이대로 시작하기"| S11["빈 상태 11"]
+  S11 -->|"안 들어온 팀원 확인하고 뒤로"| S01
+  S01 -.->|"처음 써서 팀 없음: 새 팀 만들기만 크게"| S02
+  S01 -.->|"다른 과목 팀 누름"| S06["팀 진행 06"]
+  S02 -.->|"이름 비움 또는 지난 날짜: 안내"| S02
+  S02 -.->|"유형 기타: 단계 없이 시작"| S05
+  S02 -.->|"만들다 그만두고 뒤로"| S01
+  S03 -.->|"카톡 안 됨: 복사 후 다음 단계 정하기"| S05
+  S03 -.->|"나중에 보내기"| S05
+  S03 -.->|"미루고 뒤로: 새 팀 배지"| S01
+  S05 -.->|"기한이 팀 마감보다 늦음 또는 단계 모두 지움: 안내"| S05
+  S05 -.->|"정하다 그만두고 뒤로"| S03
+  S11 -.->|"링크 다시 공유"| S03
+  S03 -.->|"다시 보낸 뒤 돌아오기"| S11
+  S11 -.->|"모두 들어옴"| S06
+  S11 -.->|"내 결과물 올리기"| S08["결과물 올리기 08"]
+  classDef has fill:#e8f1ff,stroke:#4a7fd6
+  classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
+  classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
+  class S01,S02,S03,S05,S11,S06,S08 has
+</pre></div>
+<h2>플로우 3: 한도윤이 기한 하루 전 알림을 받고 연장한다</h2>
+<div class="box"><pre class="mermaid">
+flowchart LR
+  S10b["알림 나에게만 10-b"] -->|"D-1 알림 보고 연장 요청하기"| S09["연장 요청 09"]
+  S09 -->|"사유 고르고 연장하고 팀에 알리기, 일수 1일 기본, 새 기한 날짜와 시각 표시"| S06["팀 진행 06"]
+  S10b -.->|"다 해서 올리기"| S08["결과물 올리기 08"]
+  S10b -.->|"알림 쌓임: 지금 할 것 하나만 강조"| S10b
+  S10b -.->|"D-1 놓침: 기한 6시간 전 한 번 더 알림"| S10b
+  S10b -.->|"뒤로"| S06
+  S09 -.->|"기한 지남 또는 사유 안 고름 또는 이미 연장함: 안내"| S09
+  S09 -.->|"막혔어요 또는 팀 마감 넘김"| S09b["도움 요청 09-b"]
+  S09 -.->|"그만두고 뒤로"| S10b
+  S09b -.->|"도움 요청 보내기"| S06
+  S09b -.->|"뒤로"| S09
+  S06 -.->|"연장한 새 기한 6시간 전 다시 알림"| S10b
+  classDef has fill:#e8f1ff,stroke:#4a7fd6
+  classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
+  classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
+  class S10b,S09,S06,S08,S09b has
+</pre></div>
+<h2>플로우 4: 팀장 김민수가 기한 지남 알림을 확인하고 단톡에 공유한다</h2>
+<div class="box"><pre class="mermaid">
+flowchart LR
+  S10["알림 팀 알림 10"] -->|"카톡 단톡방으로 공유"| S13["카톡 단톡방 서비스 밖"]
+  S13 -->|"보내고 돌아오면 공유했어요 안내"| S10
+  S10 -.->|"카톡 안 됨: 복사, 복사했어요 안내"| S10
+  S10 -.->|"보낼 문구 미리보기"| S10
+  S10 -.->|"기한 지남 알림 누름"| S07c["기한 지남 팀원 07-c"]
+  S07c -.->|"일정 다시 잡기 누구나: 그 팀원에게만 새 기한 알림"| S06
+  S07c -.->|"다시 잡은 기한도 지남: 이 단계 넘겨받기, 원래 팀원에게만 알림"| S06
+  S10 -.->|"나에게만 탭"| S10b["알림 나에게만 10-b"]
+  S10 -.->|"뒤로"| S06["팀 진행 06"]
+  S06 -.->|"알림 버튼"| S10
+  S10b -.->|"팀 알림 탭"| S10
+  classDef has fill:#e8f1ff,stroke:#4a7fd6
+  classDef none fill:#fff4e0,stroke:#d68a1a,stroke-dasharray:4
+  classDef new fill:#ffecec,stroke:#c44,stroke-dasharray:4
+  class S10,S07c,S10b,S06 has
+  class S13 none
+</pre></div>
+<script>mermaid.initialize({startOnLoad:true,theme:"neutral",flowchart:{htmlLabels:true}})</script>
+</body></html>
