@@ -208,6 +208,20 @@ textarea.field{height:92px;padding:12px 14px;resize:none;line-height:1.5}
 .guide li{margin:4px 0}
 .guide li.cur{font-weight:600}
 .guide li.done{color:#9A9DAE;text-decoration:line-through}
+.demo{display:flex;flex-wrap:wrap;gap:6px;padding:24px 16px 0}
+.demo span{width:100%;font-size:12px;color:var(--slate)}
+.demo button{min-height:44px;border:1px dashed var(--mist);border-radius:160px;background:transparent;font-size:13px;color:var(--slate);padding:0 14px}
+.demo button[aria-pressed="true"]{border-style:solid;border-color:var(--violet);color:var(--violet-ink);background:var(--violet-wash)}
+.note{margin:12px 16px 0;padding:16px 18px;border-radius:16px;background:var(--card);box-shadow:var(--shadow);font-size:14px;line-height:1.55}
+.note.ok{background:var(--mint);color:#1F3A0E;box-shadow:none}
+.note.warn{background:var(--peach);color:var(--peach-ink);box-shadow:none}
+.note b{font-weight:600}
+.note .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.note .kakao{background:rgba(255,255,255,.7);margin-top:12px}
+.inline{margin-top:12px;padding:14px;border-radius:16px;background:var(--canvas)}
+.inline .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.vers{margin:10px 0 0;font-size:13px;color:var(--slate)}
+.sid{display:inline-block;font:600 12px/20px var(--f);padding:0 8px;border-radius:6px;background:var(--violet-wash);color:var(--violet-ink);margin-right:6px}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 </style>
 </head>
@@ -255,6 +269,7 @@ function seed(){
   };
   var notes = {'김민수':'시장조사와 최종 취합을 맡았어요. 팀 일정과 단계 기한도 처음에 정리했어요.', '이수아':'4P 분석을 맡았어요. 가격·유통 자료를 모으고 출처를 표로 정리했어요.', '한도윤':'발표자료를 맡았어요. 참고 슬라이드를 모아 두고 발표 흐름을 짜는 중이에요.'};
   mkt.members.forEach(function(m){ m.roleNote = notes[m.name] || ''; });
+  mkt.openParts = [];
   mkt.final = {file:'마케팅원론_기획서_최종본_v1.pdf', by:'김민수', at:'11/15 21:40', memo:'4P와 SWOT 자리는 비워 두고 합쳤어요. 빈 곳은 노란색으로 표시했어요.', checks:['이수아']};
   var cap = {
     id:'cap', name:'캡스톤디자인 시스템 개발', due:D(12,4), size:4, isNew:false,
@@ -291,15 +306,15 @@ function seed(){
 /* ───────── 시나리오 ───────── */
 var SCEN = [
   {id:'A', me:'김민수', title:'팀장 김민수, 새 팀을 만들고 링크를 퍼뜨린다', why:'“제가 안 하면 아무도 안 할 것 같았어요” (P4-12)', start:['home'],
-    steps:[['home','‘새 팀 만들기’를 누르세요'],['create','유형을 고르고 ‘팀 만들고 링크 받기’'],['share','‘카톡으로 보내기’ 후 ‘다음: 단계 정하기’'],['stages','기한을 고쳐 보고 ‘이대로 시작하기’'],['team','빈 보드를 보고 뒤로 가서 홈으로']]},
+    steps:[['home','‘새 팀 만들기’를 누르세요'],['create','유형을 고르고 ‘팀 만들고 링크 받기’'],['share','‘카톡으로 보내기’ (보내면 단계 정하기로 넘어가요)'],['stages','기한을 고치고 남은 파트를 만든 뒤 ‘이대로 시작하기’'],['team','빈 상태를 보고 뒤로 가서 홈으로']]},
   {id:'B', me:'이수아', title:'팀원 이수아, 남의 진행을 보고 초안을 올린다', why:'“다른 사람들이 어디까지 했는지 보이면…” (P6-64b)', start:['join'],
-    steps:[['join','‘팀 들어가기’를 누르세요'],['team','김민수 줄을 눌러 결과물을 보세요'],['detail','초안을 열어 보고 ‘확인했어요’ 누른 뒤 뒤로'],['team2','‘내 결과물 올리기’'],['upload','파일을 고르고 ‘초안’ 칸에 올리기']]},
+    steps:[['join','‘팀 들어가기’를 누르세요'],['team','김민수 줄을 눌러 결과물을 보세요'],['detail','초안을 열어 보고 ‘확인했어요’ 누른 뒤 뒤로'],['team2','‘내 결과물 올리기’'],['upload','파일을 고르고 ‘초안’ 칸에 올리기'],['posted','올린 직후 화면에서 ‘단톡에 알리기’ (선택)']]},
   {id:'C', me:'한도윤', title:'팀원 한도윤, 기한 하루 전, 사유를 골라 연장한다', why:'“안 된다는 말을 하기 편했으면” (P6-64a), 새벽 4시 제출 (P5-40)', start:['alerts', {tab:'mine', team:'mkt'}],
-    steps:[['alerts','나에게만 온 알림에서 ‘연장 요청하기’'],['extend','기간과 사유를 고르고 ‘연장하고 팀에 알리기’'],['team','내 칸이 ‘연장’으로 바뀐 걸 보고 종 아이콘 누르기'],['alerts2','팀 알림에 내 연장이 올라간 것 확인']]},
+    steps:[['alerts','나에게만 온 알림에서 ‘연장 요청하기’'],['extend','사유를 고르고 ‘연장하고 팀에 알리기’ (‘막혔어요’를 고르면 도움 요청으로 가요)'],['team','내 칸이 ‘연장’과 새 기한으로 바뀐 걸 확인']]},
   {id:'D', me:'김민수', title:'팀장 김민수, 기한 지남 알림을 단톡에 공유한다', why:'“저요. 늘 저예요.” (P4-52) 공유는 누구나', start:['home'],
-    steps:[['home','‘마케팅원론 기획서’를 누르세요'],['team','종 아이콘(알림)을 누르세요'],['alerts','‘단톡방에 공유’'],['alerts2','‘정예린님 파트 보기’로 상태 확인'],['detail','뒤로 가기로 팀 화면']]},
+    steps:[['home','‘마케팅원론 기획서’를 누르세요'],['team','종 아이콘(알림)을 누르세요'],['alerts','위쪽 ‘카톡 단톡방으로 공유’'],['alerts2','‘정예린님 파트 보기’를 누르세요'],['detail','‘일정 다시 잡기’로 새 기한을 고르세요']]},
   {id:'E', me:'이수아', title:'오류: 잘린 링크와 너무 큰 파일', why:'빈 화면에서 멈추지 않게', start:['errlink'],
-    steps:[['errlink','‘내 팀 목록으로’'],['home','‘마케팅원론 기획서’에서 ‘내 결과물 올리기’'],['upload','파일 선택(큰 파일) 후 올리기'],['errupload','‘링크로 올리기’ 후 다시 올리기']]},
+    steps:[['errlink','단톡방용 문구를 복사하고 ‘내 팀 목록으로’'],['home','‘마케팅원론 기획서’에서 ‘내 결과물 올리기’'],['upload','파일 선택(큰 파일) 후 올리기'],['errupload','‘링크로 올리기’ 후 다시 올리기']]},
   {id:'F', me:'김민수', title:'팀장 김민수, 제출 전에 최종본 확인과 기여 기록을 본다', why:'“누가 언제 뭘 했는지 기록이 자동으로 남았으면” (P4-60a)', start:['home'],
     steps:[['home','‘마케팅원론 기획서’를 누르세요'],['team','아래 ‘결과물 모아보기’를 누르세요'],['files','최종본 확인 현황을 보고 ‘기여 기록 보기’'],['contrib','‘한눈에 보기’로 차트를 열어 보세요'],['cchart','막대를 눌러 값을 보고 ‘동료평가용으로 정리하기’']]}
 ];
@@ -314,7 +329,7 @@ function reset(scen){
   var meName = scen ? scen.me : '김민수';
   if (meName === '김민수') S.mine.mkt = [{k:'ack', text:'정예린님이 내 ‘초안’을 확인했어요.', when:'오늘 10:12', m:0, i:1}];
   if (scen && scen.id === 'C'){
-    S.mine.mkt = [{k:'me', text:'내일(11/16 월)이 ‘초안’ 기한이에요.', sub:'올렸거나 늦어질 것 같으면 지금 알려 주세요. 11/17까지 소식이 없으면 그때 팀에도 알림이 가요.', when:'오늘 09:00', stage:1}, {k:'ack', text:'이수아님이 내 ‘자료조사’를 확인했어요.', when:'어제 21:15', m:2, i:0}];
+    S.mine.mkt = [{k:'me', text:'내일(11/16 월)이 ‘초안’ 기한이에요.', sub:'올렸거나 늦어질 것 같으면 지금 알려 주세요. 놓치면 기한 6시간 전에 한 번 더 알려 드려요. 11/17까지 소식이 없으면 그때 팀에도 알림이 가요.', when:'오늘 09:00', stage:1}, {k:'ack', text:'이수아님이 내 ‘자료조사’를 확인했어요.', when:'어제 21:15', m:2, i:0}];
   }
   // 팀 알림 중 예시용 숨김 제거
   S.teamAlerts.mkt = S.teamAlerts.mkt.filter(function(a){ return !a.hidden; });
@@ -324,7 +339,7 @@ function myTeams(){ return S.teams.filter(function(t){ return t.members.some(fun
 function meIn(t){ for (var i=0;i<t.members.length;i++) if (t.members[i].name===S.me) return t.members[i]; return null; }
 function cellDue(t, m, i){ var c = m.cells[i]; return c.s==='ext' ? c.due : t.stages[i].due; }
 function isLate(t, m, i){ var c = m.cells[i]; return c.s==='late' || ((c.s==='todo'||c.s==='ext') && cellDue(t,m,i) < TODAY); }
-function nextIdx(m){ for (var i=0;i<m.cells.length;i++) if (m.cells[i].s!=='done') return i; return -1; }
+function nextIdx(m){ for (var i=0;i<m.cells.length;i++) if (m.cells[i].s!=='done' && m.cells[i].s!=='taken') return i; return -1; }
 function doneCount(t){ var n=0; t.members.forEach(function(m){ m.cells.forEach(function(c){ if(c.s==='done') n++; }); }); return n; }
 function lateCount(t){ var n=0; t.members.forEach(function(m){ m.cells.forEach(function(c,i){ if(isLate(t,m,i)) n++; }); }); return n; }
 
@@ -363,11 +378,14 @@ var PERSONA_COL = {'김민수':'#DBDBFF','이수아':'#BCFE90','한도윤':'#FFE
 function colOf(t, mi){ var nm = t.members[mi].name; return PERSONA_COL[nm] || COLS[mi % COLS.length]; }
 function av(name, col, small){ return '<span class="av' + (small ? ' sm' : '') + '" style="--c:' + col + '" aria-hidden="true">' + esc(name.charAt(0)) + '</span>'; }
 function longDate(d){ return (d.getMonth()+1) + '월 ' + d.getDate() + '일 ' + DOW[d.getDay()] + '요일'; }
+function dueTime(d){ return mdw(d) + ' 밤 12시'; }
+function demoBar(items){ return '<div class="demo"><span>다른 모습 보기 (시연용)</span>' + items.map(function(x){ return '<button data-a="demo" data-k="' + x[0] + '" aria-pressed="' + !!S.flags[x[0]] + '">' + x[1] + '</button>'; }).join('') + '</div>'; }
+function statusText(t){ var out = []; t.members.forEach(function(mm){ mm.cells.forEach(function(c, i){ if (c.s!=='done' && c.s!=='taken' && isLate(t,mm,i)) out.push(mm.name + ' ' + t.stages[i].label + ' 기한 지남'); else if (c.s==='ext') out.push(mm.name + ' ' + t.stages[i].label + ' ' + md(c.due) + '까지 연장'); }); }); return out; }
 
 function top(title, sub, opts){
   opts = opts || {};
   var h = '<header class="top">';
-  h += opts.noBack ? '<span style="width:14px"></span>' : '<button class="iconbtn" data-a="back" aria-label="뒤로 가기">' + IC.back + '</button>';
+  h += opts.noBack ? '<span style="width:14px"></span>' : '<button class="iconbtn" data-a="' + (opts.backA || 'back') + '" aria-label="뒤로 가기">' + IC.back + '</button>';
   h += '<div class="ttl"><h1>' + esc(title) + '</h1>' + (sub ? '<div class="sub">' + sub + '</div>' : '') + '</div>';
   if (opts.bell){ var n = opts.bell.n; h += '<button class="iconbtn" data-a="alerts" data-team="' + opts.bell.team + '" aria-label="알림' + (n ? ' ' + n + '개' : '') + '">' + IC.bell + (n ? '<span class="badge">' + n + '</span>' : '') + '</button>'; }
   return h + '</header>';
@@ -375,7 +393,8 @@ function top(title, sub, opts){
 function stamp(t, m, i, col, isMe){
   var c = m.cells[i], late = isLate(t,m,i) && c.s!=='done', nxt = isMe && i === nextIdx(m);
   var label = t.stages[i].label + ' ';
-  if (c.s==='done') return '<span class="slot"><span class="stamp done" aria-label="' + label + md(c.at) + ' 올림">올림<small>' + md(c.at) + '</small></span></span>';
+  if (c.s==='done') return '<span class="slot"><span class="stamp done" aria-label="' + label + md(c.at) + ' 올림' + (c.wip ? ', 고치는 중' : '') + '">올림<small>' + (c.wip ? '고치는 중' : md(c.at)) + '</small></span></span>';
+  if (c.s==='taken') return '<span class="slot"><span class="stamp ext" aria-label="' + label + esc(c.by) + '님이 이어서 맡음">' + esc(c.by.slice(1)) + '<small>이어 맡음</small></span></span>';
   if (late) return '<span class="slot"><span class="stamp late" aria-label="' + label + '기한 지남">지남<small>' + md(cellDue(t,m,i)) + '</small></span></span>';
   if (c.s==='ext') return '<span class="slot"><span class="stamp ext" aria-label="' + label + md(c.due) + '까지 연장">연장<small>~' + md(c.due) + '</small></span></span>';
   if (nxt) return '<span class="slot"><span class="stamp next" aria-label="' + label + '내 차례">내 차례<small>~' + md(cellDue(t,m,i)) + '</small></span></span>';
@@ -397,31 +416,37 @@ V.start = function(){
 };
 
 V.home = function(){
-  var ts = myTeams();
+  var ts = S.flags.emptyHome ? [] : myTeams();
   var h = '<header class="top" style="padding-left:20px"><span class="logo" aria-hidden="true"></span><div class="ttl" style="margin-left:8px"><h1 style="font-size:16px">어디까지 했어?</h1></div>' + av(S.me, PERSONA_COL[S.me] || '#E7ECFF') + '</header>';
-  h += '<div class="scroll"><div class="big" style="padding-top:12px"><h1><b>' + esc(S.me.slice(1)) + '님,</b><br>조별과제 ' + ts.length + '개를 하고 있어요</h1></div>';
-  var best = null;
-  ts.forEach(function(t){ var m = meIn(t), i = nextIdx(m); if (i<0) return; var d = cellDue(t,m,i); if (!best || d < best.d) best = {t:t, i:i, d:d}; });
-  if (best){
-    h += '<button class="hero" style="border:none;width:calc(100% - 32px);text-align:left;cursor:pointer" data-a="upload" data-team="' + best.t.id + '" data-i="' + best.i + '"><div class="row"><p style="font-size:13px">가장 먼저 할 것</p><span style="background:rgba(255,255,255,.2);border-radius:6px;padding:2px 8px;font-size:12px;font-weight:600">' + dday(best.d) + '</span></div><div style="font-size:20px;font-weight:600;line-height:1.35">' + esc(best.t.name) + '<br>‘' + esc(best.t.stages[best.i].label) + '’ 올리기</div><p>' + longDate(best.d) + '까지</p></button>';
+  h += '<div class="scroll"><div class="big" style="padding-top:12px"><h1><b>' + esc(S.me.slice(1)) + '님,</b><br>' + (ts.length ? '조별과제 ' + ts.length + '개를 하고 있어요' : '아직 함께하는 조별과제가 없어요') + '</h1></div>';
+  if (!ts.length){
+    h += '<div class="empty"><div class="ghost-row" aria-hidden="true"><i></i><i></i><i></i></div><h2>첫 팀을 만들어 볼까요?</h2><p>팀을 만들고 링크를 단톡방에 올리면 팀원이 이름만 적고 들어와요. 팀원에게 받은 링크가 있으면 새로 만들지 말고 그 링크로 들어가세요.</p><button class="btn primary" style="margin-top:20px;width:100%" data-a="create">새 팀 만들기</button></div>';
+  } else {
+    var best = null;
+    ts.forEach(function(t){ var m = meIn(t), i = nextIdx(m); if (i<0) return; var d = cellDue(t,m,i); if (!best || d < best.d) best = {t:t, i:i, d:d}; });
+    if (best){
+      h += '<button class="hero" style="border:none;width:calc(100% - 32px);text-align:left;cursor:pointer" data-a="upload" data-team="' + best.t.id + '" data-i="' + best.i + '"><div class="row"><p style="font-size:13px">가장 먼저 할 것</p><span style="background:rgba(255,255,255,.2);border-radius:6px;padding:2px 8px;font-size:12px;font-weight:600">' + dday(best.d) + '</span></div><div style="font-size:20px;font-weight:600;line-height:1.35">' + esc(best.t.name) + '<br>‘' + esc(best.t.stages[best.i].label) + '’ 올리기</div><p>' + longDate(best.d) + '까지</p></button>';
+    }
+    h += '<div class="sec-h"><h2>내 팀</h2><span>' + ts.length + '개</span></div>';
+    ts.forEach(function(t){
+      var total = Math.max(1, t.members.length * t.stages.length), done = doneCount(t), late = lateCount(t);
+      var chip = late ? '<span style="background:var(--late-bg);color:var(--late);border-radius:6px;padding:2px 8px;font-size:12px;font-weight:500">지남 ' + late + '</span>' : (done === 0 ? '<span style="background:var(--lavender);color:#4A4458;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:500">새 팀</span>' : '<span style="background:var(--mint);color:#1F3A0E;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:500">순조로움</span>');
+      h += '<div class="sheet"><button class="line" data-a="openteam" data-id="' + t.id + '" style="padding:20px"><div class="grow"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span class="t">' + esc(t.name) + '</span>' + chip + '</div><div class="s">팀 마감 ' + longDate(t.due) + ', ' + dday(t.due) + '</div><div style="display:flex;align-items:center;gap:12px;margin-top:14px">' + stackOf(t) + '<div class="prog" style="flex:1 1 auto;background:var(--canvas)" aria-hidden="true"><i style="width:' + Math.round(done*100/total) + '%;background:var(--violet)"></i></div><span style="font-size:12px;color:var(--slate)">' + done + '/' + total + '</span></div></div></button></div>';
+    });
   }
-  h += '<div class="sec-h"><h2>내 팀</h2><span>' + ts.length + '개</span></div>';
-  ts.forEach(function(t){
-    var total = t.members.length * t.stages.length, done = doneCount(t), late = lateCount(t);
-    var chip = late ? '<span style="background:var(--late-bg);color:var(--late);border-radius:6px;padding:2px 8px;font-size:12px;font-weight:500">지남 ' + late + '</span>' : (done === 0 ? '<span style="background:var(--lavender);color:#4A4458;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:500">새 팀</span>' : '<span style="background:var(--mint);color:#1F3A0E;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:500">순조로움</span>');
-    h += '<div class="sheet"><button class="line" data-a="openteam" data-id="' + t.id + '" style="padding:20px"><div class="grow"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span class="t">' + esc(t.name) + '</span>' + chip + '</div><div class="s">팀 마감 ' + longDate(t.due) + ', ' + dday(t.due) + '</div><div style="display:flex;align-items:center;gap:12px;margin-top:14px">' + stackOf(t) + '<div class="prog" style="flex:1 1 auto;background:var(--canvas)" aria-hidden="true"><i style="width:' + Math.round(done*100/total) + '%;background:var(--violet)"></i></div><span style="font-size:12px;color:var(--slate)">' + done + '/' + total + '</span></div></div></button></div>';
-  });
-  h += '</div><div class="bar"><button class="btn primary grow" data-a="create">새 팀 만들기</button></div>';
+  h += demoBar([['emptyHome','처음 써서 팀이 없을 때']]);
+  h += '</div>' + (ts.length ? '<div class="bar"><button class="btn primary grow" data-a="create">새 팀 만들기</button></div>' : '');
   return h;
 };
 
 V.create = function(){
   var f = S.flags.create || (S.flags.create = {name:'광고기획론 캠페인 PT', due:'2026-12-04', type:'발표'});
-  var types = [['발표','자료조사, 초안, 완성'],['보고서','목차, 초안, 완성'],['개발','설계, 구현, 테스트'],['직접 정하기','빈 단계에서 시작']];
+  var types = [['발표','자료조사, 초안, 완성'],['보고서','목차, 초안, 완성'],['개발','설계, 구현, 테스트'],['기타','단계 없이 시작해 직접 만들어요']];
   var h = top('새 팀 만들기');
   h += '<div class="scroll"><div class="big" style="padding-top:4px"><p style="margin:0">가입 없이 링크 하나로 팀원이 들어와요.</p></div>';
+  h += '<div class="note">팀원에게 받은 링크가 있나요? 같은 과제 팀이 이미 있을 수 있어요. 그럴 땐 새로 만들지 말고 받은 링크로 들어가세요.</div>';
   h += '<div class="sheet"><div class="pad"><label class="label" for="c-name">과제 이름</label><input class="field" id="c-name" value="' + esc(f.name) + '"><p class="err" id="c-err" hidden>과제 이름을 적어 주세요.</p>';
-  h += '<label class="label" for="c-due" style="margin-top:18px">팀 마감일</label><input class="field" type="date" id="c-due" value="' + f.due + '"><p class="hint">공식 마감보다 앞당겨 잡는 팀이 많아요.</p></div></div>';
+  h += '<label class="label" for="c-due" style="margin-top:18px">팀 마감 (우리끼리 약속한 날짜)</label><input class="field" type="date" id="c-due" value="' + f.due + '"><p class="err" id="c-due-err" hidden>오늘 이후 날짜를 골라 주세요.</p><p class="hint">공식 마감이 아니라 팀이 먼저 끝내기로 한 날짜예요. 보통 공식 마감보다 며칠 앞당겨요.</p></div></div>';
   h += '<div class="sheet"><div class="pad"><span class="label" id="c-type">과제 유형</span><p class="hint" style="margin:-4px 0 12px">유형에 맞춰 단계를 미리 나눠 드려요.</p><div class="grid2" role="group" aria-labelledby="c-type">';
   types.forEach(function(x){ h += '<button class="chip" style="min-height:68px;padding:10px 14px" data-a="ctype" data-v="' + x[0] + '" aria-pressed="' + (f.type===x[0]) + '"><div style="font-weight:600">' + x[0] + '</div><div class="hint" style="margin:3px 0 0;font-size:12px">' + x[1] + '</div></button>'; });
   h += '</div></div></div></div><div class="bar"><button class="btn primary grow" data-a="docreate">팀 만들고 링크 받기</button></div>';
@@ -429,23 +454,34 @@ V.create = function(){
 };
 
 V.share = function(p){
-  var t = team(p.team), h = top(p.again ? '팀 링크 다시 보내기' : '팀을 만들었어요', esc(t.name));
+  var t = team(p.team), h = top(p.again ? '팀 링크 다시 보내기' : '팀을 만들었어요', esc(t.name), p.again ? {} : {backA:'tohome'});
   h += '<div class="scroll"><div class="sheet"><div class="pad"><p style="margin:0 0 14px;font-size:16px;line-height:1.55">이 링크를 단톡방에 올리면 팀원이 이름만 적고 들어와요.</p><div style="border-radius:14px;background:var(--paper);padding:14px 16px"><div class="hint" style="margin:0 0 4px">팀 링크</div><div style="font-size:17px;font-weight:600">eodi.kr/t/' + t.id + '-4f2a</div></div>';
-  h += '<div class="grid2" style="margin-top:10px"><button class="btn primary" data-a="kakao" data-msg="단톡방에 팀 링크를 보냈어요. 시연이라 카톡은 열리지 않아요.">' + IC.share + ' 카톡으로 보내기</button><button class="btn" data-a="copy">링크 복사</button></div></div></div>';
+  h += '<div class="grid2" style="margin-top:10px"><button class="btn primary" data-a="sharekakao" data-team="' + t.id + '" data-again="' + (p.again ? 1 : 0) + '">' + IC.share + ' 카톡으로 보내기</button><button class="btn" data-a="copy">링크 복사</button></div>';
+  h += '<p class="hint">' + (p.again ? '보내고 나면 팀 화면으로 돌아가요.' : '카톡으로 보내고 돌아오면 단계 정하기로 바로 넘어가요. 카톡이 안 되면 복사해서 붙여 넣어 주세요.') + '</p></div></div>';
   h += '<div class="sheet"><div class="pad"><div class="hint" style="margin:0 0 8px">단톡방에는 이렇게 보여요</div><div class="kakao"><b>[어디까지 했어?] ' + esc(t.name) + '</b><br>팀 마감 ' + longDate(t.due) + '<br>링크를 누르고 이름만 적어 주세요.</div></div></div></div>';
-  h += p.again ? '<div class="bar"><button class="btn primary grow" data-a="back">팀 화면으로</button></div>' : '<div class="bar"><button class="btn primary grow" data-a="tostages" data-team="' + t.id + '">다음: 단계 정하기</button></div>';
+  h += p.again ? '<div class="bar"><button class="btn primary grow" data-a="back">팀 화면으로</button></div>' : '<div class="bar"><button class="btn grow" data-a="tostages" data-team="' + t.id + '">나중에 보내기</button><button class="btn primary grow" data-a="tostages" data-team="' + t.id + '">다음: 단계 정하기</button></div>';
   return h;
 };
 
 V.stages = function(p){
-  var t = team(p.team), m = meIn(t);
-  var h = top(p.edit ? '단계와 파트 고치기' : '이렇게 나눠 볼까요?', esc(t.name) + ', 팀 마감 ' + longDate(t.due));
-  h += '<div class="scroll"><div class="sheet"><div class="sheet-h"><h2>단계 (모든 파트 공통)</h2></div><div class="pad" style="padding-top:4px"><p class="hint" style="margin:0 0 8px">팀 마감에서 거꾸로 기한을 나눴어요. 누구나 고칠 수 있어요.</p>';
+  var t = team(p.team), m = meIn(t), parts = t.openParts || (t.openParts = []);
+  var myPart = m.partDraft != null ? m.partDraft : m.part;
+  var h = top(p.edit ? '단계와 파트 고치기' : (t.stages.length ? '이렇게 나눠 볼까요?' : '단계를 만들어 주세요'), esc(t.name) + ', 팀 마감 ' + longDate(t.due));
+  h += '<div class="scroll"><div class="sheet"><div class="sheet-h"><h2>단계 (모든 파트 공통)</h2></div><div class="pad" style="padding-top:4px"><p class="hint" style="margin:0 0 8px">' + (t.stages.length ? '팀 마감에서 거꾸로 기한을 나눴어요. 누구나 고칠 수 있어요.' : '‘기타’ 유형이라 단계가 비어 있어요. ‘단계 추가’로 하나씩 만들어 주세요.') + '</p>';
   t.stages.forEach(function(s, i){
-    h += '<div style="display:flex;align-items:center;gap:10px;border-top:1px solid var(--line);padding:8px 0"><span class="stamp todo" style="width:34px;height:34px;flex:none;font-size:12px;color:var(--sub)">' + (i+1) + '</span><span style="flex:1 1 auto;font-weight:600;font-size:16px">' + esc(s.label) + '</span><label class="sr" for="sd' + i + '">' + esc(s.label) + ' 기한</label><input class="field" style="width:148px;height:44px;font-size:15px" type="date" id="sd' + i + '" data-a="sdate" data-i="' + i + '" value="' + iso(s.due) + '"><button class="iconbtn" data-a="sdel" data-i="' + i + '" aria-label="' + esc(s.label) + ' 단계 빼기"' + (t.stages.length<=1 ? ' disabled' : '') + '>✕</button></div>';
+    h += '<div style="display:flex;align-items:center;gap:10px;border-top:1px solid var(--line);padding:8px 0"><span class="stamp todo" style="width:34px;height:34px;flex:none;font-size:12px;color:var(--sub)">' + (i+1) + '</span><span style="flex:1 1 auto;font-weight:600;font-size:16px">' + esc(s.label) + '</span><label class="sr" for="sd' + i + '">' + esc(s.label) + ' 기한</label><input class="field" style="width:148px;height:44px;font-size:15px" type="date" id="sd' + i + '" data-a="sdate" data-i="' + i + '" value="' + iso(s.due) + '"><button class="iconbtn" data-a="sdel" data-i="' + i + '" aria-label="' + esc(s.label) + ' 단계 빼기">✕</button></div>';
   });
   h += '<button class="btn text small" style="margin-top:4px;padding:0" data-a="sadd">단계 추가</button><p class="err" id="s-err" hidden></p></div></div>';
-  h += '<div class="sheet"><div class="pad"><label class="label" for="mypart">내 파트</label><input class="field" id="mypart" value="' + esc(m.part) + '"><p class="hint">' + (p.edit ? '다른 사람 파트는 각자 고쳐요. 기한을 바꾸면 팀에 알림이 한 번 가요.' : '팀원은 링크로 들어와 각자 자기 파트를 적어요. 지금은 나만 들어와 있어요.') + '</p></div></div></div>';
+  h += '<div class="sheet"><div class="sheet-h"><h2>파트</h2></div><div class="pad" style="padding-top:8px"><label class="label" for="mypart">내 파트</label><input class="field" id="mypart" placeholder="예: 4P 분석" value="' + esc(myPart) + '">';
+  if (parts.length) h += '<p class="hint">남은 파트 중에서 골라도 돼요.</p><div class="chips" style="margin-top:8px">' + parts.map(function(x, i){ return '<button class="chip" data-a="ppick" data-i="' + i + '" aria-pressed="' + (myPart===x) + '">' + esc(x) + '</button>'; }).join('') + '</div>';
+  if (!p.edit){
+    h += '<label class="label" for="p-new" style="margin-top:20px">남은 파트 (들어온 사람이 맡아요)</label>';
+    if (parts.length) h += '<div style="margin-bottom:8px">' + parts.map(function(x, i){ return '<div style="display:flex;align-items:center;gap:8px;border-top:1px solid var(--line);padding:6px 0"><span style="flex:1 1 auto;font-size:15px">' + esc(x) + '</span><button class="iconbtn" data-a="pdel" data-i="' + i + '" aria-label="' + esc(x) + ' 파트 빼기">✕</button></div>'; }).join('') + '</div>';
+    h += '<div style="display:flex;gap:8px"><input class="field" id="p-new" placeholder="예: SWOT 분석"><button class="btn small" style="flex:none" data-a="padd">추가</button></div><p class="hint">팀원은 링크로 들어와 이 중에서 골라 맡아요. 안 만들어도 들어온 사람이 직접 적을 수 있어요.</p>';
+  } else {
+    h += '<p class="hint">다른 사람 파트는 각자 고쳐요. 기한을 바꾸면 팀에 알림이 한 번 가요.</p>';
+  }
+  h += '</div></div></div>';
   h += p.edit ? '<div class="bar"><button class="btn primary grow" data-a="savestages" data-team="' + t.id + '">저장하기</button></div>' : '<div class="bar"><button class="btn primary grow" data-a="startteam" data-team="' + t.id + '">이대로 시작하기</button></div>';
   return h;
 };
@@ -454,68 +490,113 @@ V.join = function(){
   var h = '<header class="top"><span style="width:14px"></span><div class="ttl"><h1>마케팅원론 기획서</h1><div class="sub">팀에 초대받았어요</div></div></header>';
   h += '<div class="scroll"><div class="big"><h1 style="font-size:24px">이름만 알려 주세요</h1><p>가입이나 설치 없이 바로 팀 화면으로 가요. 다음부터는 이 기기에서 자동으로 열려요.</p></div>';
   h += '<div class="sheet"><div class="pad"><label class="label" for="j-name">팀에서 부를 이름</label><input class="field" id="j-name" value="이수아"><p class="err" id="j-err" hidden>이름을 적어 주세요.</p></div></div>';
-  h += '<div class="sheet"><div class="pad"><div class="label">먼저 들어온 팀원 3명</div><div style="display:flex;gap:14px">' + ['김민수','한도윤','정예린'].map(function(n){ return '<span style="display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px">' + av(n, PERSONA_COL[n]) + n + '</span>'; }).join('') + '</div></div></div></div>';
+  h += '<div class="sheet"><div class="pad"><div class="label">먼저 들어온 팀원 3명</div><div style="display:flex;gap:14px">' + ['김민수','한도윤','정예린'].map(function(n){ return '<span style="display:flex;flex-direction:column;align-items:center;gap:6px;font-size:13px">' + av(n, PERSONA_COL[n]) + n + '</span>'; }).join('') + '</div></div></div>';
+  h += '<div class="demo"><span>다른 모습 보기 (시연용)</span><button data-a="toerrlink">링크가 잘못됐을 때</button></div></div>';
   h += '<div class="bar"><button class="btn primary grow" data-a="dojoin">팀 들어가기</button></div>';
   return h;
 };
 
 V.team = function(p){
   var t = team(p.team), m = meIn(t), alerts = (S.teamAlerts[t.id]||[]).length + ((S.mine[t.id]||[]).length);
-  var total = t.members.length * t.stages.length, done = doneCount(t);
+  var total = Math.max(1, t.members.length * t.stages.length), done = doneCount(t);
   var h = top(t.name, '', {bell:{team:t.id, n:alerts}});
-  h += '<div class="scroll"><div class="hero"><div class="row"><span class="dday">' + dday(t.due) + '</span>' + stackOf(t) + '</div><p><b>팀 마감 ' + longDate(t.due) + '</b><br>' + total + '칸 중 ' + done + '칸 올림, 팀원 ' + t.members.length + '/' + t.size + '명</p><div class="prog" aria-hidden="true"><i style="width:' + Math.round(done*100/total) + '%"></i></div></div>';
-  var acks = (S.mine[t.id]||[]).filter(function(a){ return a.k==='ack'; });
-  if (acks.length) h += '<button class="line ribbon" data-a="detail" data-team="' + t.id + '" data-m="' + acks[0].m + '"><span class="ic ack" style="width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800">✓</span><span class="grow">' + esc(acks[0].text) + '</span>' + IC.chev + '</button>';
-  if (done === 0){
-    var missing = t.size - t.members.length, first = t.stages[0];
-    h += '<div class="empty"><div class="ghost-row" aria-hidden="true"><i></i><i></i><i></i></div><h2>아직 올라온 결과물이 없어요</h2><p>첫 칸 ‘' + esc(first.label) + '’은 ' + longDate(first.due) + '까지예요. 기한 전에는 아무한테도 알림이 안 가요.</p>' + (missing > 0 ? '<p style="margin-top:14px;color:var(--ink);font-weight:600">아직 안 들어온 팀원 ' + missing + '명</p><button class="btn small" style="margin-top:8px" data-a="reshare" data-team="' + t.id + '">' + IC.share + ' 팀 링크 다시 보내기</button>' : '') + '</div>';
+  h += '<div class="scroll">';
+  if (p.posted){
+    var ps = p.posted;
+    h += '<div class="note ok"><b>‘' + esc(ps.label) + '’ 칸에 올렸어요' + (ps.wip ? ' (고치는 중)' : '') + '.</b><br>팀원이 확인하면 알려 드릴게요. 팀원에게 따로 알림은 가지 않아요.<div class="acts"><button class="btn small" data-a="postshare">' + IC.share + ' 단톡에 알리기</button></div>';
+    if (S.flags.postShare){
+      var st = statusText(t);
+      h += '<div class="kakao">' + esc(S.me) + '님이 ‘' + esc(ps.label) + '’ 칸에 올렸어요.<br>' + esc(t.name) + ' 오늘 현황: ' + doneCount(t) + '칸 올림' + (st.length ? ', ' + esc(st.join(', ')) : '') + '<br>eodi.kr/t/' + t.id + '-4f2a</div><div class="acts"><button class="btn small primary" data-a="kakao" data-msg="단톡방에 보냈어요. 시연이라 카톡은 열리지 않아요.">카톡으로 보내기</button><button class="btn small" data-a="copymsg">복사</button></div>';
+    }
+    h += '</div>';
   }
-  var ni = nextIdx(m), cols = 'minmax(0,1fr) repeat(' + t.stages.length + ', ' + (t.stages.length > 3 ? 50 : 60) + 'px)';
+  if (p.note) h += '<div class="note ok">' + p.note + '</div>';
+  h += '<div class="hero"><div class="row"><span class="dday">' + dday(t.due) + '</span>' + stackOf(t) + '</div><p><b>팀 마감 ' + longDate(t.due) + '</b><br>' + (t.members.length * t.stages.length) + '칸 중 ' + done + '칸 올림, 팀원 ' + t.members.length + '/' + t.size + '명</p><div class="prog" aria-hidden="true"><i style="width:' + Math.round(done*100/total) + '%"></i></div></div>';
+  var acks = (S.mine[t.id]||[]).filter(function(a){ return a.k==='ack'; });
+  if (acks.length) h += '<button class="line ribbon" data-a="detail" data-team="' + t.id + '" data-m="' + acks[0].m + '"><span class="ic ack" style="width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800">✓</span><span class="grow">' + esc(acks[0].text) + (acks[0].note ? ' “' + esc(acks[0].note) + '”' : '') + '</span>' + IC.chev + '</button>';
+  if (!m.part || S.flags.noPart){
+    h += '<div class="note warn"><b>아직 맡은 파트가 없어요.</b><br>남은 파트에서 고르거나 직접 적어 주세요. 파트를 맡아야 내 줄에 칸이 생겨요.<div class="acts"><button class="btn small primary" data-a="editstages" data-team="' + t.id + '">파트 맡기</button></div></div>';
+  }
+  if (done === 0 && t.stages.length){
+    var missing = t.size - t.members.length, first = t.stages[0], ghosts = '';
+    for (var g = 0; g < missing; g++) ghosts += '<span class="av" style="--c:rgba(255,255,255,.8)" aria-hidden="true">?</span>';
+    h += '<div class="empty"><div class="ghost-row" aria-hidden="true"><i></i><i></i><i></i></div><h2>아직 올라온 결과물이 없어요</h2><p>첫 칸 ‘' + esc(first.label) + '’은 ' + longDate(first.due) + '까지예요. 먼저 올려도 팀원에게 알림은 가지 않아요.</p>';
+    if (missing > 0) h += '<p style="margin-top:16px;color:var(--ink);font-weight:600">아직 안 들어온 팀원 ' + missing + '명</p><div style="display:flex;gap:6px;margin-top:8px">' + ghosts + '</div>' + ((t.openParts||[]).length ? '<p style="margin-top:8px;font-size:14px">남은 파트: ' + esc(t.openParts.join(', ')) + '</p>' : '') + '<p style="margin-top:8px;font-size:14px">들어오는 대로 아래 보드에 한 줄씩 생겨요.</p>';
+    h += '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px">' + (missing > 0 ? '<button class="btn small" data-a="reshare" data-team="' + t.id + '">' + IC.share + ' 링크 다시 공유</button>' : '') + '<button class="btn small primary" data-a="upload" data-team="' + t.id + '">내 결과물 올리기</button></div></div>';
+  }
+  var ni = nextIdx(m), allDone = ni < 0 || S.flags.allDone, cols = 'minmax(0,1fr) repeat(' + t.stages.length + ', ' + (t.stages.length > 3 ? 50 : 60) + 'px)';
   h += '<div class="sec-h"><h2>진행 보드</h2><span>칸을 누르면 결과물을 봐요</span></div><section class="sheet" aria-label="팀 진행 보드"><div class="board-h" style="grid-template-columns:' + cols + '"><span>팀원</span>';
   t.stages.forEach(function(s){ h += '<span class="bh"><b>' + esc(s.label) + '</b>~' + md(s.due) + '</span>'; });
   h += '</div>';
   t.members.forEach(function(mm, mi){
     var col = colOf(t, mi), isMe = mm.name === S.me;
-    h += '<button class="brow" style="grid-template-columns:' + cols + '" data-a="detail" data-team="' + t.id + '" data-m="' + mi + '" aria-label="' + esc(mm.name) + ' 파트 보기"><span class="who">' + av(mm.name, col) + '<span class="nm"><b>' + esc(mm.name) + '</b>' + (isMe ? '<span class="me">나</span>' : '') + '<small>' + esc(mm.part) + '</small></span></span>';
+    h += '<button class="brow" style="grid-template-columns:' + cols + '" data-a="detail" data-team="' + t.id + '" data-m="' + mi + '" aria-label="' + esc(mm.name) + ' 파트 보기"><span class="who">' + av(mm.name, col) + '<span class="nm"><b>' + esc(mm.name) + '</b>' + (isMe ? '<span class="me">나</span>' : '') + '<small>' + esc(mm.part || '파트 미정') + '</small></span></span>';
     mm.cells.forEach(function(c, i){ h += stamp(t, mm, i, col, isMe); });
     h += '</button>';
   });
   h += '<div class="legend"><span class="lg-done">올림</span><span class="lg-next">내 차례</span><span class="lg-todo">기한 전</span><span class="lg-ext">연장</span><span class="lg-late">지남</span></div></section>';
   var notes = [];
-  t.members.forEach(function(mm){ mm.cells.forEach(function(c,i){ if (c.s==='ext') notes.push(mm.name + '님 ‘' + t.stages[i].label + '’ ' + md(c.due) + '까지 연장, ' + c.reason); }); });
+  t.members.forEach(function(mm){ mm.cells.forEach(function(c,i){ if (c.s==='ext') notes.push(mm.name + '님 ‘' + t.stages[i].label + '’ ' + dueTime(c.due) + '까지 연장, ' + c.reason); if (c.s==='taken') notes.push(c.by + '님이 ' + mm.name + '님의 ‘' + t.stages[i].label + '’를 이어서 맡아요'); }); });
   if (notes.length) h += '<p class="hint" style="padding:0 20px">' + notes.map(esc).join('<br>') + '</p>';
-  h += '<div class="tools"><button class="btn small" data-a="sharestatus" data-team="' + t.id + '">' + IC.share + ' 오늘 현황 단톡에 공유</button><button class="btn small" data-a="editstages" data-team="' + t.id + '">단계와 파트 고치기</button><button class="btn small" data-a="files" data-team="' + t.id + '">결과물 모아보기</button><button class="btn small" data-a="contrib" data-team="' + t.id + '">기여 기록</button></div>';
-  h += '</div><div class="bar"><button class="btn grow" data-a="extend" data-team="' + t.id + '"' + (ni<0 ? ' disabled' : '') + '>연장 요청</button><button class="btn primary grow2" data-a="upload" data-team="' + t.id + '"' + (ni<0 ? ' disabled' : '') + '>내 결과물 올리기</button></div>';
+  h += '<div class="tools"><button class="btn small" data-a="editstages" data-team="' + t.id + '">단계와 파트 고치기</button><button class="btn small" data-a="files" data-team="' + t.id + '">결과물 모아보기</button><button class="btn small" data-a="contrib" data-team="' + t.id + '">기여 기록</button></div>';
+  h += demoBar([['noPart','맡은 파트가 없을 때'],['allDone','내 칸을 다 올렸을 때']]);
+  h += '</div>';
+  h += allDone ? '<div class="bar"><div class="note ok" style="margin:0;flex:1 1 auto">내 칸을 다 올렸어요. 고치고 싶으면 내 줄을 눌러 다시 올릴 수 있어요.</div></div>' : '<div class="bar"><button class="btn grow" data-a="extend" data-team="' + t.id + '">연장 요청</button><button class="btn primary grow2" data-a="upload" data-team="' + t.id + '">내 결과물 올리기</button></div>';
   return h;
 };
 
 V.detail = function(p){
-  var t = team(p.team), m = t.members[p.m], mine = m.name === S.me, col = colOf(t, p.m);
-  var h = '<header class="top"><button class="iconbtn" data-a="back" aria-label="뒤로 가기">' + IC.back + '</button>' + av(m.name, col) + '<div class="ttl" style="margin-left:10px"><h1>' + esc(m.name) + (mine ? '<span class="me">나</span>' : '') + '</h1><div class="sub">' + esc(m.part) + ', ' + esc(t.name) + '</div></div></header>';
+  var t = team(p.team), m = t.members[p.m], mine = m.name === S.me, col = colOf(t, p.m), anyFile = false;
+  var h = '<header class="top"><button class="iconbtn" data-a="back" aria-label="뒤로 가기">' + IC.back + '</button>' + av(m.name, col) + '<div class="ttl" style="margin-left:10px"><h1>' + esc(m.name) + (mine ? '<span class="me">나</span>' : '') + '</h1><div class="sub">' + esc(m.part || '파트 미정') + ', ' + esc(t.name) + '</div></div></header>';
   h += '<div class="scroll"><div class="sheet">';
   m.cells.forEach(function(c, i){
-    var s = t.stages[i], late = isLate(t,m,i) && c.s!=='done';
-    var st = c.s==='done' ? md(c.at) + '에 올림' : late ? '<span style="color:var(--late);font-weight:600">' + md(cellDue(t,m,i)) + ' 기한 지남</span>' : c.s==='ext' ? md(c.due) + '까지 연장' : md(s.due) + '까지';
-    h += '<div class="stage"><div class="hd">' + stamp(t, m, i, col, mine).replace('<span class="sd">' , '<span class="sd" hidden>').replace('<span class="sd late">', '<span class="sd late" hidden>') + '<div><div class="nm">' + esc(s.label) + '</div><div class="st">' + st + '</div></div></div>';
+    var s = t.stages[i], late = c.s!=='done' && c.s!=='taken' && isLate(t,m,i), key = p.m + '-' + i;
+    var st = c.s==='done' ? md(c.at) + '에 올림' + (c.wip ? ', 아직 고치는 중' : '') : c.s==='taken' ? esc(c.by) + '님이 이어서 맡아요' : late ? '<span style="color:var(--late);font-weight:600">' + md(cellDue(t,m,i)) + ' 기한 지남</span>' : c.s==='ext' ? dueTime(c.due) + '까지 연장' : md(s.due) + '까지';
+    h += '<div class="stage"><div class="hd">' + stamp(t, m, i, col, mine) + '<div><div class="nm">' + esc(s.label) + '</div><div class="st">' + st + '</div></div></div>';
     if (c.s==='done'){
-      if (c.file) h += '<button class="file" data-a="preview" data-team="' + t.id + '" data-m="' + p.m + '" data-i="' + i + '">' + IC.file + '<span style="flex:1 1 auto">' + esc(c.file) + '</span>' + IC.chev + '</button>';
-      if (c.link) h += '<button class="file" data-a="preview" data-team="' + t.id + '" data-m="' + p.m + '" data-i="' + i + '">' + IC.link + '<span style="flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(c.link) + '</span>' + IC.chev + '</button>';
+      [['file', IC.file], ['link', IC.link]].forEach(function(x){
+        if (!c[x[0]]) return; anyFile = true;
+        h += '<button class="file" data-a="preview" data-team="' + t.id + '" data-m="' + p.m + '" data-i="' + i + '">' + x[1] + '<span style="flex:1 1 auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(c[x[0]]) + '</span>' + IC.chev + '</button>';
+        if (S.flags.brokenAt === key) h += '<p class="err">열 수 없어요. 권한이 없거나 지워진 파일이에요. ' + esc(m.name) + '님에게 다시 올려 달라고 알렸어요.</p>';
+      });
       if (c.memo) h += '<p class="memo">“' + esc(c.memo) + '”</p>';
+      if (c.prev && c.prev.length) h += '<p class="vers">이전 버전: ' + c.prev.map(function(v){ return esc(v.file) + ' (' + md(v.at) + ')'; }).join(', ') + '</p>';
       var who = c.checks.length ? c.checks.join(', ') + '님이 확인했어요' : '아직 확인한 사람이 없어요';
       var checked = c.checks.indexOf(S.me) >= 0;
-      h += '<div class="checks"><span>' + esc(who) + '</span>' + (mine ? '' : '<button class="btn small" data-a="check" data-team="' + t.id + '" data-m="' + p.m + '" data-i="' + i + '" aria-pressed="' + checked + '"' + (checked ? ' disabled' : '') + '>' + (checked ? '확인함' : '확인했어요') + '</button>') + '</div>';
-    } else if (c.s==='ext'){
+      h += '<div class="checks"><span>' + esc(who) + '</span>' + (mine ? '<button class="btn small" data-a="reupload" data-team="' + t.id + '" data-i="' + i + '">다시 올리기</button>' : (S.flags.checkOpen === key ? '' : '<button class="btn small" data-a="checkopen" data-k="' + key + '" aria-pressed="' + checked + '"' + (checked ? ' disabled' : '') + '>' + (checked ? '확인함' : '확인했어요') + '</button>')) + '</div>';
+      var notes = c.notes || {};
+      Object.keys(notes).forEach(function(n){ h += '<p class="memo" style="margin-top:6px">' + esc(n) + ': “' + esc(notes[n]) + '”</p>'; });
+      if (!mine && S.flags.checkOpen === key){
+        h += '<div class="inline"><label class="label" for="ck-note">한 줄 남기기 (선택)</label><div class="chips" style="margin-bottom:8px">' + ['방향 좋아요','분량 딱 맞아요','잘 봤어요'].map(function(x){ return '<button class="chip" data-a="cknote" data-v="' + x + '">' + x + '</button>'; }).join('') + '</div><input class="field" id="ck-note" maxlength="40" placeholder="안 써도 돼요"><div class="acts"><button class="btn small primary" data-a="check" data-team="' + t.id + '" data-m="' + p.m + '" data-i="' + i + '">확인했어요 보내기</button><button class="btn small" data-a="checkclose">취소</button></div></div>';
+      }
+    } else if (c.s==='taken'){
+      h += '<p class="memo">' + esc(m.name) + '님 대신 ' + esc(c.by) + '님이 이어서 맡았어요.</p>';
+    } else if (c.s==='ext' && !late){
       h += '<p class="memo">사유: ' + esc(c.reason) + '</p>';
       if (mine) h += '<button class="btn small primary" style="margin-top:10px" data-a="upload" data-team="' + t.id + '" data-i="' + i + '">이 칸 올리기</button>';
     } else if (late){
-      h += '<p class="memo">아직 결과물도 연장 요청도 없어요.' + (mine ? '' : ' ' + md(addDays(cellDue(t,m,i),1)) + '에 팀에 한 번 알렸어요. 같은 알림은 다시 안 보내요.') + '</p>';
-      if (mine) h += '<button class="btn small primary" style="margin-top:10px" data-a="upload" data-team="' + t.id + '" data-i="' + i + '">이 칸 올리기</button>';
+      if (mine){
+        h += '<p class="memo">아직 결과물도 연장 요청도 없어요.</p><div class="grid2" style="margin-top:12px"><button class="btn small" data-a="extend" data-team="' + t.id + '">연장 요청</button><button class="btn small primary" data-a="upload" data-team="' + t.id + '" data-i="' + i + '">이 칸 올리기</button></div>';
+      } else {
+        h += '<p class="memo">아직 결과물도 연장 요청도 없어요. ' + md(addDays(cellDue(t,m,i),1)) + '에 팀에 이미 한 번 알렸어요. 따로 말하지 않아도 돼요.</p>';
+        if (S.flags.resched === key){
+          var dflt = addDays(TODAY, 2); if (dflt > t.due) dflt = t.due;
+          h += '<div class="inline"><label class="label" for="rs-date">‘' + esc(s.label) + '’ 새 기한</label><input class="field" type="date" id="rs-date" value="' + iso(dflt) + '"><p class="hint">팀 마감(' + md(t.due) + ')까지 고를 수 있어요. ' + esc(m.name) + '님에게만 새 기한이 알림으로 가요.</p><p class="err" id="rs-err" hidden>오늘 이후, 팀 마감 전 날짜를 골라 주세요.</p><div class="acts"><button class="btn small primary" data-a="doresched" data-team="' + t.id + '" data-m="' + p.m + '" data-i="' + i + '">새 기한으로 바꾸기</button><button class="btn small" data-a="inlineclose">취소</button></div></div>';
+        } else if (S.flags.takeover === key){
+          h += '<div class="inline"><p style="margin:0;font-size:15px;line-height:1.55"><b>‘' + esc(s.label) + '’를 이어서 맡을까요?</b><br><span class="hint" style="display:block">' + esc(m.name) + '님에게는 나에게만 알림으로 알리고, 팀에는 누가 맡는지만 알려요.</span></p><div class="acts"><button class="btn small primary" data-a="dotakeover" data-team="' + t.id + '" data-m="' + p.m + '" data-i="' + i + '">제가 맡을게요</button><button class="btn small" data-a="inlineclose">취소</button></div></div>';
+        } else {
+          h += '<div class="grid2" style="margin-top:12px"><button class="btn small" data-a="canhelp" data-team="' + t.id + '" data-m="' + p.m + '" data-i="' + i + '"' + (c.helped ? ' disabled' : '') + '>' + (c.helped ? '도울 수 있다고 알렸어요' : '도울 수 있어요') + '</button><button class="btn small primary" data-a="resched" data-k="' + key + '">일정 다시 잡기</button></div>';
+          h += '<button class="btn text small" style="margin-top:4px" data-a="takeover" data-k="' + key + '">이 단계 넘겨받기</button><p class="hint" style="margin-top:0">다시 잡은 기한도 지났는데 소식이 없을 때 써요. 누구나 누를 수 있어요.</p>';
+        }
+      }
     } else if (mine && i === nextIdx(m)){
       h += '<div class="grid2" style="margin-top:12px"><button class="btn small" data-a="extend" data-team="' + t.id + '">연장 요청</button><button class="btn small primary" data-a="upload" data-team="' + t.id + '" data-i="' + i + '">이 칸 올리기</button></div>';
     }
     h += '</div>';
   });
-  h += '</div></div><div class="bar"><button class="btn grow" data-a="back">팀 화면으로</button></div>';
+  h += '</div>';
+  if (!mine && anyFile) h += demoBar([['broken','결과물이 열리지 않을 때']]);
+  h += '</div><div class="bar"><button class="btn grow" data-a="back">팀 화면으로</button></div>';
   return h;
 };
 
@@ -529,38 +610,63 @@ V.preview = function(p){
 
 V.upload = function(p){
   var t = team(p.team), m = meIn(t);
-  var f = S.flags.upload || (S.flags.upload = {stage: p.i != null ? +p.i : nextIdx(m), file:'', link:'', memo:''});
-  var h = top('결과물 올리기', esc(m.part) + ', ' + esc(S.me));
+  var f = S.flags.upload || (S.flags.upload = {stage: p.i != null ? +p.i : nextIdx(m), file:'', link:'', memo:'', wip:false, re: !!p.re});
+  var h = top(f.re ? '다시 올리기' : '결과물 올리기', esc(m.part || '파트 미정') + ', ' + esc(S.me));
   h += '<div class="scroll"><div class="sheet"><div class="pad"><span class="label" id="u-st">어느 칸에 올릴까요?</span><div class="chips" role="group" aria-labelledby="u-st" style="display:grid;grid-template-columns:repeat(' + t.stages.length + ',minmax(0,1fr))">';
   t.stages.forEach(function(s, i){
-    var c = m.cells[i], dis = c.s==='done';
-    h += '<button class="chip" style="min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center" data-a="ustage" data-i="' + i + '" aria-pressed="' + (f.stage===i) + '"' + (dis ? ' disabled' : '') + '><span>' + esc(s.label) + '</span><span style="font-size:12px;opacity:.8">' + (dis ? '올림' : '~' + md(cellDue(t,m,i))) + '</span></button>';
+    var c = m.cells[i], dis = (c.s==='done' || c.s==='taken') && !(f.re && f.stage===i);
+    h += '<button class="chip" style="min-height:60px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center" data-a="ustage" data-i="' + i + '" aria-pressed="' + (f.stage===i) + '"' + (dis ? ' disabled' : '') + '><span>' + esc(s.label) + '</span><span style="font-size:12px;opacity:.8">' + (c.s==='done' ? (f.re && f.stage===i ? '새 버전' : '올림') : '~' + md(cellDue(t,m,i))) + '</span></button>';
   });
-  h += '</div></div></div>';
+  h += '</div><span class="label" id="u-wip" style="margin-top:18px">지금 상태</span><div class="grid2" role="group" aria-labelledby="u-wip"><button class="chip" style="text-align:center" data-a="uwip" data-v="0" aria-pressed="' + !f.wip + '">다 됐어요</button><button class="chip" style="text-align:center" data-a="uwip" data-v="1" aria-pressed="' + !!f.wip + '">아직 고치는 중</button></div><p class="hint">‘고치는 중’으로 올리면 칸에 그렇게 보여요. 완성 전이어도 먼저 올려 둘 수 있어요.</p></div></div>';
   h += '<div class="sheet"><div class="pad"><span class="label">무엇을 올릴까요?</span><p class="hint" style="margin:-4px 0 12px">파일, 링크, 메모 중 하나만 있어도 돼요.</p>';
   h += '<button class="pick' + (f.file ? ' has' : '') + '" data-a="pickfile">' + (f.file ? IC.file + '<span style="flex:1 1 auto;font-weight:600">' + esc(f.file) + '</span><span class="hint" style="margin:0">바꾸기</span>' : IC.up + '<span style="flex:1 1 auto">파일 고르기</span>') + '</button>';
   h += '<label class="label" for="u-link" style="margin-top:18px">링크</label><input class="field" id="u-link" inputmode="url" placeholder="구글 문서, 노션, 드라이브 주소" value="' + esc(f.link) + '">';
-  h += '<label class="label" for="u-memo" style="margin-top:18px">한 줄 메모</label><textarea class="field" id="u-memo" placeholder="팀원이 알아 두면 좋을 것">' + esc(f.memo) + '</textarea><p class="err" id="u-err" hidden>파일, 링크, 메모 중 하나는 있어야 해요.</p></div></div>';
-  h += '<p class="hint" style="padding:12px 20px 0">올리면 내 칸이 ‘올림’으로 바뀌어요. 팀원한테 알림은 따로 안 가요.</p></div>';
-  h += '<div class="bar"><button class="btn primary grow" data-a="doupload" data-team="' + t.id + '">‘' + esc(t.stages[f.stage] ? t.stages[f.stage].label : '') + '’ 칸에 올리기</button></div>';
+  h += '<label class="label" for="u-memo" style="margin-top:18px">한 줄 메모</label><textarea class="field" id="u-memo" placeholder="팀원이 알아 두면 좋을 것">' + esc(f.memo) + '</textarea><p class="err" id="u-err" hidden>파일, 링크, 메모 중 하나를 넣어 주세요.</p></div></div>';
+  h += '<p class="hint" style="padding:12px 20px 0">' + (f.re ? '새 버전으로 바뀌고 예전 것은 ‘이전 버전’으로 남아요. ' : '올린 뒤에도 언제든 다시 올릴 수 있어요. ') + '팀원한테 알림은 따로 안 가요.</p>';
+  h += demoBar([['bigFile','파일이 너무 클 때']]);
+  h += '</div><div class="bar"><button class="btn primary grow" data-a="doupload" data-team="' + t.id + '">‘' + esc(t.stages[f.stage] ? t.stages[f.stage].label : '') + '’ 칸에 올리기</button></div>';
   return h;
 };
 
+function extendInfo(t, m){
+  var i = nextIdx(m), c = m.cells[i], f = S.flags.extend;
+  var base = cellDue(t,m,i), already = c.s==='ext' ? (c.days || 1) : 0;
+  if (S.flags.demoExt && !already){ already = 1; base = addDays(base, 1); }
+  var late = base < TODAY || !!S.flags.demoLate;
+  var from = base < TODAY ? TODAY : base, nd = addDays(from, f.days), over = nd > t.due;
+  return {i:i, base:base, already:already, late:late, nd:nd, over:over, help: over || f.reason === '막혔어요, 도움 필요'};
+}
+
 V.extend = function(p){
-  var t = team(p.team), m = meIn(t), i = nextIdx(m);
+  var t = team(p.team), m = meIn(t);
   var f = S.flags.extend || (S.flags.extend = {days:1, reason:'', memo:''});
-  var base = cellDue(t,m,i), nd = addDays(base, f.days), over = nd > t.due, help = over || f.reason === '막혔어요, 도움 필요';
-  var h = top('연장 요청', '‘' + esc(t.stages[i].label) + '’ 칸, 지금 기한 ' + md(base) + ' (' + dday(base) + ')');
-  h += '<div class="scroll"><div class="sheet"><div class="pad"><span class="label" id="e-days">얼마나 늦어질 것 같나요?</span><div class="grid2" style="grid-template-columns:repeat(3,minmax(0,1fr))" role="group" aria-labelledby="e-days">';
+  var x = extendInfo(t, m), i = x.i;
+  var h = top('연장 요청', '‘' + esc(t.stages[i].label) + '’ 칸, 지금 기한 ' + md(x.base) + ' (' + dday(x.base) + ')');
+  h += '<div class="scroll">';
+  if (x.late) h += '<div class="note warn"><b>기한(' + md(x.base) + ')이 지났어요.</b><br>그래도 지금 알리면 팀에는 연장으로 보여요. 새 기한은 오늘부터 세요.</div>';
+  if (x.already) h += '<div class="note warn"><b>이미 ' + x.already + '일 연장했어요.</b><br>팀 마감(' + md(t.due) + ')까지 남은 만큼만 더 늘릴 수 있어요.</div>';
+  h += '<div class="sheet"><div class="pad"><span class="label" id="e-days">얼마나 늦어질 것 같나요?</span><div class="grid2" style="grid-template-columns:repeat(3,minmax(0,1fr))" role="group" aria-labelledby="e-days">';
   [1,2,3].forEach(function(d){ h += '<button class="chip" style="text-align:center" data-a="edays" data-v="' + d + '" aria-pressed="' + (f.days===d) + '">' + d + '일</button>'; });
-  h += '</div><p class="hint">새 기한은 <b style="color:var(--ink)">' + longDate(nd) + '</b>이에요. 팀 마감(' + md(t.due) + ')까지만 연장할 수 있어요.</p>';
-  if (over) h += '<p class="err">팀 마감을 넘겨요. 연장 대신 팀에 도움을 요청할게요.</p>';
+  h += '</div><p class="hint">새 기한은 <b style="color:var(--ink)">' + dueTime(x.nd) + '</b>예요. 팀 마감(' + md(t.due) + ')까지만 연장할 수 있어요. 새 기한 6시간 전에 한 번 더 알려 드려요.</p>';
+  if (x.over) h += '<p class="err">팀 마감을 넘겨요. 연장 대신 팀에 도움을 요청할게요.</p>';
   h += '</div></div><div class="sheet"><div class="pad"><span class="label" id="e-rs">사유를 하나 골라 주세요</span><div class="chips" role="group" aria-labelledby="e-rs">';
   ['알바·일정 겹침','다른 과제 마감','막혔어요, 도움 필요','몸이 안 좋아요'].forEach(function(r){ h += '<button class="chip" data-a="ereason" data-v="' + r + '" aria-pressed="' + (f.reason===r) + '">' + r + '</button>'; });
   h += '</div><label class="label" for="e-memo" style="margin-top:18px">덧붙일 말 (선택)</label><textarea class="field" id="e-memo" placeholder="예: 월요일 밤까지 올릴게요">' + esc(f.memo) + '</textarea><p class="err" id="e-err" hidden>사유를 하나 골라 주세요.</p></div></div>';
-  var preview = help ? S.me + '님이 ‘' + t.stages[i].label + '’ 칸에서 도움을 요청했어요.' : S.me + '님이 ‘' + t.stages[i].label + '’ 칸을 ' + f.days + '일 연장했어요. 새 기한은 ' + md(nd) + '이에요.' + (f.reason ? ' 사유: ' + f.reason : '');
-  h += '<div class="sheet"><div class="pad"><div class="hint" style="margin:0 0 8px">팀에는 이렇게 보여요. 누가 허락하지 않아도 바로 바뀌어요.</div><div class="kakao">' + esc(preview) + '</div></div></div></div>';
-  h += '<div class="bar"><button class="btn primary grow" data-a="doextend" data-team="' + t.id + '">' + (help ? '팀에 도움 요청하기' : '연장하고 팀에 알리기') + '</button></div>';
+  var preview = x.help ? '다음 화면에서 팀에 도움을 요청해요.' : S.me + '님이 ‘' + t.stages[i].label + '’ 칸을 ' + f.days + '일 연장 · ' + (f.reason || '사유') + ' (새 기한 ' + dueTime(x.nd) + ')';
+  h += '<div class="sheet"><div class="pad"><div class="hint" style="margin:0 0 8px">팀에는 이렇게 보여요. 누가 허락하지 않아도 바로 바뀌어요.</div><div class="kakao">' + esc(preview) + '</div></div></div>';
+  h += demoBar([['demoExt','이미 한 번 연장했을 때'],['demoLate','기한이 이미 지났을 때']]);
+  h += '</div><div class="bar"><button class="btn primary grow" data-a="doextend" data-team="' + t.id + '">' + (x.help ? '다음: 도움 요청' : '연장하고 팀에 알리기') + '</button></div>';
+  return h;
+};
+
+V.help = function(p){
+  var t = team(p.team), m = meIn(t), f = S.flags.extend || {days:1, reason:'막혔어요, 도움 필요', memo:''};
+  var x = extendInfo(t, m), lab = t.stages[x.i].label, why = f.reason === '막혔어요, 도움 필요' ? '막혔어요' : f.reason;
+  var h = top('도움 요청', '‘' + esc(lab) + '’ 칸, ' + esc(m.part || ''));
+  h += '<div class="scroll"><div class="note warn">' + (x.over ? '<b>연장하면 팀 마감(' + md(t.due) + ')을 넘겨요.</b><br>기한을 늘리는 대신 팀에 손을 빌려요.' : '<b>막혔을 땐 혼자 붙잡고 있지 않아도 돼요.</b><br>팀에 한 번 알리면 누가 도울지 팀에서 정해요.') + '</div>';
+  h += '<div class="sheet"><div class="pad"><label class="label" for="h-memo">어디서 막혔나요? (선택)</label><textarea class="field" id="h-memo" placeholder="예: 가격 자료 출처를 어디까지 넣을지 모르겠어요">' + esc(f.memo) + '</textarea></div></div>';
+  h += '<div class="sheet"><div class="pad"><div class="hint" style="margin:0 0 8px">팀 알림에는 이렇게 보여요</div><div class="kakao">' + esc(S.me) + '님이 ' + esc(lab) + '에 도움이 필요해요 · ' + esc(why) + '</div></div></div></div>';
+  h += '<div class="bar"><button class="btn primary grow" data-a="dohelp" data-team="' + t.id + '">도움 요청 보내기</button></div>';
   return h;
 };
 
@@ -571,26 +677,29 @@ V.alerts = function(p){
   h += '<div class="seg" role="tablist"><button role="tab" data-a="tab" data-v="team" aria-selected="' + (tab==='team') + '">팀 알림 ' + teamA.length + '</button><button role="tab" data-a="tab" data-v="mine" aria-selected="' + (tab==='mine') + '">나에게만 ' + mineA.length + '</button></div>';
   h += '<div class="scroll">';
   if (tab==='mine'){
-    h += '<p class="hint" style="padding:6px 20px 0">내 칸 기한이 내일이거나 오늘일 때, 누가 내 결과물을 확인했을 때 와요. 팀원은 못 봐요.</p>';
+    h += '<p class="hint" style="padding:6px 20px 0">내 칸 기한 하루 전과 6시간 전, 누가 내 결과물을 확인했을 때 와요. 팀원은 못 봐요.</p>';
     if (!mineA.length) h += '<div class="empty"><h2 style="margin-top:0">나에게만 온 알림이 없어요</h2><p>내 칸 기한이 가까워지면 여기에 먼저 알려 드려요.</p></div>';
     else {
       h += '<div class="sheet">';
       mineA.forEach(function(a){
-        if (a.k==='ack'){ h += '<div class="alert"><span class="ic ack">✓</span><div class="body"><p>' + esc(a.text) + '</p><span class="when">' + esc(a.when) + '</span><div class="acts"><button class="btn small" data-a="detail" data-team="' + t.id + '" data-m="' + a.m + '">내 파트 보기</button></div></div></div>'; return; }
-        h += '<div class="alert"><span class="ic me">D-1</span><div class="body"><p><b>' + esc(a.text) + '</b></p>' + (a.sub ? '<div class="hint" style="margin:0 0 6px">' + esc(a.sub) + '</div>' : '') + '<span class="when">' + esc(a.when) + '</span><div class="acts"><button class="btn small" data-a="extend" data-team="' + t.id + '">연장 요청하기</button><button class="btn small primary" data-a="upload" data-team="' + t.id + '">결과물 올리기</button></div></div></div>';
+        if (a.k==='ack'){ h += '<div class="alert"><span class="ic ack">✓</span><div class="body"><p>' + esc(a.text) + (a.note ? ' “' + esc(a.note) + '”' : '') + '</p><span class="when">' + esc(a.when) + '</span><div class="acts"><button class="btn small" data-a="detail" data-team="' + t.id + '" data-m="' + a.m + '">내 파트 보기</button></div></div></div>'; return; }
+        if (a.k==='info'){ h += '<div class="alert"><span class="ic ext" style="font-size:12px">기한</span><div class="body"><p>' + esc(a.text) + '</p><span class="when">' + esc(a.when) + '</span></div></div>'; return; }
+        h += '<div class="alert"><span class="ic me">D-1</span><div class="body"><p><b>' + esc(a.text) + '</b></p>' + (a.sub ? '<div class="hint" style="margin:0 0 6px">' + esc(a.sub) + '</div>' : '') + '<span class="when">' + esc(a.when) + '</span><div class="acts"><button class="btn small" data-a="extend" data-team="' + t.id + '">연장 요청하기</button><button class="btn small primary" data-a="upload" data-team="' + t.id + '"' + (a.stage != null ? ' data-i="' + a.stage + '"' : '') + '>결과물 올리기</button></div></div></div>';
       });
       h += '</div>';
     }
   } else {
+    var st = statusText(t);
+    h += '<div class="note"><div class="hint" style="margin:0 0 8px">단톡방에는 이렇게 보내져요</div><div class="kakao" style="background:var(--canvas);margin:0">' + esc(t.name) + ' 오늘 현황: ' + (st.length ? esc(st.join(' · ')) : '모두 기한 안에 하고 있어요') + '<br>eodi.kr/t/' + t.id + '-4f2a</div><div class="acts"><button class="btn small primary" data-a="kakao" data-msg="단톡방에 공유했어요. 시연이라 카톡은 열리지 않아요.">' + IC.share + ' 카톡 단톡방으로 공유</button><button class="btn small" data-a="copymsg">복사</button></div></div>';
     h += '<p class="hint" style="padding:6px 20px 0">누가 연장하거나 도움을 청할 때, 기한이 하루 지나도 소식이 없을 때만 팀에 알려요.</p>';
     if (!teamA.length) h += '<div class="empty"><h2 style="margin-top:0">팀 알림이 없어요</h2><p>모두 기한 안에 올리고 있어요.</p></div>';
     else {
       h += '<div class="sheet">';
       teamA.forEach(function(a){
         var ic = a.k==='late' ? '<span class="ic late">!</span>' : a.k==='help' ? '<span class="ic help">?</span>' : '<span class="ic ext" style="font-size:12px">연장</span>';
-        h += '<div class="alert">' + ic + '<div class="body"><p>' + esc(a.text) + '</p>' + (a.reason ? '<div class="hint" style="margin:0 0 4px">사유: ' + esc(a.reason) + '</div>' : '') + '<span class="when">' + esc(a.when) + '</span><div class="acts"><button class="btn small" data-a="kakao" data-msg="단톡방에 공유했어요. 시연이라 카톡은 열리지 않아요.">' + IC.share + ' 단톡방에 공유</button>';
-        if (a.member){ var mi = -1; t.members.forEach(function(mm, j){ if (mm.name===a.member) mi = j; }); if (mi>=0) h += '<button class="btn small text" data-a="detail" data-team="' + t.id + '" data-m="' + mi + '">' + esc(a.member) + '님 파트 보기</button>'; }
-        h += '</div></div></div>';
+        h += '<div class="alert">' + ic + '<div class="body"><p>' + esc(a.text) + '</p>' + (a.reason ? '<div class="hint" style="margin:0 0 4px">사유: ' + esc(a.reason) + '</div>' : '') + '<span class="when">' + esc(a.when) + '</span>';
+        if (a.member){ var mi = -1; t.members.forEach(function(mm, j){ if (mm.name===a.member) mi = j; }); if (mi>=0) h += '<div class="acts"><button class="btn small" data-a="detail" data-team="' + t.id + '" data-m="' + mi + '">' + esc(a.member) + '님 파트 보기</button></div>'; }
+        h += '</div></div>';
       });
       h += '</div>';
     }
@@ -737,8 +846,10 @@ V.cchart = function(p){
 
 V.errlink = function(){
   var h = '<header class="top"><span style="width:14px"></span><div class="ttl"><h1>어디까지 했어?</h1><div class="sub">eodi.kr/t/mkt-4f</div></div></header>';
-  h += '<div class="scroll"><div class="errbox"><div class="errmark" aria-hidden="true">?</div><h2>이 링크로는 팀을 찾을 수 없어요</h2><p>링크가 중간에 잘렸거나 팀이 삭제됐을 수 있어요. 단톡방에서 링크 전체를 다시 누르거나, 링크를 올린 사람에게 새 링크를 부탁해 주세요.</p></div></div>';
-  h += '<div class="bar"><button class="btn primary grow" data-a="tohome">내 팀 목록으로</button></div>';
+  h += '<div class="scroll"><div class="errbox"><div class="errmark" aria-hidden="true">?</div><h2>이 링크로는 팀을 찾을 수 없어요</h2><p>링크가 중간에 잘렸거나 팀이 삭제됐을 수 있어요. 아래 문구를 복사해 단톡방에 붙여 넣으면 팀장에게 새 링크를 받을 수 있어요.</p></div>';
+  h += '<div class="sheet"><div class="pad"><div class="hint" style="margin:0 0 8px">팀장에게 링크 다시 받기</div><div class="kakao">받은 팀 링크가 열리지 않아요. 새 링크 한 번만 다시 보내 주실 수 있을까요?</div><button class="btn primary" style="width:100%;margin-top:12px" data-a="copymsg">문구 복사하기</button></div></div>';
+  h += '<div class="demo"><span>다른 모습 보기 (시연용)</span><button data-a="tojoin">새 링크를 받아 다시 들어가기</button></div></div>';
+  h += '<div class="bar"><button class="btn grow" data-a="tohome">내 팀 목록으로</button></div>';
   return h;
 };
 
@@ -751,9 +862,26 @@ V.errupload = function(p){
 };
 
 /* ───────── 렌더 ───────── */
+var SID_NAME = {'01':'홈 · 내 팀 목록','02':'팀 만들기','03':'링크 공유','04':'링크로 들어오기','05':'단계·파트 정하기','06':'팀 진행','06-b':'올린 직후','07':'팀원 파트 · 결과물 보기','07-b':'내 파트','07-c':'기한 지남 팀원','08':'결과물 올리기','09':'연장 요청','09-b':'도움 요청','10':'알림 · 팀 알림','10-b':'알림 · 나에게만','11':'빈 상태','12-A':'오류 · 잘못된 링크','12-B':'오류 · 업로드 실패','14':'결과물 모아보기','15':'기여 기록','15-b':'기여 기록 한눈에 보기'};
+function screenId(){
+  var c = S.cur, p = c.p || {}, t = p.team ? team(p.team) : null;
+  switch (c.name){
+    case 'home': return '01'; case 'create': return '02'; case 'share': return '03'; case 'join': return '04'; case 'stages': return '05';
+    case 'team': return p.posted ? '06-b' : (t && doneCount(t) === 0 ? '11' : '06');
+    case 'detail': { var m = t.members[p.m]; if (m.name === S.me) return '07-b'; return m.cells.some(function(x, i){ return x.s!=='done' && x.s!=='taken' && isLate(t, m, i); }) ? '07-c' : '07'; }
+    case 'preview': return '07'; case 'upload': return '08'; case 'extend': return '09'; case 'help': return '09-b';
+    case 'alerts': return p.tab === 'mine' ? '10-b' : '10';
+    case 'errlink': return '12-A'; case 'errupload': return '12-B';
+    case 'files': case 'fpreview': return '14'; case 'contrib': return '15'; case 'cchart': return '15-b';
+  }
+  return '';
+}
+function sidLine(){ var id = screenId(); return id ? '<p style="margin:0 0 12px"><span class="sid">' + id + '</span>' + esc(SID_NAME[id] || '') + '</p>' : ''; }
 var SCREEN_KEY = {home:'home', create:'create', share:'share', stages:'stages', join:'join', team:'team', detail:'detail', preview:'detail', upload:'upload', extend:'extend', alerts:'alerts', errlink:'errlink', errupload:'errupload'};
+var lastScreen = '';
 function render(){
-  var c = S.cur, app = document.getElementById('app');
+  var c = S.cur, app = document.getElementById('app'), sk = c.name + JSON.stringify(c.p || {});
+  if (sk !== lastScreen){ ['checkOpen','resched','takeover','brokenAt','broken','noPart','allDone','emptyHome','demoExt','demoLate','bigFile'].forEach(function(k){ S.flags[k] = null; }); if (c.name !== 'team') S.flags.postShare = false; lastScreen = sk; }
   document.getElementById('toast').classList.remove('on');
   app.innerHTML = V[c.name](c.p);
   app.scrollTop = 0;
@@ -777,10 +905,10 @@ function trackStep(){
 function renderGuide(){
   var g = document.getElementById('guide'), sc = S.scen, h;
   if (!sc){
-    h = '<h2>시나리오 안내</h2><p style="margin:0">' + (S.cur.name==='start' ? '왼쪽 화면에서 시나리오를 골라 주세요. 각 시나리오는 퍼소나 한 명의 하루를 따라가요.' : '자유롭게 둘러보는 중이에요.') + '</p>';
+    h = sidLine() + '<h2>시나리오 안내</h2><p style="margin:0">' + (S.cur.name==='start' ? '왼쪽 화면에서 시나리오를 골라 주세요. 각 시나리오는 퍼소나 한 명의 하루를 따라가요.' : '자유롭게 둘러보는 중이에요.') + '</p>';
     if (S.cur.name!=='start') h += '<button class="btn small" style="margin-top:12px" data-a="restart">시나리오 선택으로</button>';
   } else {
-    h = '<h2>시나리오 ' + sc.id + '</h2><p style="margin:0 0 6px">' + esc(sc.title) + '</p><p class="help" style="margin:0">' + esc(sc.why) + '</p><ol>';
+    h = sidLine() + '<h2>시나리오 ' + sc.id + '</h2><p style="margin:0 0 6px">' + esc(sc.title) + '</p><p class="help" style="margin:0">' + esc(sc.why) + '</p><ol>';
     sc.steps.forEach(function(st, k){ h += '<li class="' + (k < S.step ? 'done' : k === S.step ? 'cur' : '') + '">' + (k === S.step ? '<span class="now">' + esc(st[1]) + '</span>' : esc(st[1])) + '</li>'; });
     h += '</ol>';
     if (S.flags.finished) h += '<p style="margin:8px 0;font-weight:600">시나리오 끝! 다른 시나리오도 따라가 보세요.</p>';
@@ -815,6 +943,52 @@ document.addEventListener('click', function(e){
     case 'replay': startScen(S.scen); break;
     case 'back': back(); break;
     case 'tohome': resetTo([['home']]); if (S.scen && S.scen.id==='E') advance('home'); renderGuide(); break;
+    case 'demo': S.flags[d.k] = !S.flags[d.k]; if (d.k==='broken') S.flags.brokenAt = null; render(); break;
+    case 'toerrlink': go('errlink'); break;
+    case 'tojoin': resetTo([['join']]); break;
+    case 'copymsg': toast('복사했어요. 단톡방에 붙여 넣어 주세요.'); break;
+    case 'sharekakao': {
+      var again = d.again === '1', tid = d.team;
+      toast('단톡방에 팀 링크를 보냈어요. 시연이라 카톡은 열리지 않아요.');
+      setTimeout(function(){ if (S.cur.name !== 'share') return; if (again) back(); else go('stages', {team:tid}); }, 1200);
+      break; }
+    case 'padd': { t = team(S.cur.p.team); keepPart(t); var pn = document.getElementById('p-new').value.trim(); if (pn) t.openParts.push(pn); render(); var pi = document.getElementById('p-new'); if (pi) pi.focus(); break; }
+    case 'pdel': { t = team(S.cur.p.team); keepPart(t); t.openParts.splice(+d.i, 1); render(); break; }
+    case 'ppick': { t = team(S.cur.p.team); meIn(t).partDraft = t.openParts[+d.i]; render(); break; }
+    case 'postshare': S.flags.postShare = !S.flags.postShare; render(); break;
+    case 'checkopen': S.flags.checkOpen = d.k; render(); var ckf = document.getElementById('ck-note'); if (ckf) ckf.focus(); break;
+    case 'checkclose': S.flags.checkOpen = null; render(); break;
+    case 'cknote': document.getElementById('ck-note').value = d.v; break;
+    case 'reupload': S.flags.upload = null; go('upload', {team:d.team, i:+d.i, re:true}); break;
+    case 'uwip': saveUpload(); S.flags.upload.wip = d.v === '1'; render(); break;
+    case 'canhelp': { var mh = t.members[+d.m], chh = mh.cells[+d.i]; chh.helped = true; render(); toast(mh.name + '님에게만 ‘팀원 1명이 ' + t.stages[+d.i].label + '를 도울 수 있대요’라고 알렸어요. 누가 눌렀는지는 안 보여요.'); break; }
+    case 'resched': S.flags.resched = d.k; S.flags.takeover = null; render(); break;
+    case 'takeover': S.flags.takeover = d.k; S.flags.resched = null; render(); break;
+    case 'inlineclose': S.flags.resched = null; S.flags.takeover = null; render(); break;
+    case 'doresched': {
+      var rv = document.getElementById('rs-date').value, rd = rv ? fromIso(rv) : null;
+      if (!rd || rd <= TODAY || rd > t.due){ document.getElementById('rs-err').hidden = false; return; }
+      var mr = t.members[+d.m], lr = t.stages[+d.i].label;
+      mr.cells[+d.i] = {s:'ext', due:rd, reason:'일정 다시 잡음', days:0};
+      (S.teamAlerts[t.id] = S.teamAlerts[t.id] || []).unshift({k:'ext', text:mr.name + '님의 ‘' + lr + '’ 기한을 ' + md(rd) + '로 다시 잡았어요.', when:'방금'});
+      S.flags.resched = null;
+      resetTo([['home'], ['team', {team:t.id, note:'<b>‘' + esc(lr) + '’ 새 기한을 ' + esc(dueTime(rd)) + '로 잡았어요.</b><br>' + esc(mr.name) + '님에게만 새 기한을 알렸어요.'}]]);
+      if (S.scen && S.scen.id==='D') finish(); renderGuide();
+      break; }
+    case 'dotakeover': {
+      var mt = t.members[+d.m], lt = t.stages[+d.i].label;
+      mt.cells[+d.i] = {s:'taken', by:S.me};
+      (S.teamAlerts[t.id] = S.teamAlerts[t.id] || []).unshift({k:'help', text:S.me + '님이 ' + (mt.part || '') + ' ‘' + lt + '’를 이어서 맡아요.', when:'방금'});
+      S.flags.takeover = null;
+      resetTo([['home'], ['team', {team:t.id, note:'<b>‘' + esc(lt) + '’를 이어서 맡았어요.</b><br>' + esc(mt.name) + '님에게는 나에게만 알림으로, 팀에는 누가 맡는지만 알렸어요.'}]]);
+      break; }
+    case 'dohelp': {
+      var th = team(d.team), mhp = meIn(th), xh = extendInfo(th, mhp), fh = S.flags.extend || {reason:'막혔어요, 도움 필요'}, hm = document.getElementById('h-memo').value.trim(), why = fh.reason === '막혔어요, 도움 필요' ? '막혔어요' : fh.reason;
+      S.teamAlerts[th.id].unshift({k:'help', text:S.me + '님이 ' + th.stages[xh.i].label + '에 도움이 필요해요 · ' + why + (hm ? ' “' + hm + '”' : ''), when:'방금'});
+      S.flags.extend = null;
+      resetTo([['home'], ['team', {team:th.id, note:'<b>팀에 도움을 요청했어요.</b><br>팀 알림에 한 번 올라갔어요.'}]]);
+      if (S.scen && S.scen.id==='C') finish(); renderGuide();
+      break; }
     case 'openteam': go('team', {team:d.id}); break;
     case 'create': S.flags.create = null; go('create'); break;
     case 'ctype': S.flags.create.type = d.v; S.flags.create.name = document.getElementById('c-name').value; S.flags.create.due = document.getElementById('c-due').value; render(); break;
@@ -822,18 +996,18 @@ document.addEventListener('click', function(e){
       var name = document.getElementById('c-name').value.trim(), due = document.getElementById('c-due').value;
       if (!name){ document.getElementById('c-err').hidden = false; document.getElementById('c-name').focus(); return; }
       var dueD = due ? fromIso(due) : addDays(TODAY, 14);
-      if (dueD <= TODAY) dueD = addDays(TODAY, 7);
-      var tpl = {'발표':['자료조사','초안','완성'], '보고서':['목차','초안','완성'], '개발':['설계','구현','테스트'], '직접 정하기':['1단계']}[S.flags.create.type];
+      if (dueD <= TODAY){ document.getElementById('c-due-err').hidden = false; document.getElementById('c-due').focus(); return; }
+      var tpl = {'발표':['자료조사','초안','완성'], '보고서':['목차','초안','완성'], '개발':['설계','구현','테스트'], '기타':[]}[S.flags.create.type];
       var span = Math.round((dueD - TODAY)/86400000), stages = tpl.map(function(lb, i){ var off = Math.max(1, Math.round(span * (i+1) / (tpl.length+0.5))); var dd = addDays(TODAY, off); if (dd >= dueD) dd = addDays(dueD, -1); return {label:lb, due:dd}; });
-      var nt = {id:'new' + Date.now().toString(36).slice(-4), name:name, due:dueD, size:4, isNew:true, stages:stages, members:[{name:S.me, part:'기획 총괄', cells:stages.map(function(){ return {s:'todo'}; })}]};
+      var nt = {id:'new' + Date.now().toString(36).slice(-4), name:name, due:dueD, size:4, isNew:true, custom:!tpl.length, openParts:[], stages:stages, members:[{name:S.me, part:'기획 총괄', cells:stages.map(function(){ return {s:'todo'}; })}]};
       S.teams.unshift(nt); S.teamAlerts[nt.id] = [];
-      go('share', {team:nt.id}); break; }
-    case 'kakao': toast(d.msg); if (S.scen && S.scen.id==='D') advance('alerts2'); renderGuide(); break;
-    case 'copy': toast('팀 링크를 복사했어요'); break;
+      if (!tpl.length) go('stages', {team:nt.id}); else go('share', {team:nt.id}); break; }
+    case 'kakao': toast(d.msg); if (S.scen && S.scen.id==='D') advance('alerts2'); if (S.scen && S.scen.id==='B' && S.cur.p.posted) finish(); renderGuide(); break;
+    case 'copy': toast('복사했어요. 단톡방에 붙여 넣은 뒤 ‘다음: 단계 정하기’를 눌러 주세요.'); break;
     case 'tostages': go('stages', {team:d.team}); break;
     case 'sdate': break;
-    case 'sdel': { t = team(S.cur.p.team); collectStages(t); t.stages.splice(+d.i, 1); t.members.forEach(function(m){ m.cells.splice(+d.i, 1); }); render(); break; }
-    case 'sadd': { t = team(S.cur.p.team); collectStages(t); var last = t.stages[t.stages.length-1].due; var nd = addDays(last, 1); if (nd >= t.due) nd = addDays(t.due, -1); t.stages.push({label:'검토', due:nd}); t.members.forEach(function(m){ m.cells.push({s:'todo'}); }); render(); break; }
+    case 'sdel': { t = team(S.cur.p.team); collectStages(t); keepPart(t); t.stages.splice(+d.i, 1); t.members.forEach(function(m){ m.cells.splice(+d.i, 1); }); render(); break; }
+    case 'sadd': { t = team(S.cur.p.team); collectStages(t); keepPart(t); var last = t.stages.length ? t.stages[t.stages.length-1].due : TODAY; var nd = addDays(last, 1); if (nd >= t.due) nd = addDays(t.due, -1); t.stages.push({label:t.custom ? (t.stages.length+1) + '단계' : '검토', due:nd}); t.members.forEach(function(m){ m.cells.push({s:'todo'}); }); render(); break; }
     case 'editstages': go('stages', {team:d.team, edit:true}); break;
     case 'files': go('files', {team:d.team}); break;
     case 'contrib': S.flags.roleEdit = null; go('contrib', {team:d.team}); break;
@@ -848,31 +1022,32 @@ document.addEventListener('click', function(e){
     case 'savestages': {
       t = team(d.team); var before = t.stages.map(function(x){ return x.label + md(x.due); }).join();
       if (!collectStages(t)) return;
-      var part2 = document.getElementById('mypart').value.trim(); if (part2) meIn(t).part = part2;
+      if (!t.stages.length){ stagesErr('단계를 하나 이상 만들어 주세요.'); return; }
+      savePart(t);
       var changed = before !== t.stages.map(function(x){ return x.label + md(x.due); }).join();
       if (changed) (S.teamAlerts[t.id] = S.teamAlerts[t.id] || []).unshift({k:'ext', text:S.me + '님이 단계 기한을 고쳤어요. ' + t.stages.map(function(x){ return x.label + ' ~' + md(x.due); }).join(', '), when:'방금'});
       back(); toast(changed ? '저장했어요. 바뀐 기한을 팀에 알렸어요.' : '저장했어요.'); break; }
     case 'startteam': {
       t = team(d.team); if (!collectStages(t)) return;
-      var part = document.getElementById('mypart').value.trim(); if (part) meIn(t).part = part;
+      if (!t.stages.length){ stagesErr('단계를 하나 이상 만들어 주세요.'); return; }
+      savePart(t);
       resetTo([['home'], ['team', {team:t.id}]]); toast('팀을 시작했어요. 팀원이 들어오면 여기에 보여요.'); break; }
     case 'dojoin': {
       var nm = document.getElementById('j-name').value.trim();
       if (!nm){ document.getElementById('j-err').hidden = false; return; }
-      if (nm !== '이수아'){ var mk = team('mkt'), mm = meIn({members:mk.members.filter(function(x){return x.name===nm;})}); if (!mm){ S.me = nm; mk.members.push({name:nm, part:'파트 미정', cells:mk.stages.map(function(){ return {s:'todo'}; })}); } else S.me = nm; }
+      if (nm !== '이수아'){ var mk = team('mkt'), mm = meIn({members:mk.members.filter(function(x){return x.name===nm;})}); if (!mm){ S.me = nm; mk.members.push({name:nm, part:'', cells:mk.stages.map(function(){ return {s:'todo'}; })}); } else S.me = nm; }
       resetTo([['home'], ['team', {team:'mkt'}]]); toast('들어왔어요! 이 기기에서는 다음부터 바로 열려요.'); break; }
     case 'detail': go('detail', {team:d.team, m:+d.m}); break;
-    case 'preview': go('preview', {team:d.team, m:+d.m, i:+d.i}); break;
-    case 'check': { var c = t.members[+d.m].cells[+d.i]; if (c.checks.indexOf(S.me) < 0) c.checks.push(S.me); render(); toast(t.members[+d.m].name + '님에게 ‘확인했어요’가 보여요'); break; }
+    case 'preview': if (S.flags.broken){ S.flags.brokenAt = d.m + '-' + d.i; render(); toast(t.members[+d.m].name + '님에게 다시 올려 달라고 알렸어요'); break; } go('preview', {team:d.team, m:+d.m, i:+d.i}); break;
+    case 'check': { var c = t.members[+d.m].cells[+d.i], cn = (document.getElementById('ck-note') || {}).value; cn = (cn || '').trim(); if (c.checks.indexOf(S.me) < 0) c.checks.push(S.me); if (cn){ c.notes = c.notes || {}; c.notes[S.me] = cn; } S.flags.checkOpen = null; render(); toast(t.members[+d.m].name + '님에게 ‘확인했어요’' + (cn ? '와 한 줄이' : '가') + ' 보여요'); break; }
     case 'alerts': go('alerts', {team:d.team, tab:'team'}); break;
     case 'tab': S.cur.p.tab = d.v; render(); break;
-    case 'sharestatus': { var tt = team(d.team); toast('단톡방에 오늘 현황을 보냈어요. ' + doneCount(tt) + '칸 올림' + (lateCount(tt) ? ', 기한 지남 ' + lateCount(tt) + '칸' : '') + ' (시연)'); break; }
     case 'reshare': go('share', {team:d.team, again:true}); break;
     case 'upload': S.flags.upload = null; go('upload', {team:d.team, i: d.i != null ? +d.i : null}); break;
     case 'ustage': saveUpload(); S.flags.upload.stage = +d.i; render(); break;
     case 'pickfile': {
       saveUpload(); var f = S.flags.upload, tm = team(S.cur.p.team);
-      var big = S.scen && S.scen.id==='E';
+      var big = (S.scen && S.scen.id==='E') || !!S.flags.bigFile;
       var names = {'이수아':'4P_분석_초안.docx', '한도윤':'발표자료_초안.pptx', '김민수':'시장조사_최종.docx'};
       f.file = big ? '발표자료_최종_영상포함.pptx (82MB)' : (names[S.me] || '결과물.pdf') ; f.big = big;
       if (S.scen && S.scen.id==='B') { if (!f.memo) f.memo = '4P 중 가격·유통까지 썼어요. 촉진은 내일 보강할게요.'; }
@@ -881,15 +1056,15 @@ document.addEventListener('click', function(e){
       saveUpload(); var f2 = S.flags.upload, tm2 = team(d.team), me = meIn(tm2);
       if (!f2.file && !f2.link && !f2.memo){ document.getElementById('u-err').hidden = false; return; }
       if (f2.file && f2.big){ go('errupload', {team:d.team}); if (S.scen) advance('errupload'); renderGuide(); return; }
-      var cc = me.cells[f2.stage];
-      me.cells[f2.stage] = {s:'done', at:TODAY, file:f2.file || '', link:f2.link || '', memo:f2.memo || '', checks:[]};
+      var cc = me.cells[f2.stage], prev = cc.s==='done' ? (cc.prev || []).concat([{file:cc.file || cc.link || '메모', at:cc.at}]) : [];
+      me.cells[f2.stage] = {s:'done', at:TODAY, file:f2.file || '', link:f2.link || '', memo:f2.memo || '', checks:[], wip:!!f2.wip, prev:prev};
       // 내 알림 정리
       if (S.mine[tm2.id]) S.mine[tm2.id] = S.mine[tm2.id].filter(function(x){ return x.stage !== f2.stage; });
-      var label = tm2.stages[f2.stage].label;
-      S.flags.upload = null;
-      resetTo([['home'], ['team', {team:tm2.id}]]);
-      toast('‘' + label + '’ 칸에 올렸어요. 팀 화면에 바로 보여요.');
-      if (S.scen && (S.scen.id==='B' || S.scen.id==='E')) finish(); renderGuide();
+      var label = tm2.stages[f2.stage].label, wip = !!f2.wip;
+      S.flags.upload = null; S.flags.postShare = false; S.flags.bigFile = false;
+      resetTo([['home'], ['team', {team:tm2.id, posted:{label:label, wip:wip, i:f2.stage}}]]);
+      if (S.scen && S.scen.id==='B') advance('posted');
+      if (S.scen && S.scen.id==='E') finish(); renderGuide();
       break; }
     case 'retry': S.flags.upload.file = ''; S.flags.upload.big = false; back(); break;
     case 'linkmode': S.flags.upload.file = ''; S.flags.upload.big = false; S.flags.upload.link = 'https://drive.google.com/file/d/발표자료_최종'; S.flags.upload.focusLink = true; back(); toast('링크를 넣어 두었어요. 확인하고 올려 주세요.'); break;
@@ -897,22 +1072,17 @@ document.addEventListener('click', function(e){
     case 'edays': saveExtend(); S.flags.extend.days = +d.v; render(); break;
     case 'ereason': saveExtend(); S.flags.extend.reason = d.v; render(); break;
     case 'doextend': {
-      saveExtend(); var fx = S.flags.extend, tx = team(d.team), mx = meIn(tx), ix = nextIdx(mx);
+      saveExtend(); var fx = S.flags.extend, tx = team(d.team), mx = meIn(tx), xx = extendInfo(tx, mx), ix = xx.i;
       if (!fx.reason){ document.getElementById('e-err').hidden = false; return; }
-      var basex = cellDue(tx,mx,ix), ndx = addDays(basex, fx.days), help = fx.reason==='막혔어요, 도움 필요' || ndx > tx.due;
-      var lab = tx.stages[ix].label;
-      if (help){
-        S.teamAlerts[tx.id].unshift({k:'help', text:S.me + '님이 ‘' + lab + '’ 칸에서 도움을 요청했어요.' + (fx.memo ? ' “' + fx.memo + '”' : ''), when:'방금'});
-        toast('팀에 도움 요청을 알렸어요');
-      } else {
-        mx.cells[ix] = {s:'ext', due:ndx, reason:fx.reason};
-        S.teamAlerts[tx.id].unshift({k:'ext', text:S.me + '님이 ‘' + lab + '’ 칸을 ' + fx.days + '일 연장했어요. 새 기한은 ' + md(ndx) + '이에요.' + (fx.memo ? ' “' + fx.memo + '”' : ''), reason:fx.reason, when:'방금'});
-        toast('‘' + lab + '’ 기한을 ' + md(ndx) + '로 바꾸고 팀에 알렸어요');
-      }
+      if (xx.help){ go('help', {team:tx.id}); break; }
+      var ndx = xx.nd, lab = tx.stages[ix].label, prevDays = mx.cells[ix].s==='ext' ? (mx.cells[ix].days || 0) : 0;
+      mx.cells[ix] = {s:'ext', due:ndx, reason:fx.reason, days:prevDays + fx.days};
+      S.teamAlerts[tx.id].unshift({k:'ext', text:S.me + '님이 ‘' + lab + '’ 칸을 ' + fx.days + '일 연장했어요. 새 기한은 ' + dueTime(ndx) + '예요.' + (fx.memo ? ' “' + fx.memo + '”' : ''), reason:fx.reason, when:'방금'});
       if (S.mine[tx.id]) S.mine[tx.id] = S.mine[tx.id].filter(function(x){ return x.stage !== ix; });
-      S.flags.extend = null;
-      resetTo([['home'], ['team', {team:tx.id}]]);
-      if (S.scen && S.scen.id==='C') advance('team'); renderGuide();
+      (S.mine[tx.id] = S.mine[tx.id] || []).unshift({k:'info', text:'‘' + lab + '’ 새 기한 ' + dueTime(ndx) + ' 6시간 전에 다시 알려 드릴게요.', when:'방금'});
+      S.flags.extend = null; S.flags.demoExt = false; S.flags.demoLate = false;
+      resetTo([['home'], ['team', {team:tx.id, note:'<b>팀에 알렸어요.</b><br>새 기한 ' + esc(dueTime(ndx)) + ' · 6시간 전에 다시 알려 드릴게요.'}]]);
+      if (S.scen && S.scen.id==='C'){ advance('team'); finish(); } renderGuide();
       break; }
   }
 });
@@ -941,7 +1111,10 @@ function collectStages(t){
   return ok;
 }
 function saveUpload(){ var f = S.flags.upload; if (!f) return; var l = document.getElementById('u-link'), m = document.getElementById('u-memo'); if (l) f.link = l.value.trim(); if (m) f.memo = m.value.trim(); }
-function saveExtend(){ var f = S.flags.extend; if (!f) return; var m = document.getElementById('e-memo'); if (m) f.memo = m.value.trim(); }
+function keepPart(t){ var el = document.getElementById('mypart'); if (el) meIn(t).partDraft = el.value; }
+function savePart(t){ var m = meIn(t), el = document.getElementById('mypart'), v = el ? el.value.trim() : m.part; if (v){ m.part = v; var k = (t.openParts||[]).indexOf(v); if (k >= 0) t.openParts.splice(k, 1); } m.partDraft = null; }
+function stagesErr(msg){ var e = document.getElementById('s-err'); if (e){ e.hidden = false; e.textContent = msg; } }
+function saveExtend(){ var f = S.flags.extend; if (!f) return; var m = document.getElementById('e-memo') || document.getElementById('h-memo'); if (m) f.memo = m.value.trim(); }
 
 // 시나리오 단계 키를 화면 이동에 맞춰 보정
 var _go = go;
@@ -950,12 +1123,11 @@ go = function(name, p, opt){
   var sc = S.scen; if (!sc) return;
   var map = {A:{create:'create', share:'share', stages:'stages', team:'team'},
              B:{team: S.step >= 2 ? 'team2' : 'team', detail:'detail', upload:'upload'},
-             C:{extend:'extend'},
+             C:{extend:'extend', help:'extend'},
              D:{team:'team', alerts:'alerts', detail:'detail'},
              E:{home:'home', upload:'upload'},
              F:{team:'team', files:'files', contrib:'contrib', cchart:'cchart'}}[sc.id] || {};
   if (map[name]) advance(map[name]);
-  if (sc.id==='C' && name==='alerts' && S.step >= 2) advance('alerts2'), finish();
   if (sc.id==='A' && name==='team' && team(p.team) && team(p.team).isNew) {}
   renderGuide();
 };
