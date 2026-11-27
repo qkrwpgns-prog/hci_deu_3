@@ -491,7 +491,7 @@ V.stages = function(p){
   var h = top(p.edit ? '단계와 파트 고치기' : (t.stages.length ? '이렇게 나눠 볼까요?' : '단계를 만들어 주세요'), esc(t.name) + ', 팀 마감 ' + longDate(t.due));
   h += '<div class="scroll"><div class="sheet"><div class="sheet-h"><h2>단계 (모든 파트 공통)</h2></div><div class="pad" style="padding-top:4px"><p class="hint" style="margin:0 0 8px">' + (t.stages.length ? '팀 마감에서 거꾸로 기한을 나눴어요. 누구나 고칠 수 있어요.' : '‘기타’ 유형이라 단계가 비어 있어요. ‘단계 추가’로 하나씩 만들어 주세요.') + '</p>';
   t.stages.forEach(function(s, i){
-    h += '<div style="display:flex;align-items:center;gap:10px;border-top:1px solid var(--line);padding:8px 0"><span class="numc">' + (i+1) + '</span><span style="flex:1 1 auto;font-weight:600;font-size:16px">' + esc(s.label) + '</span><label class="sr" for="sd' + i + '">' + esc(s.label) + ' 기한</label><input class="field" style="width:148px;height:44px;font-size:15px" type="date" id="sd' + i + '" data-a="sdate" data-i="' + i + '" value="' + iso(s.due) + '"><button class="iconbtn" data-a="sdel" data-i="' + i + '" aria-label="' + esc(s.label) + ' 단계 빼기">✕</button></div>';
+    h += '<div style="display:flex;align-items:center;gap:10px;border-top:1px solid var(--line);padding:8px 0"><span class="numc">' + (i+1) + '</span><label class="sr" for="sn' + i + '">단계 ' + (i+1) + ' 이름</label><input class="field" style="flex:1 1 auto;min-width:0;height:44px;padding:0 10px;font-size:15px;font-weight:600" id="sn' + i + '" data-a="sname" maxlength="12" value="' + esc(s.label) + '"><label class="sr" for="sd' + i + '">' + esc(s.label) + ' 기한</label><input class="field" style="width:148px;height:44px;font-size:15px" type="date" id="sd' + i + '" data-a="sdate" data-i="' + i + '" value="' + iso(s.due) + '"><button class="iconbtn" data-a="sdel" data-i="' + i + '" aria-label="' + esc(s.label) + ' 단계 빼기">✕</button></div>';
   });
   h += '<button class="btn text small" style="margin-top:4px;padding:0" data-a="sadd">단계 추가</button><p class="err" id="s-err" hidden></p></div></div>';
   h += '<div class="sheet"><div class="sheet-h"><h2>파트</h2></div><div class="pad" style="padding-top:8px"><label class="label" for="mypart">내 파트</label><input class="field" id="mypart" placeholder="예: 4P 분석" value="' + esc(myPart) + '">';
@@ -1028,9 +1028,9 @@ document.addEventListener('click', function(e){
     case 'kakao': toast(d.msg); if (S.scen && S.scen.id==='D') advance('alerts2'); if (S.scen && S.scen.id==='B' && S.cur.p.posted) finish(); renderGuide(); break;
     case 'copy': toast('복사했어요. 단톡방에 붙여 넣은 뒤 ‘다음: 단계 정하기’를 눌러 주세요.'); break;
     case 'tostages': go('stages', {team:d.team}); break;
-    case 'sdate': break;
+    case 'sdate': case 'sname': break;
     case 'sdel': { t = team(S.cur.p.team); collectStages(t); keepPart(t); t.stages.splice(+d.i, 1); t.members.forEach(function(m){ m.cells.splice(+d.i, 1); }); render(); break; }
-    case 'sadd': { t = team(S.cur.p.team); collectStages(t); keepPart(t); var last = t.stages.length ? t.stages[t.stages.length-1].due : TODAY; var nd = addDays(last, 1); if (nd >= t.due) nd = addDays(t.due, -1); t.stages.push({label:t.custom ? (t.stages.length+1) + '단계' : '검토', due:nd}); t.members.forEach(function(m){ m.cells.push({s:'todo'}); }); render(); break; }
+    case 'sadd': { t = team(S.cur.p.team); collectStages(t); keepPart(t); var last = t.stages.length ? t.stages[t.stages.length-1].due : TODAY; var nd = addDays(last, 1); if (nd >= t.due) nd = addDays(t.due, -1); t.stages.push({label:t.custom ? (t.stages.length+1) + '단계' : '새 단계', due:nd}); t.members.forEach(function(m){ m.cells.push({s:'todo'}); }); render(); break; }
     case 'editstages': go('stages', {team:d.team, edit:true}); break;
     case 'files': go('files', {team:d.team}); break;
     case 'contrib': S.flags.roleEdit = null; go('contrib', {team:d.team}); break;
@@ -1121,17 +1121,18 @@ document.addEventListener('mouseover', ccTip);
 document.addEventListener('focusin', ccTip);
 document.addEventListener('touchstart', ccTip, {passive:true});
 document.addEventListener('change', function(e){
-  if (e.target.matches('[data-a="sdate"]') && S.cur.name==='stages') collectStages(team(S.cur.p.team));
+  if (e.target.matches('[data-a="sdate"],[data-a="sname"]') && S.cur.name==='stages') collectStages(team(S.cur.p.team));
 });
 function collectStages(t){
-  var ok = true, prev = new Date(2000, 0, 1), err = document.getElementById('s-err');
+  var ok = true, nameOk = true, prev = new Date(2000, 0, 1), err = document.getElementById('s-err');
   t.stages.forEach(function(s, i){
+    var ne = document.getElementById('sn' + i); if (ne){ var nv = ne.value.trim(); if (nv) s.label = nv; else nameOk = false; }
     var el = document.getElementById('sd' + i); if (!el || !el.value) return;
     var dd = fromIso(el.value);
     if (dd <= prev || dd > t.due){ ok = false; } else { s.due = dd; prev = dd; }
   });
-  if (err){ err.hidden = ok; err.textContent = '기한은 앞 단계보다 늦고 팀 마감(' + md(t.due) + ')보다 빨라야 해요.'; }
-  return ok;
+  if (err){ err.hidden = ok && nameOk; err.textContent = !nameOk ? '단계 이름을 적어 주세요.' : '기한은 앞 단계보다 늦고 팀 마감(' + md(t.due) + ')보다 빨라야 해요.'; }
+  return ok && nameOk;
 }
 function saveUpload(){ var f = S.flags.upload; if (!f) return; var l = document.getElementById('u-link'), m = document.getElementById('u-memo'); if (l) f.link = l.value.trim(); if (m) f.memo = m.value.trim(); }
 function keepPart(t){ var el = document.getElementById('mypart'); if (el) meIn(t).partDraft = el.value; }
