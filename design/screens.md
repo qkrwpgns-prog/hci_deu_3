@@ -1,6 +1,6 @@
 # 화면 순서표
 
-프로토타입: `design/prototype.html` (`prototype/index.html`과 같은 파일). 브라우저로 열면 오른쪽 안내판 맨 위에 지금 화면의 ID가 보여요.
+프로토타입: `design/prototype.html` (예전 `prototype/index.html`을 옮김). 브라우저로 열면 오른쪽 안내판 맨 위에 지금 화면의 ID가 보여요.
 갈림길 모습은 각 화면 아래쪽 "다른 모습 보기 (시연용)" 버튼으로 바꿔 볼 수 있어요.
 
 | 순서 | ID | 화면 이름 | 구분 | 팀 판단 | 이유 | 상태 |

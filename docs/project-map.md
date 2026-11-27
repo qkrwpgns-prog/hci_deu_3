@@ -11,7 +11,7 @@
 | 퍼소나 | `docs/personas.md` (정리본 PDF: `docs/persona-report-v6.pdf`) |
 | 인터뷰, 조사 | `docs/interviews/` (P1–P3 답변, P4–P7 인터뷰, P8–P10 전사 PDF, P8–P11 전사 md), `data/transcripts.md`, `data/cards.csv`(카드 238장), `data/variables.csv`, `data/variable_evidence.csv`, `data/participants.csv`, `data/README.md` |
 | 메뉴 구조 | `docs/기획서_v2.md` 7-1 메뉴 구조, 7-3 화면 목록, 12-2 추가 화면 |
-| 와이어프레임 | `docs/hifi/` 화면 캡처 18장, 클릭 프로토타입 `prototype/index.html`, 와이어프레임 캔버스(아티팩트) https://claude.ai/artifact/Kfd6hboNdQe5GPjPf5TeEm |
+| 와이어프레임 | `docs/hifi/` 화면 캡처 18장, 클릭 프로토타입 `design/prototype.html`, 와이어프레임 캔버스(아티팩트) https://claude.ai/artifact/Kfd6hboNdQe5GPjPf5TeEm |
 | 기타 | 디자인 참고 `docs/DESIGN.md`, `docs/DESIGN_1.md` (현재 적용본은 DESIGN_1) |
 
 ## 핵심 기능 (기획서 그대로)
