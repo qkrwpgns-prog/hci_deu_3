@@ -4,13 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>어디까지 했어? 프로토타입</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
 /* todo mate 스타일: 흰 종이 위 흑백 크롬, 색은 팀(카테고리) 색에서만. 진행 칸은 네잎 클로버로 채워진다. 그림자 없음, 칩·버튼은 완전한 필. */
 :root{
   --paper:#FFFFFF; --pill:#F2F2F2; --button:#F5F5F5; --avatar:#EEEEEE; --empty:#D4D8DB; --handle:#CDCDCD; --lock:#9F9EA3;
   --black:#000000; --ink:#1A1A1A; --text-2:#6E6E6E; --scrim:rgba(0,0,0,.54);
-  --sunday:#F04452; --saturday:#3B7CF6; --tooltip:#FBF3C4; --tooltip-ink:#7F6E40;
+  --sunday:#F04452; --saturday:#3B7CF6; --tooltip:#FBF3C4; --tooltip-ink:#665830;
+  /* 글자·아이콘 원에 쓰는 진한 기능색 (흰 바탕·흰 기호 대비 4.5 이상). 클로버 채움은 원래 색 */
+  --red-text:#C8202F; --orange-text:#A84E15; --orchid-strong:#9A4AA3; --green-strong:#2F7D4A;
   --cat:#1E2F98; /* 현재 팀 색 (render에서 팀마다 바뀜) */
   --act-repeat:#EB7B2F; --act-routine:#4F57D4; --act-time:#C678CE; --act-photo:#5AB275; --act-subtask:#55A992; --act-info:#363636;
   --f:Pretendard,'Pretendard Variable',Roboto,-apple-system,'Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
@@ -18,8 +19,8 @@
   --canvas:var(--pill); --card:var(--paper); --slate:var(--text-2); --iron:var(--text-2); --sub:var(--text-2); --fog:var(--text-2);
   --mist:var(--pill); --pebble:var(--pill); --dust:var(--pill); --line:var(--pill); --dash:var(--pill);
   --violet:var(--black); --violet-ink:var(--ink); --violet-wash:var(--pill); --periwinkle:var(--pill); --lavender:var(--pill); --tint:var(--pill); --sticker:var(--pill);
-  --mint:var(--pill); --sky:var(--pill); --aqua:var(--pill); --peach:var(--pill); --peach-ink:#C4601C;
-  --late-bg:var(--pill); --late:var(--sunday);
+  --mint:var(--pill); --sky:var(--pill); --aqua:var(--pill); --peach:var(--pill); --peach-ink:var(--orange-text);
+  --late-bg:var(--pill); --late:var(--red-text);
   --accent:var(--black); --focus:var(--black); --sheet:var(--paper); --ink2:var(--ink);
   --clover-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='8' cy='8' r='6.2'/%3E%3Ccircle cx='16' cy='8' r='6.2'/%3E%3Ccircle cx='8' cy='16' r='6.2'/%3E%3Ccircle cx='16' cy='16' r='6.2'/%3E%3C/svg%3E") center/contain no-repeat;
   color-scheme:light;
@@ -46,9 +47,9 @@ a{color:var(--ink)}
 .top .ttl{flex:1 1 auto;min-width:0}
 .top h1{margin:0;font-weight:700;font-size:16px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .top .sub{font-size:12px;line-height:1.45;color:var(--text-2)}
-.iconbtn{width:40px;height:40px;border:none;background:transparent;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;flex:none;color:var(--black)}
+.iconbtn{width:44px;height:44px;border:none;background:transparent;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative;flex:none;color:var(--black)}
 .iconbtn:active{background:var(--pill)}
-.badge{position:absolute;top:2px;right:0;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:var(--sunday);color:#fff;font:700 11px/18px var(--f);text-align:center;box-shadow:0 0 0 2px var(--paper)}
+.badge{position:absolute;top:0;right:0;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:var(--red-text);color:#fff;font:700 12px/20px var(--f);text-align:center;box-shadow:0 0 0 2px var(--paper)}
 
 /* 큰 제목 */
 .big{padding:16px 24px 4px}
@@ -67,7 +68,7 @@ a{color:var(--ink)}
 .sec-h h2{margin:0;font-weight:800;font-size:18px}
 .sec-h span{font-size:12px;color:var(--text-2)}
 .hint{font-size:13px;line-height:1.5;color:var(--text-2);margin:8px 0 0}
-.err{font-size:14px;line-height:1.5;color:var(--sunday);margin:8px 0 0;font-weight:500}
+.err{font-size:14px;line-height:1.5;color:var(--red-text);margin:8px 0 0;font-weight:500}
 
 /* 줄 */
 .line{display:flex;align-items:center;gap:12px;width:100%;padding:14px 0;border:none;background:transparent;text-align:left;border-top:1px solid var(--pill)}
@@ -82,9 +83,9 @@ button.line:active{background:var(--pill)}
 .av{width:36px;height:36px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font:700 14px/1 var(--f);color:var(--ink);background:var(--avatar)}
 .av.sm{width:28px;height:28px;font-size:12px}
 .stack{display:flex}
-.stack .av{width:28px;height:28px;font-size:11px;border:2px solid var(--paper);margin-left:-8px}
+.stack .av{width:28px;height:28px;font-size:12px;border:2px solid var(--paper);margin-left:-8px}
 .stack .av:first-child{margin-left:0}
-.me{display:inline-flex;align-items:center;margin-left:6px;height:18px;padding:0 7px;border-radius:999px;background:var(--black);color:#fff;font:700 11px/18px var(--f);vertical-align:2px}
+.me{display:inline-flex;align-items:center;margin-left:6px;height:20px;padding:0 7px;border-radius:999px;background:var(--black);color:#fff;font:700 12px/20px var(--f);vertical-align:2px}
 
 /* 보드: 클로버 칸 (todo mate 달력 날짜 셀처럼) */
 .board-h,.brow{display:grid;align-items:center;column-gap:6px}
@@ -99,10 +100,10 @@ button.line:active{background:var(--pill)}
 .who .nm{min-width:0}
 .slot{display:block}
 .sd{display:none}
-.stamp{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;font-weight:700;line-height:1.2;color:var(--ink);white-space:nowrap}
-.stamp small{font-size:10px;font-weight:400;color:var(--text-2)}
+.stamp{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;font-weight:700;line-height:1.2;color:var(--ink);white-space:nowrap}
+.stamp small{font-size:12px;font-weight:400;color:var(--text-2)}
 .stamp.todo{color:var(--text-2);font-weight:500}
-.stamp.late{color:var(--sunday)}
+.stamp.late{color:var(--red-text)}
 .stamp.ext{color:var(--peach-ink)}
 .stamp.done{color:var(--cat)}
 .stk{display:none}
@@ -130,7 +131,7 @@ button.line:active{background:var(--pill)}
 .btn{min-height:52px;border-radius:999px;border:none;background:var(--button);color:var(--ink);font-size:15px;font-weight:600;padding:0 22px;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
 .btn.primary{background:var(--black);color:#fff;font-weight:700}
 .btn.grow{flex:1 1 0}.btn.grow2{flex:2 1 0}
-.btn.small{min-height:40px;font-size:14px;font-weight:500;padding:0 14px;background:var(--pill)}
+.btn.small{min-height:44px;font-size:14px;font-weight:500;padding:0 14px;background:var(--pill)}
 .btn.small.primary{background:var(--black);color:#fff;font-weight:700}
 .btn.text{background:transparent;color:var(--text-2);font-weight:500;padding:0 4px;min-height:44px}
 .btn[disabled]{opacity:.35;cursor:default}
@@ -143,7 +144,7 @@ button.line:active{background:var(--pill)}
 textarea.field{height:92px;padding:12px 14px;resize:none;line-height:1.5}
 .field:focus{outline:none;border-bottom-color:var(--cat)}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
-.chip{min-height:40px;border:none;border-radius:999px;background:var(--pill);padding:0 16px;font-size:14px;font-weight:500;text-align:left}
+.chip{min-height:44px;border:none;border-radius:999px;background:var(--pill);padding:0 16px;font-size:14px;font-weight:500;text-align:left}
 .chip[aria-pressed="true"]{background:var(--black);color:#fff;font-weight:700}
 .chip[aria-pressed="true"] .hint{color:#CFCFCF}
 .chip[disabled]{opacity:.4}
@@ -154,16 +155,16 @@ textarea.field{height:92px;padding:12px 14px;resize:none;line-height:1.5}
 
 /* 알림 */
 .seg{display:flex;gap:6px;margin:8px 20px 0}
-.seg button{height:40px;flex:1 1 0;border:none;border-radius:999px;background:var(--pill);font-size:14px;color:var(--ink);font-weight:500}
+.seg button{height:44px;flex:1 1 0;border:none;border-radius:999px;background:var(--pill);font-size:14px;color:var(--ink);font-weight:500}
 .seg button[aria-selected="true"]{background:var(--black);color:#fff;font-weight:700}
 .alert{display:flex;gap:12px;padding:16px 0;border-top:1px solid var(--pill)}
 .sheet .alert:first-child{border-top:none}
 .alert .ic{width:32px;height:32px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font:700 12px/1 var(--f);color:#fff}
-.ic.late{background:var(--sunday)}
-.ic.ext{background:var(--act-repeat)}
-.ic.help{background:var(--act-time)}
-.ic.ack{background:var(--act-photo)}
-.ic.me{background:var(--black);white-space:nowrap;font-size:11px}
+.ic.late{background:var(--red-text)}
+.ic.ext{background:var(--orange-text)}
+.ic.help{background:var(--orchid-strong)}
+.ic.ack{background:var(--green-strong)}
+.ic.me{background:var(--black);white-space:nowrap;font-size:12px}
 .alert .body{flex:1 1 auto;min-width:0}
 .alert p{margin:0 0 4px;font-size:15px;line-height:1.55}
 .alert .when{font-size:12px;color:var(--text-2)}
@@ -195,7 +196,7 @@ textarea.field{height:92px;padding:12px 14px;resize:none;line-height:1.5}
 .errbox{margin:12px 20px 0;padding:28px 4px}
 .errbox h2{font-weight:800;font-size:20px;margin:0 0 8px}
 .errbox p{margin:0;font-size:15px;line-height:1.6;color:var(--text-2)}
-.errmark{width:48px;height:48px;border-radius:50%;background:var(--sunday);color:#fff;display:flex;align-items:center;justify-content:center;font:800 22px/1 var(--f);margin-bottom:18px}
+.errmark{width:48px;height:48px;border-radius:50%;background:var(--red-text);color:#fff;display:flex;align-items:center;justify-content:center;font:800 22px/1 var(--f);margin-bottom:18px}
 
 /* 토스트 */
 .toast{position:absolute;left:20px;right:20px;bottom:96px;background:var(--ink);color:#fff;padding:14px 20px;font-size:14px;line-height:1.5;border-radius:20px;opacity:0;transform:translateY(8px);transition:opacity .2s,transform .2s;pointer-events:none;z-index:5}
@@ -320,9 +321,9 @@ var SCEN = [
   {id:'B', me:'이수아', title:'팀원 이수아, 남의 진행을 보고 초안을 올린다', why:'“다른 사람들이 어디까지 했는지 보이면…” (P6-64b)', start:['join'],
     steps:[['join','‘팀 들어가기’를 누르세요'],['team','김민수 줄을 눌러 결과물을 보세요'],['detail','초안을 열어 보고 ‘확인했어요’ 누른 뒤 뒤로'],['team2','‘내 결과물 올리기’'],['upload','파일을 고르고 ‘초안’ 칸에 올리기'],['posted','올린 직후 화면에서 ‘단톡에 알리기’ (선택)']]},
   {id:'C', me:'한도윤', title:'팀원 한도윤, 기한 하루 전, 사유를 골라 연장한다', why:'“안 된다는 말을 하기 편했으면” (P6-64a), 새벽 4시 제출 (P5-40)', start:['alerts', {tab:'mine', team:'mkt'}],
-    steps:[['alerts','나에게만 온 알림에서 ‘연장 요청하기’'],['extend','사유를 고르고 ‘연장하고 팀에 알리기’ (‘막혔어요’를 고르면 도움 요청으로 가요)'],['team','내 칸이 ‘연장’과 새 기한으로 바뀐 걸 확인']]},
+    steps:[['alerts','나에게만 온 알림에서 ‘연장 요청’'],['extend','사유를 고르고 ‘연장하고 팀에 알리기’ (‘막혔어요’를 고르면 도움 요청으로 가요)'],['team','내 칸이 ‘연장’과 새 기한으로 바뀐 걸 확인']]},
   {id:'D', me:'김민수', title:'팀장 김민수, 기한 지남 알림을 단톡에 공유한다', why:'“저요. 늘 저예요.” (P4-52) 공유는 누구나', start:['home'],
-    steps:[['home','‘마케팅원론 기획서’를 누르세요'],['team','종 아이콘(알림)을 누르세요'],['alerts','위쪽 ‘카톡 단톡방으로 공유’'],['alerts2','‘정예린님 파트 보기’를 누르세요'],['detail','‘일정 다시 잡기’로 새 기한을 고르세요']]},
+    steps:[['home','‘마케팅원론 기획서’를 누르세요'],['team','종 아이콘(알림)을 누르세요'],['alerts','위쪽 ‘카톡으로 보내기’'],['alerts2','‘정예린님 파트 보기’를 누르세요'],['detail','‘일정 다시 잡기’로 새 기한을 고르세요']]},
   {id:'E', me:'이수아', title:'오류: 잘린 링크와 너무 큰 파일', why:'빈 화면에서 멈추지 않게', start:['errlink'],
     steps:[['errlink','단톡방용 문구를 복사하고 ‘내 팀 목록으로’'],['home','‘마케팅원론 기획서’에서 ‘내 결과물 올리기’'],['upload','파일 선택(큰 파일) 후 올리기'],['errupload','‘링크로 올리기’ 후 다시 올리기']]},
   {id:'F', me:'김민수', title:'팀장 김민수, 제출 전에 최종본 확인과 기여 기록을 본다', why:'“누가 언제 뭘 했는지 기록이 자동으로 남았으면” (P4-60a)', start:['home'],
@@ -438,7 +439,7 @@ V.start = function(){
 
 V.home = function(){
   var ts = S.flags.emptyHome ? [] : myTeams();
-  var h = '<header class="top" style="padding-left:20px"><span class="logo" aria-hidden="true"></span><div class="ttl" style="margin-left:8px"><h1 style="font-size:16px">어디까지 했어?</h1></div>' + av(S.me, PERSONA_COL[S.me] || '#E7ECFF') + '</header>';
+  var h = '<header class="top" style="padding-left:20px"><span class="logo" aria-hidden="true"></span><div class="ttl" style="margin-left:8px"><h1 style="font-size:16px">어디까지 했어?</h1></div>' + av(S.me, PERSONA_COL[S.me]) + '</header>';
   h += '<div class="scroll"><div class="big" style="padding-top:12px"><h1><b>' + esc(S.me.slice(1)) + '님,</b><br>' + (ts.length ? '조별과제 ' + ts.length + '개를 하고 있어요' : '아직 함께하는 조별과제가 없어요') + '</h1></div>';
   if (!ts.length){
     h += '<div class="empty"><div class="ghost-row" aria-hidden="true"><i></i><i></i><i></i></div><h2>첫 팀을 만들어 볼까요?</h2><p>팀을 만들고 링크를 단톡방에 올리면 팀원이 이름만 적고 들어와요. 팀원에게 받은 링크가 있으면 새로 만들지 말고 그 링크로 들어가세요.</p><button class="btn primary" style="margin-top:20px;width:100%" data-a="create">새 팀 만들기</button></div>';
@@ -451,7 +452,7 @@ V.home = function(){
     h += '<div class="sec-h"><h2>내 팀</h2><span>' + ts.length + '개</span></div>';
     ts.forEach(function(t){
       var total = Math.max(1, t.members.length * t.stages.length), done = doneCount(t), late = lateCount(t);
-      var chip = late ? '<span style="background:var(--late-bg);color:var(--late);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:500">지남 ' + late + '</span>' : (done === 0 ? '<span style="background:var(--lavender);color:#4A4458;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:500">새 팀</span>' : '<span style="background:var(--mint);color:#1F3A0E;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:500">순조로움</span>');
+      var chip = late ? '<span style="background:var(--late-bg);color:var(--late);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:500">지남 ' + late + '</span>' : (done === 0 ? '<span style="background:var(--lavender);color:var(--ink);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:500">새 팀</span>' : '<span style="background:var(--mint);color:var(--ink);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:500">순조로움</span>');
       h += '<div class="sheet" style="--cat:' + teamCol(t.id) + '"><button class="line" data-a="openteam" data-id="' + t.id + '" style="padding:18px 0;align-items:flex-start">' + clover(done === total ? 'var(--cat)' : 'var(--empty)', done === total ? 'check' : '', 24) + '<div class="grow"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span class="t" style="color:var(--cat);font-weight:700">' + esc(t.name) + '</span>' + chip + '</div><div class="s">팀 마감 ' + longDate(t.due) + ', ' + dday(t.due) + '</div><div style="display:flex;align-items:center;gap:12px;margin-top:14px">' + stackOf(t) + '<div class="prog" style="flex:1 1 auto;background:var(--canvas)" aria-hidden="true"><i style="width:' + Math.round(done*100/total) + '%;background:var(--cat)"></i></div><span style="font-size:12px;color:var(--slate)">' + done + '/' + total + '</span></div></div></button></div>';
     });
   }
@@ -477,7 +478,7 @@ V.create = function(){
 V.share = function(p){
   var t = team(p.team), h = top(p.again ? '팀 링크 다시 보내기' : '팀을 만들었어요', esc(t.name), p.again ? {} : {backA:'tohome'});
   h += '<div class="scroll"><div class="sheet"><div class="pad"><p style="margin:0 0 14px;font-size:16px;line-height:1.55">이 링크를 단톡방에 올리면 팀원이 이름만 적고 들어와요.</p><div style="border-radius:14px;background:var(--paper);padding:14px 16px"><div class="hint" style="margin:0 0 4px">팀 링크</div><div style="font-size:17px;font-weight:600">eodi.kr/t/' + t.id + '-4f2a</div></div>';
-  h += '<div class="grid2" style="margin-top:10px"><button class="btn primary" data-a="sharekakao" data-team="' + t.id + '" data-again="' + (p.again ? 1 : 0) + '">' + IC.share + ' 카톡으로 보내기</button><button class="btn" data-a="copy">링크 복사</button></div>';
+  h += '<div class="grid2" style="margin-top:10px"><button class="btn primary" data-a="sharekakao" data-team="' + t.id + '" data-again="' + (p.again ? 1 : 0) + '">' + IC.share + ' 카톡으로 보내기</button><button class="btn" data-a="copy">복사</button></div>';
   h += '<p class="hint">' + (p.again ? '보내고 나면 팀 화면으로 돌아가요.' : '카톡으로 보내고 돌아오면 단계 정하기로 바로 넘어가요. 카톡이 안 되면 복사해서 붙여 넣어 주세요.') + '</p></div></div>';
   h += '<div class="sheet"><div class="pad"><div class="hint" style="margin:0 0 8px">단톡방에는 이렇게 보여요</div><div class="kakao"><b>[어디까지 했어?] ' + esc(t.name) + '</b><br>팀 마감 ' + longDate(t.due) + '<br>링크를 누르고 이름만 적어 주세요.</div></div></div></div>';
   h += p.again ? '<div class="bar"><button class="btn primary grow" data-a="back">팀 화면으로</button></div>' : '<div class="bar"><button class="btn grow" data-a="tostages" data-team="' + t.id + '">나중에 보내기</button><button class="btn primary grow" data-a="tostages" data-team="' + t.id + '">다음: 단계 정하기</button></div>';
@@ -503,7 +504,7 @@ V.stages = function(p){
     h += '<p class="hint">다른 사람 파트는 각자 고쳐요. 기한을 바꾸면 팀에 알림이 한 번 가요.</p>';
   }
   h += '</div></div></div>';
-  h += p.edit ? '<div class="bar"><button class="btn primary grow" data-a="savestages" data-team="' + t.id + '">저장하기</button></div>' : '<div class="bar"><button class="btn primary grow" data-a="startteam" data-team="' + t.id + '">이대로 시작하기</button></div>';
+  h += p.edit ? '<div class="bar"><button class="btn primary grow" data-a="savestages" data-team="' + t.id + '">저장</button></div>' : '<div class="bar"><button class="btn primary grow" data-a="startteam" data-team="' + t.id + '">이대로 시작하기</button></div>';
   return h;
 };
 
@@ -705,13 +706,13 @@ V.alerts = function(p){
       mineA.forEach(function(a){
         if (a.k==='ack'){ h += '<div class="alert"><span class="ic ack">✓</span><div class="body"><p>' + esc(a.text) + (a.note ? ' “' + esc(a.note) + '”' : '') + '</p><span class="when">' + esc(a.when) + '</span><div class="acts"><button class="btn small" data-a="detail" data-team="' + t.id + '" data-m="' + a.m + '">내 파트 보기</button></div></div></div>'; return; }
         if (a.k==='info'){ h += '<div class="alert"><span class="ic ext" style="font-size:12px">기한</span><div class="body"><p>' + esc(a.text) + '</p><span class="when">' + esc(a.when) + '</span></div></div>'; return; }
-        h += '<div class="alert"><span class="ic me">D-1</span><div class="body"><p><b>' + esc(a.text) + '</b></p>' + (a.sub ? '<div class="hint" style="margin:0 0 6px">' + esc(a.sub) + '</div>' : '') + '<span class="when">' + esc(a.when) + '</span><div class="acts"><button class="btn small" data-a="extend" data-team="' + t.id + '">연장 요청하기</button><button class="btn small primary" data-a="upload" data-team="' + t.id + '"' + (a.stage != null ? ' data-i="' + a.stage + '"' : '') + '>결과물 올리기</button></div></div></div>';
+        h += '<div class="alert"><span class="ic me">D-1</span><div class="body"><p><b>' + esc(a.text) + '</b></p>' + (a.sub ? '<div class="hint" style="margin:0 0 6px">' + esc(a.sub) + '</div>' : '') + '<span class="when">' + esc(a.when) + '</span><div class="acts"><button class="btn small" data-a="extend" data-team="' + t.id + '">연장 요청</button><button class="btn small primary" data-a="upload" data-team="' + t.id + '"' + (a.stage != null ? ' data-i="' + a.stage + '"' : '') + '>내 결과물 올리기</button></div></div></div>';
       });
       h += '</div>';
     }
   } else {
     var st = statusText(t);
-    h += '<div class="note"><div class="hint" style="margin:0 0 8px">단톡방에는 이렇게 보내져요</div><div class="kakao" style="background:var(--canvas);margin:0">' + esc(t.name) + ' 오늘 현황: ' + (st.length ? esc(st.join(' · ')) : '모두 기한 안에 하고 있어요') + '<br>eodi.kr/t/' + t.id + '-4f2a</div><div class="acts"><button class="btn small primary" data-a="kakao" data-msg="단톡방에 공유했어요. 시연이라 카톡은 열리지 않아요.">' + IC.share + ' 카톡 단톡방으로 공유</button><button class="btn small" data-a="copymsg">복사</button></div></div>';
+    h += '<div class="note"><div class="hint" style="margin:0 0 8px">단톡방에는 이렇게 보내져요</div><div class="kakao" style="background:var(--canvas);margin:0">' + esc(t.name) + ' 오늘 현황: ' + (st.length ? esc(st.join(' · ')) : '모두 기한 안에 하고 있어요') + '<br>eodi.kr/t/' + t.id + '-4f2a</div><div class="acts"><button class="btn small primary" data-a="kakao" data-msg="단톡방에 보냈어요. 시연이라 카톡은 열리지 않아요.">' + IC.share + ' 카톡으로 보내기</button><button class="btn small" data-a="copymsg">복사</button></div></div>';
     h += '<p class="hint" style="padding:6px 20px 0">누가 연장하거나 도움을 청할 때, 기한이 하루 지나도 소식이 없을 때만 팀에 알려요.</p>';
     if (!teamA.length) h += '<div class="empty"><h2 style="margin-top:0">팀 알림이 없어요</h2><p>모두 기한 안에 올리고 있어요.</p></div>';
     else {
@@ -756,7 +757,7 @@ V.files = function(p){
     h += '<div class="sheet"><div class="sheet-h"><h2>제출 전 확인</h2><span>팀원 모두 확인하면 제출 준비 끝</span></div>';
     t.members.forEach(function(mm, mi){
       var ok = mm.name === f.by || f.checks.indexOf(mm.name) >= 0;
-      h += '<div class="line">' + av(mm.name, colOf(t, mi)) + '<div class="grow"><div class="t">' + esc(mm.name) + (mm.name===S.me ? '<span class="me">나</span>' : '') + '</div><div class="s">' + esc(mm.part) + '</div></div>' + (mm.name === f.by ? pill('올린 사람', 'var(--violet-wash)', 'var(--violet-ink)') : ok ? pill('확인했어요', 'var(--mint)', '#1F3A0E') : pill('아직', 'var(--canvas)', 'var(--slate)')) + '</div>';
+      h += '<div class="line">' + av(mm.name, colOf(t, mi)) + '<div class="grow"><div class="t">' + esc(mm.name) + (mm.name===S.me ? '<span class="me">나</span>' : '') + '</div><div class="s">' + esc(mm.part) + '</div></div>' + (mm.name === f.by ? pill('올린 사람', 'var(--violet-wash)', 'var(--violet-ink)') : ok ? pill('확인했어요', 'var(--mint)', 'var(--ink)') : pill('아직', 'var(--canvas)', 'var(--slate)')) + '</div>';
     });
     if (!mine) h += '<div class="pad" style="padding-top:4px"><button class="btn ' + (checked ? '' : 'primary ') + 'grow" style="width:100%" data-a="finalcheck" data-team="' + t.id + '"' + (checked ? ' disabled' : '') + '>' + (checked ? '최종본을 확인했어요' : '최종본 확인했어요') + '</button></div>';
     h += '</div>';
@@ -836,10 +837,10 @@ V.cchart = function(p){
   h += '<div style="font-weight:600;font-size:16px">팀원별 기록</div><p class="hint" style="margin:2px 0 12px">팀에 들어온 순서대로 놓았어요.</p>';
   h += '<div style="display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:12px">' + CSERIES.map(function(se){ return '<span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--slate)"><i style="width:10px;height:10px;border-radius:3px;background:' + se.col + '"></i>' + se.name + '</span>'; }).join('') + '</div>';
   if (view === 'chart'){
-    var W = 318, LW = 58, VW = 22, PW = W - LW - VW, BH = 8, GAP = 2, GRP = CSERIES.length * (BH + GAP) - GAP, ROWG = 22, H = rows.length * (GRP + ROWG) + 22;
+    var W = 318, LW = 58, VW = 22, PW = W - LW - VW, BH = 10, GAP = 5, GRP = CSERIES.length * (BH + GAP) - GAP, ROWG = 22, H = rows.length * (GRP + ROWG) + 22;
     var x = function(v){ return LW + v / max * PW; };
     var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" role="img" aria-label="팀원별 기여 기록 막대 차트. 자세한 값은 표 탭에 있어요.">';
-    for (var g = 0; g <= max; g++){ var gx = x(g); svg += '<line x1="' + gx + '" x2="' + gx + '" y1="0" y2="' + (H - 18) + '" stroke="#F2F2F2" stroke-width="1"/><text x="' + gx + '" y="' + (H - 4) + '" font-size="10" fill="#6E6E6E" text-anchor="middle">' + g + '</text>'; }
+    for (var g = 0; g <= max; g++){ var gx = x(g); svg += '<line x1="' + gx + '" x2="' + gx + '" y1="0" y2="' + (H - 18) + '" stroke="#F2F2F2" stroke-width="1"/><text x="' + gx + '" y="' + (H - 4) + '" font-size="12" fill="#6E6E6E" text-anchor="middle">' + g + '</text>'; }
     rows.forEach(function(r, ri){
       var y0 = ri * (GRP + ROWG) + 6;
       svg += '<text x="0" y="' + (y0 + GRP / 2 + 4) + '" font-size="12" font-weight="' + (r.me ? 600 : 500) + '" fill="#1A1A1A">' + esc(r.name) + '</text>';
@@ -850,7 +851,7 @@ V.cchart = function(p){
         svg += '<rect x="' + LW + '" y="' + (y - 2) + '" width="' + PW + '" height="' + (BH + 4) + '" fill="transparent"/>';
         if (v) svg += '<rect x="' + LW + '" y="' + y + '" width="' + w + '" height="' + BH + '" rx="4" style="fill:' + se.col + '"/>';
         else svg += '<rect x="' + LW + '" y="' + (y + BH / 2 - 1) + '" width="3" height="2" fill="#D4D8DB"/>';
-        svg += '<text x="' + (LW + w + 5) + '" y="' + (y + BH - 0.5) + '" font-size="10" fill="#6E6E6E">' + v + '</text></g>';
+        svg += '<text x="' + (LW + w + 5) + '" y="' + (y + BH - 0.5) + '" font-size="12" fill="#6E6E6E">' + v + '</text></g>';
       });
     });
     svg += '</svg>';
@@ -868,7 +869,7 @@ V.cchart = function(p){
 V.errlink = function(){
   var h = '<header class="top"><span style="width:14px"></span><div class="ttl"><h1>어디까지 했어?</h1><div class="sub">eodi.kr/t/mkt-4f</div></div></header>';
   h += '<div class="scroll"><div class="errbox"><div class="errmark" aria-hidden="true">?</div><h2>이 링크로는 팀을 찾을 수 없어요</h2><p>링크가 중간에 잘렸거나 팀이 삭제됐을 수 있어요. 아래 문구를 복사해 단톡방에 붙여 넣으면 팀장에게 새 링크를 받을 수 있어요.</p></div>';
-  h += '<div class="sheet"><div class="pad"><div class="hint" style="margin:0 0 8px">팀장에게 링크 다시 받기</div><div class="kakao">받은 팀 링크가 열리지 않아요. 새 링크 한 번만 다시 보내 주실 수 있을까요?</div><button class="btn primary" style="width:100%;margin-top:12px" data-a="copymsg">문구 복사하기</button></div></div>';
+  h += '<div class="sheet"><div class="pad"><div class="hint" style="margin:0 0 8px">팀장에게 링크 다시 받기</div><div class="kakao">받은 팀 링크가 열리지 않아요. 새 링크 한 번만 다시 보내 주실 수 있을까요?</div><button class="btn primary" style="width:100%;margin-top:12px" data-a="copymsg">복사</button></div></div>';
   h += '<div class="demo"><span>다른 모습 보기 (시연용)</span><button data-a="tojoin">새 링크를 받아 다시 들어가기</button></div></div>';
   h += '<div class="bar"><button class="btn grow" data-a="tohome">내 팀 목록으로</button></div>';
   return h;
